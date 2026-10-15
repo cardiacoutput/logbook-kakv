@@ -1,0 +1,958 @@
+<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#0b6d68"><link rel="apple-touch-icon" href="icons/icon-180.png"><link rel="icon" href="icons/icon-192.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Logbook KAKV"><meta name="description" content="Logbook Subspesialis Anestesi Kardiovaskuler FK Unpad"></head><body><title>Logbook Subspesialis Anestesi Kardiovaskuler</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700&family=Public+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+/* Layout: one-column phone app — sticky header, scrolling view, fixed tab bar with a central "Catat" button.
+   Kategori dikodekan dengan warna kanal monitor anestesi (EKG, ABP, SpO2, CVP, EtCO2 …). */
+:root{
+  --bg:#eef3f3; --surface:#ffffff; --surface2:#f6f9f9; --ink:#102021; --muted:#56696a; --line:#d5e0e0;
+  --accent:#0b6d68; --accent-ink:#ffffff; --accent-soft:#d9eeec;
+  --ok:#1d8a4c; --warn:#b07800; --bad:#c23b3b;
+  --c1:#1f9d55; --c2:#d43c3c; --c3:#0a9fbd; --c4:#3a68d1; --c5:#b89100; --c6:#c2417e; --c7:#7a52c7; --c8:#d2691e; --c9:#4f7f2a;
+  --f-display:"Familjen Grotesk","Segoe UI",system-ui,sans-serif;
+  --f-body:"Public Sans","Segoe UI",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+  --r:12px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#081011; --surface:#111b1c; --surface2:#0d1617; --ink:#e3eeee; --muted:#8fa3a4; --line:#22302f;
+  --accent:#3fc1b6; --accent-ink:#04201e; --accent-soft:#12302e;
+  --ok:#4cc782; --warn:#e2b23a; --bad:#ef6b6b;
+  --c1:#3ddc84; --c2:#ff5c5c; --c3:#2fd3f0; --c4:#6f98ff; --c5:#f2cf36; --c6:#ff6fb0; --c7:#a989ff; --c8:#ff9a4d; --c9:#9ad65a;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#081011; --surface:#111b1c; --surface2:#0d1617; --ink:#e3eeee; --muted:#8fa3a4; --line:#22302f;
+  --accent:#3fc1b6; --accent-ink:#04201e; --accent-soft:#12302e;
+  --ok:#4cc782; --warn:#e2b23a; --bad:#ef6b6b;
+  --c1:#3ddc84; --c2:#ff5c5c; --c3:#2fd3f0; --c4:#6f98ff; --c5:#f2cf36; --c6:#ff6fb0; --c7:#a989ff; --c8:#ff9a4d; --c9:#9ad65a;
+  color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.45;-webkit-tap-highlight-color:transparent}
+.app{max-width:560px;margin:0 auto;min-height:100%;padding-bottom:96px}
+.wrap{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+header.top .wrap{display:flex;align-items:center;gap:12px;padding-block:12px}
+.logo{width:36px;height:36px;border-radius:10px;background:var(--accent);display:grid;place-items:center;flex:none}
+.logo svg{width:24px;height:24px}
+.brand{min-width:0;flex:1}
+.brand b{font-family:var(--f-display);font-size:15px;line-height:1.2;letter-spacing:.005em;display:block;text-wrap:balance}
+.brand small{display:block;font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--accent);font-weight:700}
+.logo.img{width:44px;height:auto;background:transparent;border-radius:0}
+.logo.img img{width:100%;height:auto;display:block}
+.brand span{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0}
+h2{font-size:20px}
+h3{font-size:15px}
+.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:600}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+section.view{display:flex;flex-direction:column;gap:18px;padding-block:18px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,.chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:10px 14px;font-weight:600;display:inline-flex;align-items:center;gap:8px;justify-content:center}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.danger{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 40%,var(--line))}
+.btn.ghost{background:transparent;border-color:transparent;padding:8px 10px}
+.btn.block{width:100%}
+.btn svg{width:18px;height:18px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.muted{color:var(--muted)}
+.small{font-size:12.5px}
+
+/* summary */
+.summary{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center;padding:16px}
+.ring{width:108px;height:108px;position:relative}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring .val{position:absolute;inset:0;display:grid;place-items:center;text-align:center;line-height:1.1}
+.ring .val b{font-family:var(--f-display);font-size:26px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;min-width:0}
+.stat b{font-family:var(--f-display);font-size:20px;display:block}
+.stat span{font-size:12px;color:var(--muted)}
+.banner{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:10px 12px;border-radius:10px;background:var(--accent-soft);font-size:13px}
+
+/* category tiles */
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.tile{padding:12px;text-align:left;display:flex;flex-direction:column;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);position:relative;overflow:hidden}
+.tile .k{display:flex;align-items:center;gap:7px;font-family:var(--f-display);font-weight:700;font-size:15px}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--cc);flex:none}
+.tile .desc{font-size:12px;color:var(--muted);line-height:1.3;min-height:31px}
+.tile .num{font-family:var(--f-mono);font-size:13px}
+.bar{height:6px;border-radius:3px;background:var(--surface2);border:1px solid var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--cc);border-radius:3px}
+.tile.done::after{content:"Target tercapai";position:absolute;top:10px;right:10px;font-size:10px;font-weight:700;color:var(--ok);letter-spacing:.03em}
+
+/* list */
+.search{display:flex;gap:8px}
+.search input{flex:1;min-width:0}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:6px}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.daygroup{display:flex;flex-direction:column;gap:8px}
+.entry{display:grid;grid-template-columns:4px 1fr auto;gap:12px;padding:12px 12px 12px 0;text-align:left;width:100%;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.entry .stripe{background:var(--cc);border-radius:0 3px 3px 0}
+.entry .main{min-width:0;display:flex;flex-direction:column;gap:3px}
+.entry .t1{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.entry .t1 b{font-weight:700}
+.entry .dx{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.entry .side{display:flex;flex-direction:column;align-items:flex-end;gap:6px;font-size:12px}
+.tag{font-size:11px;font-weight:700;padding:2px 7px;border-radius:6px;background:color-mix(in srgb,var(--cc) 16%,transparent);color:var(--ink);letter-spacing:.02em;white-space:nowrap}
+.tag.lv{--cc:var(--accent)}
+.tag.ex{--cc:var(--warn)}
+.icons{display:flex;gap:8px;color:var(--muted);align-items:center}
+.icons span{display:inline-flex;gap:3px;align-items:center}
+.icons svg{width:14px;height:14px}
+.empty{padding:28px 16px;text-align:center;color:var(--muted)}
+
+/* form */
+form{display:flex;flex-direction:column;gap:14px}
+.field{display:flex;flex-direction:column;gap:6px;min-width:0}
+.field label,.lbl{font-size:13px;font-weight:600}
+.field .hint{font-size:12px;color:var(--muted)}
+input,select,textarea{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%}
+textarea{min-height:76px;resize:vertical}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:1.2fr .8fr 1fr;gap:12px}
+.seg{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
+.seg button{flex:1;border:0;background:transparent;padding:10px 6px;font-weight:600;font-size:13px}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.katpick{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.katpick button{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:9px 4px;font-weight:700;font-size:12.5px;display:flex;align-items:center;justify-content:center;gap:6px}
+.katpick button[aria-pressed="true"]{border-color:var(--cc);background:color-mix(in srgb,var(--cc) 14%,var(--surface));box-shadow:inset 0 0 0 1px var(--cc)}
+.fieldset{display:flex;flex-direction:column;gap:12px;padding:14px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface2)}
+.levels{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.levels button{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 4px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;line-height:1.2;text-align:center}
+.levels button b{font-family:var(--f-display);font-size:18px}
+.levels button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.skills{display:flex;flex-wrap:wrap;gap:6px}
+.skills .chip[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.drop{border:1.5px dashed var(--line);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;gap:10px;background:var(--surface)}
+.drop .row .btn{flex:1}
+.files{display:flex;flex-direction:column;gap:6px}
+.file{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--surface2);font-size:13px}
+.file .nm{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.file svg{width:18px;height:18px;flex:none;color:var(--muted)}
+.thumbs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.thumb{position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;border:1px solid var(--line);background:var(--surface2);max-width:100%}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.thumb .x{position:absolute;top:3px;right:3px;width:24px;height:24px;border-radius:50%;border:0;background:rgba(0,0,0,.6);color:#fff;font-size:14px;line-height:1;display:grid;place-items:center}
+.req{color:var(--bad)}
+.err{color:var(--bad);font-size:13px}
+.formbar{position:sticky;bottom:calc(84px + env(safe-area-inset-bottom,0px));display:flex;gap:10px;padding:10px;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:0 6px 24px rgba(0,0,0,.08)}
+.formbar .btn{flex:1}
+
+/* detail */
+.dl{display:grid;grid-template-columns:minmax(0,38%) 1fr;gap:0;border-top:1px solid var(--line)}
+.dl dt,.dl dd{margin:0;padding:10px 14px;border-bottom:1px solid var(--line);font-size:14px;min-width:0;overflow-wrap:anywhere}
+.dl dt{color:var(--muted);font-size:12.5px;font-weight:600}
+.dhead{padding:16px;display:flex;flex-direction:column;gap:8px}
+.confirm{display:flex;flex-direction:column;gap:10px;padding:12px;border-radius:10px;border:1px solid color-mix(in srgb,var(--bad) 45%,var(--line));background:color-mix(in srgb,var(--bad) 7%,var(--surface))}
+
+/* more */
+.list{display:flex;flex-direction:column}
+.list .it{display:flex;gap:12px;align-items:center;padding:14px;border-bottom:1px solid var(--line);text-align:left;background:transparent;border-left:0;border-right:0;border-top:0;width:100%}
+.list .it:last-child{border-bottom:0}
+.list .it svg{width:22px;height:22px;color:var(--accent);flex:none}
+.list .it div{flex:1;min-width:0}
+.list .it b{display:block;font-weight:600}
+.list .it small{color:var(--muted);font-size:12.5px}
+.note{font-size:13px;color:var(--muted);padding:12px 14px;border-left:3px solid var(--warn);background:var(--surface);border-radius:0 10px 10px 0}
+.switch{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px}
+.switch input{width:44px;height:24px;flex:none;accent-color:var(--accent)}
+
+/* tabbar */
+nav.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
+nav.tabbar .in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr 1.1fr 1fr 1fr;align-items:end;height:68px}
+nav.tabbar button{border:0;background:transparent;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;font-weight:600;color:var(--muted);padding:8px 0 10px}
+nav.tabbar button svg{width:22px;height:22px}
+nav.tabbar button[aria-current="page"]{color:var(--accent)}
+nav.tabbar .fab{align-self:center}
+nav.tabbar .fab span.b{width:54px;height:54px;border-radius:16px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;box-shadow:0 6px 18px color-mix(in srgb,var(--accent) 40%,transparent);margin-top:-22px}
+nav.tabbar .fab span.b svg{width:26px;height:26px}
+
+/* kegiatan ilmiah */
+.act{display:grid;grid-template-columns:54px 1fr auto;gap:12px;padding:12px;text-align:left;width:100%;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);align-items:start}
+.datebox{border:1px solid var(--line);border-radius:10px;overflow:hidden;text-align:center;background:var(--surface2)}
+.datebox b{display:block;font-family:var(--f-display);font-size:20px;line-height:1.1;padding-top:5px}
+.datebox span{display:block;font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding-bottom:5px}
+.act .main{min-width:0;display:flex;flex-direction:column;gap:4px}
+.act .ttl{font-weight:700;line-height:1.3;overflow-wrap:anywhere}
+.act .meta{display:flex;flex-wrap:wrap;gap:6px 10px;font-size:12.5px;color:var(--muted);align-items:center}
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--ink);white-space:nowrap}
+.pill.zoom{border-color:color-mix(in srgb,var(--c4) 50%,var(--line));background:color-mix(in srgb,var(--c4) 12%,transparent)}
+.pill.off{border-color:color-mix(in srgb,var(--c1) 50%,var(--line));background:color-mix(in srgb,var(--c1) 12%,transparent)}
+.pill svg{width:12px;height:12px}
+.semcount{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.semcount div{padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--surface);text-align:center}
+.semcount b{font-family:var(--f-display);font-size:20px;display:block}
+.semcount span{font-size:11.5px;color:var(--muted)}
+.linkbox{display:flex;gap:8px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--surface2);font-size:13px}
+.linkbox .nm{flex:1;min-width:0;overflow-wrap:anywhere;user-select:all}
+.shortcut{display:flex;align-items:center;gap:12px;padding:14px;text-align:left;width:100%}
+.shortcut div{flex:1;min-width:0}
+.shortcut b{display:block}
+.shortcut svg{width:22px;height:22px;color:var(--accent);flex:none}
+.toast{position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:13.5px;font-weight:600;z-index:20;max-width:calc(100% - 32px)}
+.viewer{position:fixed;inset:0;z-index:30;background:rgba(0,0,0,.88);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:max(16px,env(safe-area-inset-top,0px)) 16px max(16px,env(safe-area-inset-bottom,0px))}
+.viewer img{max-height:80%;max-width:100%;border-radius:8px}
+.viewer .row{margin-top:14px}
+.viewer .btn{background:#fff;color:#111;border-color:#fff}
+@media (max-width:380px){.grid3{grid-template-columns:1fr 1fr}.grid3 .f-usia{grid-column:span 1}.summary{grid-template-columns:1fr;justify-items:center}}
+@media (prefers-reduced-motion:no-preference){.bar i{transition:width .5s ease}.entry,.tile{transition:transform .12s}.entry:active,.tile:active{transform:scale(.985)}}
+</style>
+
+<div class="app">
+  <header class="top"><div class="wrap">
+    <div class="logo img"><img src="data:image/webp;base64,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" alt="Logo Universitas Padjadjaran"></div>
+    <div class="brand"><small>Logbook Subspesialis</small><b>Anestesi Kardiovaskuler</b><span id="who">Fakultas Kedokteran Unpad</span></div>
+    <button class="btn ghost" id="themeBtn" aria-label="Ganti tema"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+  </div></header>
+
+  <main class="wrap">
+    <section class="view" id="v-home"></section>
+    <section class="view" id="v-list" hidden></section>
+    <section class="view" id="v-form" hidden></section>
+    <section class="view" id="v-detail" hidden></section>
+    <section class="view" id="v-stat" hidden></section>
+    <section class="view" id="v-more" hidden></section>
+    <section class="view" id="v-acts" hidden></section>
+    <section class="view" id="v-actform" hidden></section>
+    <section class="view" id="v-actdetail" hidden></section>
+  </main>
+</div>
+
+<nav class="tabbar" aria-label="Navigasi"><div class="in">
+  <button data-go="home" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Beranda</button>
+  <button data-go="list"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Riwayat</button>
+  <button data-go="form" class="fab" aria-label="Catat kasus baru"><span class="b"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg></span>Catat</button>
+  <button data-go="acts"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5M22 9v6"/></svg>Ilmiah</button>
+  <button data-go="more"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M7 10l5 5 5-5M4 21h16"/></svg>Ekspor</button>
+</div></nav>
+
+<script>
+/* ===================== Konfigurasi (dari LOGBOOK KAKV 2026.xlsx) ===================== */
+const KAT = [
+ {k:'NIVATS',  desc:'NIVATS, TEVAR kompleks (non-intubasi)', target:3,  title:'NIVATS (Teknik Anestesi non-intubasi pada bedah toraks dan vaskular) Target: 3 kasus', op:'Tindakan Operasi', an:'Tindakan Anestesi', dp:'DPJP', c:'--c1'},
+ {k:'CHD',     desc:'Penyakit jantung kongenital anak & dewasa', target:50, title:'CHD (Melakukan anestesia bedah jantung pada penyakit jantung kongenital pada anak maupun dewasa) Target: 50 kasus', op:'Tindakan Bedah', an:'Tindakan Anestesi', dp:'DPJP', c:'--c2'},
+ {k:'PERFUSI', desc:'Perfusi dewasa dan anak', target:15, title:'Perfusi (Pengelolaan mesin pintas jantung pada pasien dewasa dan anak) Target: 15 kasus', op:'Tindakan Operasi', an:'Tindakan Perfusi', dp:'DPJP', c:'--c3', head3:' Nama Pasien'},
+ {k:'AORTA',   desc:'Operasi aorta / aneurisma', target:20, title:'AORTA (Melakukan Anestesi pada kasus Aneurisma Aorta) Target: 20 kasus', op:'Tindakan Operasi', an:'Tindakan Anestesi', dp:'DPJP Anestesi', c:'--c4', head3:' Nama Pasien'},
+ {k:'Diagnostik', desc:'Swan Ganz, IABP, CRRT, TEE, bronkoskopi', target:50, title:'Diagnostik (Mengelola prosedur penunjang diagnostik & terapi termasuk insersi Swan Ganz, IABP, CRRT, TEE, bronkoskopi pasien bedah jantung) Target: 50 kasus', op:'Tindakan Operasi', an:'Tindakan Anestesi', dp:'DPJP Anestesi', c:'--c5'},
+ {k:'CABG',    desc:'Revaskularisasi on pump & off pump', target:50, title:'CABG (Melakukan Anestesi pada revaskularisasi miokard on pump maupun off pump) Target: 50 kasus', op:'Tindakan Operasi', an:'Tindakan Anestesi', dp:'DPJP Anestesi', c:'--c6'},
+ {k:'CATH',    desc:'Prosedur cathlab dewasa dan anak', target:30, title:'CATH (Melakukan Anestesi pada kateterisasi jantung termasuk pemasanga stent, PDA, Mitral clip, dll) Target: 30 kasus', op:'Tindakan Operasi', an:'Tindakan Anestesi', dp:'DPJP Anestesi', c:'--c7'},
+ {k:'PACE',    desc:'Pasien dengan gangguan elektrofisiologi', target:30, title:'PACE (Mengelola anestesi pad apasien dengan penggunaan pace maker) Target: 30 kasus', op:'Tindakan Operasi', an:'Tindakan Anestesi', dp:'DPJP Anestesi', c:'--c8'},
+ {k:'ICU',     desc:'Cardiac critical care dewasa & anak', target:20, title:'ICU (Tatalaksana pasien di ICU, dewasa maupun anak) Target: 20 kasus', op:'Tindakan Operasi', an:'Tindakan di ICU', dp:'DPJP ICU', c:'--c9'},
+];
+const KMAP = Object.fromEntries(KAT.map(x=>[x.k,x]));
+const TOTAL_TARGET = KAT.reduce((s,x)=>s+x.target,0);
+const LEVELS = [['1','Observasi'],['2','Asisten'],['3','Mandiri tersupervisi'],['4','Mandiri']];
+const SKILLS = ['Arterial line','CVC','Swan-Ganz / PAC','TEE','DLT / one-lung','Blok regional / ESP','Manajemen CPB','Inotropik / vasopresor','Koagulasi / ROTEM','IABP / ECMO','Pacing','Ventilasi mekanik','CRRT','Bronkoskopi','Ekstubasi dini'];
+const BULAN = ['januari','februari','maret','april','mei','juni','juli','agustus','september','oktober','november','desember'];
+const BULAN_EN = ['january','february','march','april','may','june','july','august','september','october','november','december'];
+
+/* ===================== Penyimpanan lokal (IndexedDB) ===================== */
+const mem = {recs:new Map(), files:new Map(), kv:new Map(), acts:new Map()};
+let idb = null;
+function openDB(){ return new Promise(res=>{
+  try{ const rq = indexedDB.open('logbook-kakv',2);
+    rq.onupgradeneeded = ()=>{ const d=rq.result; const has=n=>d.objectStoreNames.contains(n);
+      if(!has('recs')) d.createObjectStore('recs',{keyPath:'id'}); if(!has('files')) d.createObjectStore('files'); if(!has('kv')) d.createObjectStore('kv');
+      if(!has('acts')) d.createObjectStore('acts',{keyPath:'id'}); };
+    rq.onsuccess = ()=>{ idb=rq.result; res(); }; rq.onerror = ()=>res();
+  }catch(e){ res(); } }); }
+function tx(store,mode,fn){ return new Promise((res,rej)=>{
+  if(!idb){ res(fn(null)); return; }
+  try{ const t=idb.transaction(store,mode); const s=t.objectStore(store); const r=fn(s);
+    t.oncomplete=()=>res(r instanceof IDBRequest ? r.result : r); t.onerror=()=>rej(t.error);
+  }catch(e){ rej(e); } }); }
+const store = {
+  async all(){ if(!idb) return [...mem.recs.values()]; return tx('recs','readonly',s=>s.getAll()); },
+  async put(r){ if(!idb){mem.recs.set(r.id,r);return;} await tx('recs','readwrite',s=>s.put(r)); },
+  async allActs(){ if(!idb) return [...mem.acts.values()]; return tx('acts','readonly',s=>s.getAll()); },
+  async putAct(a){ if(!idb){mem.acts.set(a.id,a);return;} await tx('acts','readwrite',s=>s.put(a)); },
+  async delAct(id){ if(!idb){mem.acts.delete(id);return;} await tx('acts','readwrite',s=>s.delete(id)); },
+  async del(id){ if(!idb){mem.recs.delete(id);return;} await tx('recs','readwrite',s=>s.delete(id)); },
+  async putFile(id,blob){ if(!idb){mem.files.set(id,blob);return;} await tx('files','readwrite',s=>s.put(blob,id)); },
+  async getFile(id){ if(!idb) return mem.files.get(id); return tx('files','readonly',s=>s.get(id)); },
+  async delFile(id){ if(!idb){mem.files.delete(id);return;} await tx('files','readwrite',s=>s.delete(id)); },
+  async get(k){ if(!idb) return mem.kv.get(k); return tx('kv','readonly',s=>s.get(k)); },
+  async set(k,v){ if(!idb){mem.kv.set(k,v);return;} await tx('kv','readwrite',s=>s.put(v,k)); },
+};
+
+/* ===================== State & utilitas ===================== */
+let RECS = [];
+let PROFILE = {nama:'', npm:'', angkatan:'', mask:false};
+let ui = {view:'home', filter:'ALL', q:'', detail:null, editing:null, confirmDel:false, actSem:'ALL', actDetail:null, actEditing:null};
+let ACTS = [];
+const $ = (s,el=document)=>el.querySelector(s);
+const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = ()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+const todayISO = ()=>{const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,10);};
+const fmtDMY = iso => { if(!iso) return ''; const [y,m,d]=iso.split('-'); return `${d}-${m}-${y}`; };
+const fmtLong = iso => { if(!iso) return '—'; const [y,m,d]=iso.split('-').map(Number); return `${d} ${BULAN[m-1][0].toUpperCase()+BULAN[m-1].slice(1)} ${y}`; };
+const initials = n => String(n||'').replace(/^(tn|ny|nn|an|by)\.?\s+/i,'').split(/\s+/).filter(Boolean).map(w=>w[0].toUpperCase()+'.').join(' ');
+const showName = n => PROFILE.mask ? initials(n) : n;
+const lvLabel = v => (LEVELS.find(l=>l[0]===v)||[])[1]||'';
+function toast(msg){ const t=document.createElement('div'); t.className='toast'; t.textContent=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),2600); }
+const ICON = {
+  doc:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg>',
+  cam:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h3l2-3h6l2 3h3a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="4"/></svg>',
+  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12l5 5 9-10"/></svg>',
+};
+
+/* ===================== Navigasi ===================== */
+function go(v, opts={}){
+  ui.view=v; Object.assign(ui,opts);
+  document.querySelectorAll('section.view').forEach(s=>s.hidden = s.id!=='v-'+v);
+  const tab = v.startsWith('act') ? 'acts' : v==='detail' ? 'list' : v;
+  document.querySelectorAll('nav.tabbar button').forEach(b=>{ if(b.dataset.go===tab) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current'); });
+  render(); window.scrollTo(0,0);
+}
+document.querySelectorAll('nav.tabbar button').forEach(b=>b.addEventListener('click',()=>{
+  if(b.dataset.go==='form') go('form',{editing:null}); else go(b.dataset.go);
+}));
+function render(){
+  $('#who').textContent = PROFILE.nama ? `${PROFILE.nama}${PROFILE.angkatan?' · '+PROFILE.angkatan:''}` : 'Fakultas Kedokteran Unpad';
+  ({home:renderHome,list:renderList,form:renderForm,detail:renderDetail,stat:renderStat,more:renderMore,acts:renderActs,actform:renderActForm,actdetail:renderActDetail})[ui.view]();
+}
+
+/* ===================== Beranda ===================== */
+function counts(){ const c={}; KAT.forEach(x=>c[x.k]=0); RECS.forEach(r=>{ if(c[r.kat]!==undefined) c[r.kat]++; }); return c; }
+function renderHome(){
+  const c=counts(); const done=KAT.reduce((s,x)=>s+Math.min(c[x.k],x.target),0);
+  const pct = Math.round(done/TOTAL_TARGET*100);
+  const ym = todayISO().slice(0,7);
+  const month = RECS.filter(r=>(r.tanggal||'').startsWith(ym)).length;
+  const reached = KAT.filter(x=>c[x.k]>=x.target).length;
+  const unver = RECS.filter(r=>!r.verif).length;
+  const hasEx = RECS.some(r=>r.contoh) || ACTS.some(a=>a.contoh);
+  const C=2*Math.PI*46;
+  const recent=[...RECS].sort(sortRec).slice(0,3);
+  $('#v-home').innerHTML = `
+    ${hasEx?`<div class="banner"><span>Entri bertanda <b>CONTOH</b> adalah data fiktif untuk melihat cara kerja aplikasi.</span><button class="btn" id="clrEx">Hapus contoh</button></div>`:''}
+    <div class="card summary">
+      <div class="ring" role="img" aria-label="Progres ${pct} persen">
+        <svg viewBox="0 0 108 108"><circle cx="54" cy="54" r="46" fill="none" stroke="var(--line)" stroke-width="10"/><circle cx="54" cy="54" r="46" fill="none" stroke="var(--accent)" stroke-width="10" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-pct/100)}"/></svg>
+        <div class="val"><div><b class="mono">${pct}%</b><div class="small muted">target</div></div></div>
+      </div>
+      <div class="stats">
+        <div class="stat"><b class="mono">${RECS.length}</b><span>kasus tercatat</span></div>
+        <div class="stat"><b class="mono">${done}/${TOTAL_TARGET}</b><span>menuju target</span></div>
+        <div class="stat"><b class="mono">${month}</b><span>bulan ini</span></div>
+        <div class="stat"><b class="mono">${reached}/9</b><span>kategori tuntas</span></div>
+      </div>
+    </div>
+    <div class="card" style="display:grid;grid-template-columns:1fr 1fr">
+      <button class="shortcut" id="goStat" style="border:0;border-right:1px solid var(--line);background:transparent"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><div><b>Rekap kompetensi</b><span class="small muted">${unver} belum diverifikasi</span></div></button>
+      <button class="shortcut" id="goActs" style="border:0;background:transparent"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/></svg><div><b>Kegiatan ilmiah</b><span class="small muted mono">${ACTS.length} kegiatan</span></div></button>
+    </div>
+    <div class="row" style="justify-content:space-between"><h2>Target kompetensi</h2></div>
+    <div class="tiles">${KAT.map(x=>{ const n=c[x.k]; const p=Math.min(100,n/x.target*100);
+      return `<button class="tile ${n>=x.target?'done':''}" style="--cc:var(${x.c})" data-kat="${x.k}">
+        <span class="k"><span class="dot"></span>${x.k}</span>
+        <span class="desc">${esc(x.desc)}</span>
+        <span class="num">${n} / ${x.target}</span>
+        <span class="bar"><i style="width:${p}%"></i></span></button>`;}).join('')}</div>
+    <div class="row" style="justify-content:space-between"><h2>Terbaru</h2><button class="btn ghost" data-all>Lihat semua</button></div>
+    <div class="daygroup">${recent.length?recent.map(entryHTML).join(''):`<div class="card empty">Belum ada kasus. Tekan <b>Catat</b> untuk mencatat kasus pertama.</div>`}</div>`;
+  $('#v-home').querySelectorAll('.tile').forEach(t=>t.onclick=()=>go('list',{filter:t.dataset.kat}));
+  $('#v-home').querySelector('[data-all]').onclick=()=>go('list',{filter:'ALL'});
+  $('#goStat').onclick=()=>go('stat'); $('#goActs').onclick=()=>go('acts');
+  bindEntries($('#v-home'));
+  const ce=$('#clrEx'); if(ce) ce.onclick=async()=>{ for(const r of RECS.filter(r=>r.contoh)) await deleteRec(r); for(const a of ACTS.filter(a=>a.contoh)) await deleteAct(a); toast('Data contoh dihapus'); render(); };
+}
+function sortRec(a,b){ return (b.tanggal||'').localeCompare(a.tanggal||'') || (b.created||0)-(a.created||0); }
+function entryHTML(r){
+  const K=KMAP[r.kat]||KAT[0]; const nf=(r.files||[]).filter(f=>f.kind==='foto').length; const nl=(r.files||[]).filter(f=>f.kind==='laporan').length;
+  return `<button class="entry" style="--cc:var(${K.c})" data-id="${r.id}">
+    <span class="stripe"></span>
+    <span class="main">
+      <span class="t1"><b>${esc(showName(r.nama))||'—'}</b><span class="mono small muted">NRM ${esc(r.nrm)||'—'}</span></span>
+      <span class="dx">${esc([r.diagnosis,r.tindakanOp].filter(Boolean).join(' · '))||'—'}</span>
+      <span class="icons small">${r.verif?`<span style="color:var(--ok)">${ICON.check}Terverifikasi</span>`:''}${nl?`<span>${ICON.doc}${nl}</span>`:''}${nf?`<span>${ICON.cam}${nf}</span>`:''}<span>${fmtLong(r.tanggal)}</span></span>
+    </span>
+    <span class="side"><span class="tag">${K.k}</span>${r.level?`<span class="tag lv">L${r.level}</span>`:''}${r.contoh?'<span class="tag ex">CONTOH</span>':''}</span>
+  </button>`;
+}
+function bindEntries(root){ root.querySelectorAll('.entry').forEach(e=>e.onclick=()=>go('detail',{detail:e.dataset.id,confirmDel:false})); }
+
+/* ===================== Riwayat ===================== */
+function renderList(){
+  const q=ui.q.trim().toLowerCase();
+  let rows=RECS.filter(r=>ui.filter==='ALL'||r.kat===ui.filter);
+  if(q) rows=rows.filter(r=>[r.nama,r.nrm,r.diagnosis,r.tindakanOp,r.tindakanAn,r.dpjp,r.ket].join(' ').toLowerCase().includes(q));
+  rows.sort(sortRec);
+  const groups={}; rows.forEach(r=>{ const m=(r.tanggal||'0000-00').slice(0,7); (groups[m]=groups[m]||[]).push(r); });
+  $('#v-list').innerHTML = `
+    <h2>Riwayat kasus</h2>
+    <div class="search"><input id="q" type="search" placeholder="Cari nama, NRM, diagnosis, DPJP…" value="${esc(ui.q)}" aria-label="Cari"></div>
+    <div class="chips" role="group" aria-label="Filter kategori">
+      <button class="chip" aria-pressed="${ui.filter==='ALL'}" data-f="ALL">Semua <span class="mono">${RECS.length}</span></button>
+      ${KAT.map(x=>`<button class="chip" style="--cc:var(${x.c})" aria-pressed="${ui.filter===x.k}" data-f="${x.k}"><span class="dot"></span>${x.k}</button>`).join('')}
+    </div>
+    ${rows.length?Object.keys(groups).sort().reverse().map(m=>{ const [y,mm]=m.split('-').map(Number);
+      return `<div class="daygroup"><div class="eyebrow">${mm?BULAN[mm-1]+' '+y:'Tanpa tanggal'} · ${groups[m].length} kasus</div>${groups[m].map(entryHTML).join('')}</div>`; }).join('')
+      : `<div class="card empty">Tidak ada kasus yang cocok.</div>`}`;
+  const qi=$('#q'); qi.oninput=()=>{ ui.q=qi.value; const pos=qi.selectionStart; renderList(); const n=$('#q'); n.focus(); n.setSelectionRange(pos,pos); };
+  $('#v-list').querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{ui.filter=b.dataset.f;renderList();});
+  bindEntries($('#v-list'));
+}
+
+/* ===================== Form catat / edit ===================== */
+let draft=null;
+function newDraft(){ return {id:uid(),kat:ui.filter!=='ALL'?ui.filter:'CABG',tanggal:todayISO(),nama:'',nrm:'',jk:'',usia:'',diagnosis:'',tindakanOp:'',tindakanAn:'',dpjp:'',ket:'',level:'',skills:[],refleksi:'',verif:false,files:[],created:Date.now(),_new:[],_removed:[]}; }
+function renderForm(){
+  if(!draft || draft._for!==ui.editing){
+    draft = ui.editing ? {...structuredClone(RECS.find(r=>r.id===ui.editing)),_new:[],_removed:[]} : newDraft();
+    draft._for = ui.editing;
+  }
+  const K=KMAP[draft.kat];
+  const v=$('#v-form');
+  v.innerHTML = `
+    <div><div class="eyebrow">${ui.editing?'Ubah kasus':'Kasus baru'}</div><h2>${esc(K.k)} · ${esc(K.desc)}</h2></div>
+    <form id="f" novalidate>
+      <div class="field"><span class="lbl">Kategori kompetensi <span class="req">*</span></span>
+        <div class="katpick">${KAT.map(x=>`<button type="button" style="--cc:var(${x.c})" aria-pressed="${draft.kat===x.k}" data-k="${x.k}"><span class="dot"></span>${x.k}</button>`).join('')}</div></div>
+
+      <div class="fieldset">
+        <div class="eyebrow">Identitas pasien (rekam medis)</div>
+        <div class="grid2">
+          <div class="field"><label for="tanggal">Tanggal <span class="req">*</span></label><input id="tanggal" type="date" value="${esc(draft.tanggal)}"></div>
+          <div class="field"><label for="nrm">NRM <span class="req">*</span></label><input id="nrm" inputmode="numeric" class="mono" value="${esc(draft.nrm)}" placeholder="679682"></div>
+        </div>
+        <div class="field"><label for="nama">Nama pasien <span class="req">*</span></label><input id="nama" value="${esc(draft.nama)}" placeholder="Nama lengkap sesuai RM" autocomplete="off"></div>
+        <div class="grid3">
+          <div class="field"><span class="lbl">JK</span><div class="seg" id="jk">${['L','P'].map(j=>`<button type="button" aria-pressed="${draft.jk===j}" data-j="${j}">${j}</button>`).join('')}</div></div>
+          <div class="field f-usia"><label for="usia">Usia</label><input id="usia" inputmode="decimal" value="${esc(draft.usia)}" placeholder="66"></div>
+          <div class="field"><label for="usiaU">Satuan</label><select id="usiaU">${['th','bln','hari'].map(u=>`<option ${ (draft.usiaU||'th')===u?'selected':''}>${u}</option>`).join('')}</select></div>
+        </div>
+      </div>
+
+      <div class="fieldset">
+        <div class="eyebrow">Klinis & tindakan</div>
+        <div class="field"><label for="diagnosis">Diagnosis <span class="req">*</span></label><textarea id="diagnosis" placeholder="ASA III, CAD 3VD EF 43%, HT">${esc(draft.diagnosis)}</textarea></div>
+        <div class="field"><label for="tindakanOp">${esc(K.op)}</label><input id="tindakanOp" value="${esc(draft.tindakanOp)}" placeholder="OPCABG"></div>
+        <div class="field"><label for="tindakanAn">${esc(K.an)}</label><input id="tindakanAn" value="${esc(draft.tindakanAn)}" placeholder="${K.k==='ICU'?'Ventilasi mekanik, CRRT…':K.k==='PERFUSI'?'CPB, kardioplegia…':'GA + A-line + CVC + TEE'}" list="anList"></div>
+        <datalist id="anList"><option>GA</option><option>GA + TEE</option><option>GA + ESP block</option><option>Sedasi (MAC)</option><option>Non-intubasi + blok regional</option></datalist>
+        <div class="field"><label for="dpjp">${esc(K.dp)}</label><input id="dpjp" value="${esc(draft.dpjp)}" list="dpjpList" placeholder="dr. …, Sp.An-KAKV"></div>
+        <datalist id="dpjpList">${[...new Set(RECS.map(r=>r.dpjp).filter(Boolean))].map(d=>`<option>${esc(d)}</option>`).join('')}</datalist>
+        <div class="field"><label for="ket">Keterangan</label><textarea id="ket" placeholder="Permasalahan pasien perioperatif, bila ada">${esc(draft.ket)}</textarea><span class="hint">Diisi dengan permasalahan pasien perioperatif, bila ada.</span></div>
+      </div>
+
+      <div class="fieldset">
+        <div class="eyebrow">Kompetensi kasus</div>
+        <div class="field"><span class="lbl">Level keterlibatan</span>
+          <div class="levels" id="levels">${LEVELS.map(([n,l])=>`<button type="button" aria-pressed="${draft.level===n}" data-l="${n}"><b>${n}</b>${l}</button>`).join('')}</div></div>
+        <div class="field"><span class="lbl">Keterampilan yang dikerjakan</span>
+          <div class="skills" id="skills">${SKILLS.map(s=>`<button type="button" class="chip" aria-pressed="${draft.skills.includes(s)}" data-s="${esc(s)}">${esc(s)}</button>`).join('')}</div></div>
+        <div class="field"><label for="refleksi">Refleksi / pembelajaran</label><textarea id="refleksi" placeholder="Hal yang dipelajari, kendala, rencana perbaikan">${esc(draft.refleksi)}</textarea></div>
+        <label class="row small" style="gap:8px"><input type="checkbox" id="verif" style="width:auto" ${draft.verif?'checked':''}> Sudah diverifikasi/paraf DPJP</label>
+      </div>
+
+      <div class="fieldset">
+        <div class="eyebrow">Lampiran</div>
+        <div class="drop">
+          <span class="lbl">Catatan laporan anestesi</span>
+          <span class="hint small muted">PDF atau foto lembar laporan anestesi.</span>
+          <div class="files" id="lapList"></div>
+          <div class="row"><button type="button" class="btn" id="addLap">${ICON.doc} Unggah laporan</button></div>
+          <input type="file" id="inLap" accept="application/pdf,image/*" multiple hidden>
+        </div>
+        <div class="drop">
+          <span class="lbl">Foto kasus</span>
+          <span class="hint small muted">Monitor, TEE, setup, lembar observasi. Hindari wajah pasien.</span>
+          <div class="thumbs" id="fotoList"></div>
+          <div class="row"><button type="button" class="btn" id="addFoto">${ICON.cam} Ambil / pilih foto</button></div>
+          <input type="file" id="inFoto" accept="image/*" multiple hidden>
+        </div>
+      </div>
+      <div class="err" id="ferr" hidden></div>
+      <div class="formbar">
+        <button type="button" class="btn" id="cancel">Batal</button>
+        <button type="submit" class="btn primary">${ui.editing?'Simpan perubahan':'Simpan kasus'}</button>
+      </div>
+    </form>`;
+  const sync=()=>{ ['tanggal','nrm','nama','usia','diagnosis','tindakanOp','tindakanAn','dpjp','ket','refleksi'].forEach(id=>draft[id]=$('#'+id).value.trim()); draft.usiaU=$('#usiaU').value; draft.verif=$('#verif').checked; };
+  v.querySelectorAll('.katpick button').forEach(b=>b.onclick=()=>{ sync(); draft.kat=b.dataset.k; renderForm(); });
+  v.querySelectorAll('#jk button').forEach(b=>b.onclick=()=>{ draft.jk = draft.jk===b.dataset.j?'':b.dataset.j; v.querySelectorAll('#jk button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.j===draft.jk)); });
+  v.querySelectorAll('#levels button').forEach(b=>b.onclick=()=>{ draft.level = draft.level===b.dataset.l?'':b.dataset.l; v.querySelectorAll('#levels button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.l===draft.level)); });
+  v.querySelectorAll('#skills .chip').forEach(b=>b.onclick=()=>{ const s=b.dataset.s; const i=draft.skills.indexOf(s); i<0?draft.skills.push(s):draft.skills.splice(i,1); b.setAttribute('aria-pressed',draft.skills.includes(s)); });
+  $('#addLap').onclick=()=>$('#inLap').click(); $('#addFoto').onclick=()=>$('#inFoto').click();
+  $('#inLap').onchange=e=>addFiles(e.target.files,'laporan'); $('#inFoto').onchange=e=>addFiles(e.target.files,'foto');
+  $('#cancel').onclick=()=>{ cleanupDraft(); go(ui.editing?'detail':'home',{detail:ui.editing}); };
+  $('#f').onsubmit=async e=>{ e.preventDefault(); sync(); await saveDraft(); };
+  renderFormFiles();
+}
+async function renderFormFiles(){
+  const lap=draft.files.filter(f=>f.kind==='laporan'), foto=draft.files.filter(f=>f.kind==='foto');
+  $('#lapList').innerHTML = lap.map(f=>`<div class="file">${ICON.doc}<span class="nm">${esc(f.name)}</span><span class="small muted mono">${kb(f.size)}</span><button type="button" class="btn ghost" data-rm="${f.id}" aria-label="Hapus">✕</button></div>`).join('');
+  $('#fotoList').innerHTML = foto.map(f=>`<div class="thumb"><img data-fid="${f.id}" alt="${esc(f.name)}"><button type="button" class="x" data-rm="${f.id}" aria-label="Hapus foto">✕</button></div>`).join('');
+  $('#v-form').querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>{ const id=b.dataset.rm; const f=draft.files.find(x=>x.id===id); draft.files=draft.files.filter(x=>x.id!==id);
+    if(draft._new.find(n=>n.id===id)) draft._new=draft._new.filter(n=>n.id!==id); else draft._removed.push(id); renderFormFiles(); });
+  for(const img of $('#fotoList').querySelectorAll('img')) img.src = await blobURL(img.dataset.fid);
+}
+const kb = n => n>1048576?(n/1048576).toFixed(1)+' MB':Math.max(1,Math.round((n||0)/1024))+' KB';
+const urlCache=new Map();
+async function blobURL(id){ if(urlCache.has(id)) return urlCache.get(id); const n=(draft&&draft._new.find(x=>x.id===id))||(actDraft&&actDraft._new.find(x=>x.id===id)); const b=n?n.blob:await store.getFile(id); if(!b) return ''; const u=URL.createObjectURL(b); urlCache.set(id,u); return u; }
+async function compress(file){
+  if(!file.type.startsWith('image/')||file.type==='image/gif') return file;
+  try{ const bmp=await createImageBitmap(file); const max=1600; const s=Math.min(1,max/Math.max(bmp.width,bmp.height));
+    const c=document.createElement('canvas'); c.width=Math.round(bmp.width*s); c.height=Math.round(bmp.height*s); c.getContext('2d').drawImage(bmp,0,0,c.width,c.height);
+    const b=await new Promise(r=>c.toBlob(r,'image/jpeg',.82)); return b && b.size<file.size ? b : file;
+  }catch(e){ return file; }
+}
+async function addFiles(list,kind){
+  for(const file of list){ const blob=await compress(file); const id=uid();
+    let name=file.name; if(blob!==file && !/\.jpe?g$/i.test(name)) name=name.replace(/\.[^.]+$/,'')+'.jpg';
+    draft._new.push({id,blob}); draft.files.push({id,name,type:blob.type||file.type,size:blob.size,kind}); }
+  renderFormFiles();
+}
+function cleanupDraft(){ draft=null; }
+async function saveDraft(){
+  const miss=[]; if(!draft.tanggal) miss.push('tanggal'); if(!draft.nama) miss.push('nama pasien'); if(!draft.nrm) miss.push('NRM'); if(!draft.diagnosis) miss.push('diagnosis');
+  const er=$('#ferr'); if(miss.length){ er.hidden=false; er.textContent='Lengkapi '+miss.join(', ')+' sebelum menyimpan.'; er.scrollIntoView({block:'center'}); return; }
+  for(const n of draft._new) await store.putFile(n.id,n.blob);
+  for(const id of draft._removed) await store.delFile(id);
+  const rec={...draft}; delete rec._new; delete rec._removed; delete rec._for; rec.contoh=false; rec.updated=Date.now();
+  await store.put(rec);
+  const i=RECS.findIndex(r=>r.id===rec.id); i<0?RECS.push(rec):RECS[i]=rec;
+  const wasEdit=!!ui.editing; draft=null;
+  toast(wasEdit?'Perubahan disimpan':`Kasus ${rec.kat} disimpan`);
+  go('detail',{detail:rec.id,editing:null,confirmDel:false});
+}
+
+/* ===================== Detail ===================== */
+async function renderDetail(){
+  const r=RECS.find(x=>x.id===ui.detail); const v=$('#v-detail');
+  if(!r){ go('list'); return; }
+  const K=KMAP[r.kat];
+  const lap=(r.files||[]).filter(f=>f.kind==='laporan'), foto=(r.files||[]).filter(f=>f.kind==='foto');
+  const usia = r.usia ? `${r.usia} ${r.usiaU||'th'}` : '—';
+  v.innerHTML = `
+    <button class="btn ghost" id="back" style="align-self:flex-start">← Kembali</button>
+    <div class="card" style="--cc:var(${K.c});overflow:hidden">
+      <div class="dhead">
+        <div class="row"><span class="tag">${K.k}</span>${r.level?`<span class="tag lv">Level ${r.level} · ${lvLabel(r.level)}</span>`:''}${r.verif?`<span class="tag" style="--cc:var(--ok)">Terverifikasi</span>`:`<span class="tag" style="--cc:var(--warn)">Belum diverifikasi</span>`}${r.contoh?'<span class="tag ex">CONTOH</span>':''}</div>
+        <h2>${esc(showName(r.nama))}</h2>
+        <div class="mono small muted">NRM ${esc(r.nrm)} · ${r.jk||'—'} · ${esc(usia)} · ${fmtLong(r.tanggal)}</div>
+      </div>
+      <dl class="dl">
+        <dt>Diagnosis</dt><dd>${esc(r.diagnosis)||'—'}</dd>
+        <dt>${esc(K.op)}</dt><dd>${esc(r.tindakanOp)||'—'}</dd>
+        <dt>${esc(K.an)}</dt><dd>${esc(r.tindakanAn)||'—'}</dd>
+        <dt>${esc(K.dp)}</dt><dd>${esc(r.dpjp)||'—'}</dd>
+        <dt>Keterangan</dt><dd>${esc(r.ket)||'—'}</dd>
+        <dt>Keterampilan</dt><dd>${(r.skills||[]).length?r.skills.map(s=>`<span class="tag lv" style="display:inline-block;margin:0 4px 4px 0">${esc(s)}</span>`).join(''):'—'}</dd>
+        <dt>Refleksi</dt><dd>${esc(r.refleksi)||'—'}</dd>
+      </dl>
+    </div>
+    <div class="card" style="padding:14px;display:flex;flex-direction:column;gap:10px">
+      <h3>Laporan anestesi</h3>
+      ${lap.length?`<div class="files">${lap.map(f=>`<div class="file">${ICON.doc}<span class="nm">${esc(f.name)}</span><span class="small muted mono">${kb(f.size)}</span>${f.type.startsWith('image/')?`<button class="btn ghost" data-view="${f.id}">Lihat</button>`:''}<button class="btn ghost" data-dl="${f.id}">Unduh</button></div>`).join('')}</div>`:'<span class="small muted">Belum ada laporan diunggah.</span>'}
+      <h3>Foto kasus</h3>
+      ${foto.length?`<div class="thumbs">${foto.map(f=>`<button class="thumb" style="padding:0" data-view="${f.id}"><img data-fid="${f.id}" alt="${esc(f.name)}"></button>`).join('')}</div>`:'<span class="small muted">Belum ada foto.</span>'}
+    </div>
+    ${ui.confirmDel?`<div class="confirm"><b>Hapus kasus ini beserta ${lap.length+foto.length} lampiran?</b><span class="small">Tindakan ini tidak bisa dibatalkan.</span><div class="row"><button class="btn" id="noDel">Batal</button><button class="btn danger" id="yesDel">Ya, hapus</button></div></div>`:''}
+    <div class="row"><button class="btn primary" id="edit" style="flex:1">Ubah</button><button class="btn danger" id="del">Hapus</button></div>`;
+  $('#back').onclick=()=>go('list');
+  $('#edit').onclick=()=>go('form',{editing:r.id});
+  $('#del').onclick=()=>{ui.confirmDel=true;renderDetail();};
+  if(ui.confirmDel){ $('#noDel').onclick=()=>{ui.confirmDel=false;renderDetail();}; $('#yesDel').onclick=async()=>{ await deleteRec(r); toast('Kasus dihapus'); go('list',{confirmDel:false}); }; }
+  v.querySelectorAll('[data-dl]').forEach(b=>b.onclick=async()=>{ const f=r.files.find(x=>x.id===b.dataset.dl); const blob=await store.getFile(f.id); saveFile(f.name,blob); });
+  v.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>openViewer(r,b.dataset.view));
+  for(const img of v.querySelectorAll('img[data-fid]')) img.src=await blobURL(img.dataset.fid);
+}
+async function deleteRec(r){ for(const f of r.files||[]) await store.delFile(f.id); await store.del(r.id); RECS=RECS.filter(x=>x.id!==r.id); }
+async function openViewer(r,fid){
+  const f=r.files.find(x=>x.id===fid); const u=await blobURL(fid);
+  const d=document.createElement('div'); d.className='viewer'; d.innerHTML=`<img src="${u}" alt="${esc(f.name)}"><div class="row"><button class="btn" data-a="dl">Unduh</button><button class="btn" data-a="x">Tutup</button></div>`;
+  d.onclick=async e=>{ const a=e.target.closest('[data-a]'); if(e.target===d||a?.dataset.a==='x') d.remove(); if(a?.dataset.a==='dl'){ saveFile(f.name,await store.getFile(fid)); } };
+  document.body.appendChild(d);
+}
+
+/* ===================== Rekap kompetensi ===================== */
+function renderStat(){
+  const c=counts();
+  const lv={1:0,2:0,3:0,4:0,'':0}; RECS.forEach(r=>lv[r.level||'']++);
+  const sk={}; RECS.forEach(r=>(r.skills||[]).forEach(s=>sk[s]=(sk[s]||0)+1));
+  const skSorted=SKILLS.map(s=>[s,sk[s]||0]).sort((a,b)=>b[1]-a[1]);
+  const maxSk=Math.max(1,...skSorted.map(x=>x[1]));
+  const n=Math.max(1,RECS.length);
+  $('#v-stat').innerHTML=`
+    <h2>Rekap kompetensi</h2>
+    <div class="card" style="padding:14px;display:flex;flex-direction:column;gap:12px">
+      <h3>Capaian per kategori</h3>
+      ${KAT.map(x=>{const k=c[x.k];const sisa=Math.max(0,x.target-k);return `<div style="--cc:var(${x.c});display:grid;grid-template-columns:86px 1fr auto;gap:10px;align-items:center">
+        <span class="row small" style="gap:6px;font-weight:700"><span class="dot"></span>${x.k}</span>
+        <span class="bar"><i style="width:${Math.min(100,k/x.target*100)}%"></i></span>
+        <span class="mono small" style="min-width:68px;text-align:right">${k}/${x.target}${sisa?` <span class="muted">−${sisa}</span>`:' ✓'}</span></div>`;}).join('')}
+    </div>
+    <div class="card" style="padding:14px;display:flex;flex-direction:column;gap:12px">
+      <h3>Level keterlibatan</h3>
+      <div style="display:flex;height:14px;border-radius:7px;overflow:hidden;border:1px solid var(--line)">
+        ${['1','2','3','4'].map((l,i)=>`<i style="width:${lv[l]/n*100}%;background:color-mix(in srgb,var(--accent) ${30+i*23}%,var(--surface))"></i>`).join('')}
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px">${LEVELS.map(([l,t],i)=>`<div class="row small" style="gap:8px"><i style="width:12px;height:12px;border-radius:3px;background:color-mix(in srgb,var(--accent) ${30+i*23}%,var(--surface))"></i>L${l} ${t} <b class="mono">${lv[l]}</b></div>`).join('')}</div>
+      ${lv['']?`<span class="small muted">${lv['']} kasus belum diberi level.</span>`:''}
+    </div>
+    <div class="card" style="padding:14px;display:flex;flex-direction:column;gap:8px">
+      <h3>Keterampilan prosedural</h3>
+      ${skSorted.map(([s,k])=>`<div style="display:grid;grid-template-columns:150px 1fr 28px;gap:10px;align-items:center;--cc:var(--accent)"><span class="small" style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(s)}</span><span class="bar"><i style="width:${k/maxSk*100}%"></i></span><span class="mono small" style="text-align:right">${k}</span></div>`).join('')}
+    </div>`;
+}
+
+/* ===================== Ekspor / impor / profil ===================== */
+let DL=null;
+async function saveFile(name,data){
+  if(!DL){
+    let top=false; try{ top = window.top===window; }catch(e){}
+    if(top){ const u=URL.createObjectURL(data instanceof Blob?data:new Blob([data])); const a=document.createElement('a'); a.href=u; a.download=name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(u),4000); toast('File diunduh'); return true; }
+    toast('Unduhan tidak tersedia di tampilan ini'); return false; }
+  try{ await DL.save({filename:name,data}); toast('File disimpan'); return true; }
+  catch(e){ if(e&&e.code==='declined') toast('Unduhan dibatalkan'); else if(e&&e.code==='rate_limited') toast('Tunggu sebentar, lalu coba lagi'); else toast('Unduhan gagal: '+(e&&e.code||'tidak tersedia')); return false; }
+}
+function renderMore(){
+  $('#v-more').innerHTML=`
+    <h2>Profil & ekspor</h2>
+    <div class="card" style="padding:14px;display:flex;flex-direction:column;gap:12px">
+      <div class="field"><label for="pNama">Nama trainee</label><input id="pNama" value="${esc(PROFILE.nama)}" placeholder="dr. …"></div>
+      <div class="grid2">
+        <div class="field"><label for="pNpm">NPM</label><input id="pNpm" class="mono" value="${esc(PROFILE.npm)}"></div>
+        <div class="field"><label for="pAkt">Angkatan / periode</label><input id="pAkt" value="${esc(PROFILE.angkatan)}" placeholder="KAKV 2026"></div>
+      </div>
+    </div>
+    <div class="card">
+      <label class="switch" for="pMask"><span><b>Samarkan nama pasien</b><br><span class="small muted">Tampilkan inisial saja di layar. Ekspor Excel tetap memuat nama lengkap.</span></span><input type="checkbox" id="pMask" ${PROFILE.mask?'checked':''}></label>
+    </div>
+    <div class="card list">
+      <button class="it" id="exX"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4zM4 10h16M10 4v16"/></svg><div><b>Ekspor Excel logbook</b><small>Format LOGBOOK KAKV: KETERANGAN + 9 sheet kategori + rekap kompetensi + kegiatan ilmiah</small></div></button>
+      <button class="it" id="imX"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21V9M7 14l5-5 5 5M4 3h16"/></svg><div><b>Impor dari Excel</b><small>Ambil isi file LOGBOOK KAKV yang sudah ada</small></div></button>
+      <button class="it" id="exJ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7v10c0 2 4 4 8 4s8-2 8-4V7M4 7c0 2 4 4 8 4s8-2 8-4-4-4-8-4-8 2-8 4zM4 12c0 2 4 4 8 4s8-2 8-4"/></svg><div><b>Cadangkan semua data</b><small>File .json termasuk foto & laporan</small></div></button>
+      <button class="it" id="imJ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5"/></svg><div><b>Pulihkan dari cadangan</b><small>Gabungkan isi file .json ke perangkat ini</small></div></button>
+    </div>
+    <input type="file" id="inX" accept=".xlsx,.xls" hidden><input type="file" id="inJ" accept=".json,application/json" hidden>
+    <div class="note">Data tersimpan hanya di browser perangkat ini dan tidak dikirim ke server mana pun. Lakukan cadangan berkala. Data berisi identitas pasien: jangan bagikan file ekspor lewat grup chat umum.</div>`;
+  const saveP=async()=>{ PROFILE.nama=$('#pNama').value.trim(); PROFILE.npm=$('#pNpm').value.trim(); PROFILE.angkatan=$('#pAkt').value.trim(); PROFILE.mask=$('#pMask').checked; await store.set('profile',PROFILE); render(); };
+  ['pNama','pNpm','pAkt'].forEach(id=>$('#'+id).onchange=saveP); $('#pMask').onchange=saveP;
+  $('#exX').onclick=exportXlsx; $('#imX').onclick=()=>$('#inX').click(); $('#inX').onchange=e=>importXlsx(e.target.files[0]);
+  $('#exJ').onclick=exportJson; $('#imJ').onclick=()=>$('#inJ').click(); $('#inJ').onchange=e=>importJson(e.target.files[0]);
+}
+function exportXlsx(){
+  if(typeof XLSX==='undefined'){ toast('Pustaka Excel belum termuat'); return; }
+  const wb=XLSX.utils.book_new();
+  const ket=[['Sheet Title','Keterangan','Note','Target Kasus'],...KAT.map(x=>[x.k,x.desc,x.k==='NIVATS'?'non-intubasi':'',x.target])];
+  const wsK=XLSX.utils.aoa_to_sheet(ket); wsK['!cols']=[{wch:14},{wch:46},{wch:14},{wch:12}]; XLSX.utils.book_append_sheet(wb,wsK,'KETERANGAN');
+  for(const x of KAT){
+    const rows=RECS.filter(r=>r.kat===x.k&&!r.contoh).sort((a,b)=>(a.tanggal||'').localeCompare(b.tanggal||''));
+    const aoa=[[x.title],['No','Tanggal',x.head3||'Nama Pasien','NRM','JK','Usia','Diagnosis',x.op,x.an,x.dp,'Keterangan']];
+    rows.forEach((r,i)=>aoa.push([i+1,fmtDMY(r.tanggal),r.nama,/^\d+$/.test(r.nrm)?Number(r.nrm):r.nrm,r.jk,r.usia?(isFinite(r.usia)&&(r.usiaU||'th')==='th'?Number(r.usia):`${r.usia} ${r.usiaU}`):'',r.diagnosis,r.tindakanOp,r.tindakanAn,r.dpjp,r.ket]));
+    if(!rows.length) aoa.push([1]);
+    const ws=XLSX.utils.aoa_to_sheet(aoa); ws['!merges']=[{s:{r:0,c:0},e:{r:0,c:10}}];
+    ws['!cols']=[{wch:5},{wch:12},{wch:24},{wch:11},{wch:4},{wch:6},{wch:34},{wch:24},{wch:28},{wch:30},{wch:40}];
+    XLSX.utils.book_append_sheet(wb,ws,x.k);
+  }
+  const ka=[['KEGIATAN ILMIAH'+(PROFILE.nama?' — '+PROFILE.nama:'')+(PROFILE.npm?' ('+PROFILE.npm+')':'')],['No','Semester','Tanggal','Jam','Judul Kegiatan','Jenis','Peran','Penyelenggara','Pembimbing','Media','Lokasi / Link Zoom','Meeting ID','SKP','Catatan','Foto','Sertifikat']];
+  ACTS.filter(a=>!a.contoh).sort((a,b)=>(a.tanggal+a.jamMulai).localeCompare(b.tanggal+b.jamMulai)).forEach((a,i)=>ka.push([i+1,Number(a.semester),fmtDMY(a.tanggal),jamStr(a),a.judul,a.jenis,a.peran,a.penyelenggara||'',a.pembimbing,a.media==='zoom'?'Zoom Meeting':'Offline',a.media==='zoom'?(a.zoomLink||''):(a.lokasi||''),a.media==='zoom'?(a.zoomId||''):'',a.skp?Number(a.skp):'',a.catatan||'',(a.files||[]).filter(f=>f.kind==='foto').length,(a.files||[]).filter(f=>f.kind==='sertifikat').length]));
+  const wsA=XLSX.utils.aoa_to_sheet(ka); wsA['!merges']=[{s:{r:0,c:0},e:{r:0,c:15}}];
+  wsA['!cols']=[{wch:5},{wch:9},{wch:12},{wch:16},{wch:44},{wch:14},{wch:11},{wch:24},{wch:28},{wch:13},{wch:34},{wch:14},{wch:5},{wch:30},{wch:6},{wch:10}];
+  const rk=[['REKAP KOMPETENSI KASUS'+(PROFILE.nama?' — '+PROFILE.nama:'')+(PROFILE.npm?' ('+PROFILE.npm+')':'')],['No','Kategori','Tanggal','NRM','Level','Keterangan Level','Keterampilan','Refleksi','Laporan Anestesi','Foto','Verifikasi DPJP']];
+  RECS.filter(r=>!r.contoh).sort((a,b)=>(a.tanggal||'').localeCompare(b.tanggal||'')).forEach((r,i)=>rk.push([i+1,r.kat,fmtDMY(r.tanggal),r.nrm,r.level?Number(r.level):'',lvLabel(r.level),(r.skills||[]).join(', '),r.refleksi||'',(r.files||[]).filter(f=>f.kind==='laporan').length,(r.files||[]).filter(f=>f.kind==='foto').length,r.verif?'Ya':'Belum']));
+  const wsR=XLSX.utils.aoa_to_sheet(rk); wsR['!cols']=[{wch:5},{wch:11},{wch:12},{wch:11},{wch:6},{wch:20},{wch:40},{wch:40},{wch:10},{wch:6},{wch:12}];
+  XLSX.utils.book_append_sheet(wb,wsR,'REKAP KOMPETENSI');
+  XLSX.utils.book_append_sheet(wb,wsA,'KEGIATAN ILMIAH');
+  const buf=XLSX.write(wb,{type:'array',bookType:'xlsx'});
+  const nm=`LOGBOOK KAKV ${new Date().getFullYear()}${PROFILE.nama?' - '+PROFILE.nama.replace(/[^\w .,-]/g,''):''}.xlsx`;
+  saveFile(nm,new Blob([buf]));
+}
+function parseDate(v){
+  if(v instanceof Date && !isNaN(v)){ const d=new Date(v.getTime()-v.getTimezoneOffset()*60000); return d.toISOString().slice(0,10); }
+  if(typeof v==='number'){ const d=XLSX.SSF.parse_date_code(v); if(d) return `${d.y}-${String(d.m).padStart(2,'0')}-${String(d.d).padStart(2,'0')}`; }
+  const s=String(v||'').trim().toLowerCase(); let m;
+  if((m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/))) return `${m[1]}-${m[2].padStart(2,'0')}-${m[3].padStart(2,'0')}`;
+  if((m=s.match(/^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{2,4})$/))){ const y=m[3].length===2?'20'+m[3]:m[3]; return `${y}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`; }
+  if((m=s.match(/^(\d{1,2})\s+([a-z]+)\s+(\d{4})$/))){ let i=BULAN.findIndex(b=>b.startsWith(m[2].slice(0,3))); if(i<0) i=BULAN_EN.findIndex(b=>b.startsWith(m[2].slice(0,3))); if(i>=0) return `${m[3]}-${String(i+1).padStart(2,'0')}-${m[1].padStart(2,'0')}`; }
+  return '';
+}
+async function importXlsx(file){
+  if(!file) return; if(typeof XLSX==='undefined'){ toast('Pustaka Excel belum termuat'); return; }
+  try{
+    const wb=XLSX.read(await file.arrayBuffer(),{cellDates:true});
+    let added=0, skipped=0;
+    for(const name of wb.SheetNames){
+      const K=KAT.find(x=>x.k.toLowerCase()===name.trim().toLowerCase()); if(!K) continue;
+      const rows=XLSX.utils.sheet_to_json(wb.Sheets[name],{header:1,raw:true,defval:''});
+      for(const row of rows.slice(2)){
+        const nama=String(row[2]||'').trim(); if(!nama) continue;
+        const tgl=parseDate(row[1]); const nrm=String(row[3]||'').trim();
+        if(RECS.some(r=>r.kat===K.k&&r.nrm===nrm&&r.tanggal===tgl)){ skipped++; continue; }
+        const rec={id:uid(),kat:K.k,tanggal:tgl,nama,nrm,jk:String(row[4]||'').trim().toUpperCase().slice(0,1),usia:String(row[5]||'').trim(),usiaU:'th',diagnosis:String(row[6]||'').trim(),tindakanOp:String(row[7]||'').trim(),tindakanAn:String(row[8]||'').trim(),dpjp:String(row[9]||'').trim(),ket:String(row[10]||'').trim(),level:'',skills:[],refleksi:'',verif:false,files:[],created:Date.now()+added,contoh:false};
+        await store.put(rec); RECS.push(rec); added++;
+      }
+    }
+    toast(`${added} kasus diimpor${skipped?`, ${skipped} duplikat dilewati`:''}`); render();
+  }catch(e){ toast('File tidak bisa dibaca. Pastikan formatnya .xlsx logbook KAKV.'); }
+  $('#inX').value='';
+}
+async function exportJson(){
+  const toB64=b=>new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result);f.readAsDataURL(b);});
+  const files={}; for(const r of [...RECS,...ACTS]) for(const f of r.files||[]){ const b=await store.getFile(f.id); if(b) files[f.id]=await toB64(b); }
+  const data=JSON.stringify({app:'logbook-kakv',v:2,profile:PROFILE,recs:RECS.filter(r=>!r.contoh),acts:ACTS.filter(a=>!a.contoh),files});
+  saveFile(`cadangan-logbook-kakv-${todayISO()}.json`,data);
+}
+async function importJson(file){
+  if(!file) return;
+  try{ const d=JSON.parse(await file.text()); if(d.app!=='logbook-kakv') throw 0;
+    let n=0; for(const r of d.recs||[]){ if(RECS.some(x=>x.id===r.id)) continue;
+      for(const f of r.files||[]){ const u=d.files[f.id]; if(u){ const b=await (await fetch(u)).blob(); await store.putFile(f.id,b); } }
+      await store.put(r); RECS.push(r); n++; }
+    for(const a of d.acts||[]){ if(ACTS.some(x=>x.id===a.id)) continue;
+      for(const f of a.files||[]){ const u=d.files[f.id]; if(u){ const b=await (await fetch(u)).blob(); await store.putFile(f.id,b); } }
+      await store.putAct(a); ACTS.push(a); n++; }
+    if(d.profile && !PROFILE.nama){ PROFILE={...PROFILE,...d.profile}; await store.set('profile',PROFILE); }
+    toast(`${n} entri dipulihkan`); render();
+  }catch(e){ toast('File cadangan tidak valid'); }
+  $('#inJ').value='';
+}
+
+/* ===================== Kegiatan ilmiah ===================== */
+const JENIS = ['Webinar','Seminar','Simposium','Workshop','Kongres','Journal reading','Laporan kasus','Referat','Kuliah pakar','Lainnya'];
+const PERAN = ['Peserta','Penyaji','Pembicara','Moderator','Panitia'];
+const BLN3 = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+const ICON_ZOOM = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="M16 10l6-3v10l-6-3"/></svg>';
+const ICON_PIN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 21s-7-6.5-7-12a7 7 0 0 1 14 0c0 5.5-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>';
+const jamStr = a => a.jamMulai ? `${a.jamMulai}${a.jamSelesai?'–'+a.jamSelesai:''} WIB` : '';
+const mediaPill = a => a.media==='zoom' ? `<span class="pill zoom">${ICON_ZOOM}Zoom Meeting</span>` : `<span class="pill off">${ICON_PIN}Offline</span>`;
+let actDraft = null;
+function sortAct(a,b){ return (b.tanggal+(b.jamMulai||'')).localeCompare(a.tanggal+(a.jamMulai||'')); }
+
+function renderActs(){
+  const sc={1:0,2:0,3:0,4:0}; ACTS.forEach(a=>sc[a.semester]=(sc[a.semester]||0)+1);
+  const rows=ACTS.filter(a=>ui.actSem==='ALL'||a.semester===ui.actSem).sort(sortAct);
+  const skp=rows.reduce((s,a)=>s+(Number(a.skp)||0),0);
+  $('#v-acts').innerHTML=`
+    <div class="row" style="justify-content:space-between"><h2>Kegiatan ilmiah</h2><button class="btn primary" id="addAct"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>Tambah</button></div>
+    <div class="semcount">${['1','2','3','4'].map(s=>`<div><b class="mono">${sc[s]}</b><span>Smt ${s}</span></div>`).join('')}</div>
+    <div class="chips" role="group" aria-label="Filter semester">
+      <button class="chip" aria-pressed="${ui.actSem==='ALL'}" data-s="ALL">Semua <span class="mono">${ACTS.length}</span></button>
+      ${['1','2','3','4'].map(s=>`<button class="chip" aria-pressed="${ui.actSem===s}" data-s="${s}">Semester ${s}</button>`).join('')}
+    </div>
+    ${rows.length?`<div class="daygroup">${skp?`<div class="eyebrow">${rows.length} kegiatan · ${skp} SKP</div>`:''}${rows.map(actCard).join('')}</div>`
+      :`<div class="card empty">Belum ada kegiatan${ui.actSem!=='ALL'?' di semester '+ui.actSem:''}. Tekan <b>Tambah</b> untuk mencatat webinar, seminar, atau journal reading.</div>`}`;
+  $('#addAct').onclick=()=>go('actform',{actEditing:null});
+  $('#v-acts').querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{ui.actSem=b.dataset.s;renderActs();});
+  $('#v-acts').querySelectorAll('.act').forEach(e=>e.onclick=()=>go('actdetail',{actDetail:e.dataset.aid,confirmDel:false}));
+}
+function actCard(a){
+  const [y,m,d]=(a.tanggal||'--').split('-');
+  const nf=(a.files||[]).filter(f=>f.kind==='foto').length, ns=(a.files||[]).filter(f=>f.kind==='sertifikat').length;
+  return `<button class="act" data-aid="${a.id}">
+    <span class="datebox"><b class="mono">${Number(d)||'–'}</b><span>${BLN3[Number(m)-1]||''} ${y?y.slice(2):''}</span></span>
+    <span class="main">
+      <span class="ttl">${esc(a.judul)}</span>
+      <span class="meta"><span>${esc(a.jenis)} · ${esc(a.peran)}</span><span class="mono">${esc(jamStr(a))}</span></span>
+      <span class="meta">${mediaPill(a)}<span>${esc(a.pembimbing)}</span>${nf?`<span class="icons"><span>${ICON.cam}${nf}</span></span>`:''}${ns?`<span class="icons"><span>${ICON.doc}${ns}</span></span>`:''}</span>
+    </span>
+    <span class="side" style="display:flex;flex-direction:column;align-items:flex-end;gap:6px"><span class="tag lv">Smt ${esc(a.semester)}</span>${a.contoh?'<span class="tag ex">CONTOH</span>':''}</span>
+  </button>`;
+}
+
+function lastSemester(){ const s=[...ACTS].sort(sortAct)[0]; return s?s.semester:''; }
+function renderActForm(){
+  if(!actDraft || actDraft._for!==ui.actEditing){
+    actDraft = ui.actEditing ? {...structuredClone(ACTS.find(a=>a.id===ui.actEditing)),_new:[],_removed:[]}
+      : {id:uid(),judul:'',jenis:'Webinar',peran:'Peserta',penyelenggara:'',semester:lastSemester(),tanggal:todayISO(),jamMulai:'',jamSelesai:'',pembimbing:'',media:'',zoomLink:'',zoomId:'',lokasi:'',skp:'',catatan:'',files:[],created:Date.now(),_new:[],_removed:[]};
+    actDraft._for=ui.actEditing;
+  }
+  const a=actDraft; const v=$('#v-actform');
+  const pemb=[...new Set([...ACTS.map(x=>x.pembimbing),...RECS.map(r=>r.dpjp)].filter(Boolean))];
+  v.innerHTML=`
+    <div><div class="eyebrow">${ui.actEditing?'Ubah kegiatan':'Kegiatan baru'}</div><h2>Kegiatan ilmiah</h2></div>
+    <form id="af" novalidate>
+      <div class="fieldset">
+        <div class="eyebrow">Kegiatan</div>
+        <div class="field"><label for="a_judul">Judul kegiatan <span class="req">*</span></label><textarea id="a_judul" style="min-height:56px" placeholder="Evidence-guided Perioperative Cardiovascular Care">${esc(a.judul)}</textarea></div>
+        <div class="grid2">
+          <div class="field"><label for="a_jenis">Jenis</label><select id="a_jenis">${JENIS.map(j=>`<option ${a.jenis===j?'selected':''}>${j}</option>`).join('')}</select></div>
+          <div class="field"><label for="a_peran">Peran</label><select id="a_peran">${PERAN.map(j=>`<option ${a.peran===j?'selected':''}>${j}</option>`).join('')}</select></div>
+        </div>
+        <div class="field"><label for="a_peny">Penyelenggara</label><input id="a_peny" value="${esc(a.penyelenggara)}" placeholder="IACA, PERDATIN, Dept. Anestesi FK Unpad…"></div>
+      </div>
+
+      <div class="fieldset">
+        <div class="eyebrow">Waktu & semester</div>
+        <div class="field"><span class="lbl">Semester <span class="req">*</span></span>
+          <div class="seg" id="a_sem">${['1','2','3','4'].map(s=>`<button type="button" aria-pressed="${a.semester===s}" data-v="${s}">Semester ${s}</button>`).join('')}</div></div>
+        <div class="field"><label for="a_tgl">Tanggal kegiatan <span class="req">*</span></label><input id="a_tgl" type="date" value="${esc(a.tanggal)}"></div>
+        <div class="grid2">
+          <div class="field"><label for="a_jm">Jam mulai <span class="req">*</span></label><input id="a_jm" type="time" class="mono" value="${esc(a.jamMulai)}"></div>
+          <div class="field"><label for="a_js">Jam selesai</label><input id="a_js" type="time" class="mono" value="${esc(a.jamSelesai)}"></div>
+        </div>
+        <span class="hint small muted">Isi dalam WIB. Untuk webinar luar negeri, konversikan dari zona waktu penyelenggara.</span>
+      </div>
+
+      <div class="fieldset">
+        <div class="eyebrow">Media & pembimbing</div>
+        <div class="field"><span class="lbl">Media kegiatan <span class="req">*</span></span>
+          <div class="seg" id="a_media"><button type="button" aria-pressed="${a.media==='zoom'}" data-v="zoom">Zoom Meeting</button><button type="button" aria-pressed="${a.media==='offline'}" data-v="offline">Offline</button></div></div>
+        ${a.media==='zoom'?`
+          <div class="field"><label for="a_zl">Link Zoom</label><input id="a_zl" type="url" inputmode="url" value="${esc(a.zoomLink)}" placeholder="https://us02web.zoom.us/j/…"></div>
+          <div class="field"><label for="a_zi">Meeting ID</label><input id="a_zi" class="mono" inputmode="numeric" value="${esc(a.zoomId)}" placeholder="812 3456 7890"></div>`:''}
+        ${a.media==='offline'?`<div class="field"><label for="a_lok">Lokasi</label><input id="a_lok" value="${esc(a.lokasi)}" placeholder="Ruang kuliah Anestesi RSHS, Bandung"></div>`:''}
+        <div class="field"><label for="a_pemb">Pembimbing <span class="req">*</span></label><input id="a_pemb" value="${esc(a.pembimbing)}" list="pembList" placeholder="dr. …, Sp.An-KAKV"></div>
+        <datalist id="pembList">${pemb.map(d=>`<option>${esc(d)}</option>`).join('')}</datalist>
+        <div class="grid2">
+          <div class="field"><label for="a_skp">SKP / poin</label><input id="a_skp" inputmode="decimal" class="mono" value="${esc(a.skp)}" placeholder="2"></div>
+          <div></div>
+        </div>
+        <div class="field"><label for="a_cat">Catatan / ringkasan materi</label><textarea id="a_cat" placeholder="Poin penting yang dipelajari">${esc(a.catatan)}</textarea></div>
+      </div>
+
+      <div class="fieldset">
+        <div class="eyebrow">Lampiran</div>
+        <div class="drop">
+          <span class="lbl">Foto kegiatan</span>
+          <span class="hint small muted">Tangkapan layar Zoom, foto ruangan, atau foto bersama pembimbing.</span>
+          <div class="thumbs" id="aFoto"></div>
+          <div class="row"><button type="button" class="btn" id="aAddFoto">${ICON.cam} Ambil / pilih foto</button></div>
+          <input type="file" id="aInFoto" accept="image/*" multiple hidden>
+        </div>
+        <div class="drop">
+          <span class="lbl">Sertifikat</span>
+          <span class="hint small muted">PDF atau foto sertifikat kehadiran.</span>
+          <div class="files" id="aSert"></div>
+          <div class="row"><button type="button" class="btn" id="aAddSert">${ICON.doc} Unggah sertifikat</button></div>
+          <input type="file" id="aInSert" accept="application/pdf,image/*" multiple hidden>
+        </div>
+      </div>
+      <div class="err" id="aerr" hidden></div>
+      <div class="formbar">
+        <button type="button" class="btn" id="aCancel">Batal</button>
+        <button type="submit" class="btn primary">${ui.actEditing?'Simpan perubahan':'Simpan kegiatan'}</button>
+      </div>
+    </form>`;
+  const val=id=>{const e=$('#'+id);return e?e.value.trim():undefined;};
+  const sync=()=>{ a.judul=val('a_judul'); a.jenis=val('a_jenis'); a.peran=val('a_peran'); a.penyelenggara=val('a_peny'); a.tanggal=val('a_tgl'); a.jamMulai=val('a_jm'); a.jamSelesai=val('a_js');
+    a.pembimbing=val('a_pemb'); a.skp=val('a_skp'); a.catatan=val('a_cat');
+    if($('#a_zl')){ a.zoomLink=val('a_zl'); a.zoomId=val('a_zi'); } if($('#a_lok')) a.lokasi=val('a_lok'); };
+  v.querySelectorAll('#a_sem button').forEach(b=>b.onclick=()=>{ a.semester=b.dataset.v; v.querySelectorAll('#a_sem button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.v===a.semester)); });
+  v.querySelectorAll('#a_media button').forEach(b=>b.onclick=()=>{ sync(); a.media=b.dataset.v; renderActForm(); const f=$(a.media==='zoom'?'#a_zl':'#a_lok'); if(f) f.focus(); });
+  $('#aAddFoto').onclick=()=>$('#aInFoto').click(); $('#aAddSert').onclick=()=>$('#aInSert').click();
+  $('#aInFoto').onchange=e=>addActFiles(e.target.files,'foto'); $('#aInSert').onchange=e=>addActFiles(e.target.files,'sertifikat');
+  $('#aCancel').onclick=()=>{ const back=ui.actEditing; actDraft=null; back?go('actdetail',{actDetail:back}):go('acts'); };
+  $('#af').onsubmit=async e=>{ e.preventDefault(); sync(); await saveActDraft(); };
+  renderActFiles();
+}
+async function addActFiles(list,kind){
+  for(const file of list){ const blob=await compress(file); const id=uid();
+    let name=file.name; if(blob!==file && !/\.jpe?g$/i.test(name)) name=name.replace(/\.[^.]+$/,'')+'.jpg';
+    actDraft._new.push({id,blob}); actDraft.files.push({id,name,type:blob.type||file.type,size:blob.size,kind}); }
+  renderActFiles();
+}
+async function renderActFiles(){
+  const foto=actDraft.files.filter(f=>f.kind==='foto'), sert=actDraft.files.filter(f=>f.kind==='sertifikat');
+  $('#aFoto').innerHTML=foto.map(f=>`<div class="thumb"><img data-fid="${f.id}" alt="${esc(f.name)}"><button type="button" class="x" data-rm="${f.id}" aria-label="Hapus foto">✕</button></div>`).join('');
+  $('#aSert').innerHTML=sert.map(f=>`<div class="file">${ICON.doc}<span class="nm">${esc(f.name)}</span><span class="small muted mono">${kb(f.size)}</span><button type="button" class="btn ghost" data-rm="${f.id}" aria-label="Hapus">✕</button></div>`).join('');
+  $('#v-actform').querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>{ const id=b.dataset.rm; actDraft.files=actDraft.files.filter(x=>x.id!==id);
+    if(actDraft._new.find(n=>n.id===id)) actDraft._new=actDraft._new.filter(n=>n.id!==id); else actDraft._removed.push(id); renderActFiles(); });
+  for(const img of $('#aFoto').querySelectorAll('img')) img.src=await blobURL(img.dataset.fid);
+}
+async function saveActDraft(){
+  const a=actDraft; const miss=[];
+  if(!a.judul) miss.push('judul'); if(!a.semester) miss.push('semester'); if(!a.tanggal) miss.push('tanggal'); if(!a.jamMulai) miss.push('jam mulai'); if(!a.media) miss.push('media'); if(!a.pembimbing) miss.push('pembimbing');
+  const er=$('#aerr');
+  if(miss.length){ er.hidden=false; er.textContent='Lengkapi '+miss.join(', ')+' sebelum menyimpan.'; er.scrollIntoView({block:'center'}); return; }
+  if(a.jamSelesai && a.jamSelesai<=a.jamMulai){ er.hidden=false; er.textContent='Jam selesai harus setelah jam mulai.'; er.scrollIntoView({block:'center'}); return; }
+  for(const n of a._new) await store.putFile(n.id,n.blob);
+  for(const id of a._removed) await store.delFile(id);
+  const rec={...a}; delete rec._new; delete rec._removed; delete rec._for; rec.contoh=false; rec.updated=Date.now();
+  await store.putAct(rec);
+  const i=ACTS.findIndex(x=>x.id===rec.id); i<0?ACTS.push(rec):ACTS[i]=rec;
+  const wasEdit=!!ui.actEditing; actDraft=null;
+  toast(wasEdit?'Perubahan disimpan':'Kegiatan disimpan');
+  go('actdetail',{actDetail:rec.id,actEditing:null,confirmDel:false});
+}
+async function deleteAct(a){ for(const f of a.files||[]) await store.delFile(f.id); await store.delAct(a.id); ACTS=ACTS.filter(x=>x.id!==a.id); }
+async function renderActDetail(){
+  const a=ACTS.find(x=>x.id===ui.actDetail); const v=$('#v-actdetail');
+  if(!a){ go('acts'); return; }
+  const foto=(a.files||[]).filter(f=>f.kind==='foto'), sert=(a.files||[]).filter(f=>f.kind==='sertifikat');
+  const safeLink=/^https:\/\//i.test(a.zoomLink||'')?a.zoomLink:'';
+  v.innerHTML=`
+    <button class="btn ghost" id="aBack" style="align-self:flex-start">← Kembali</button>
+    <div class="card" style="overflow:hidden">
+      <div class="dhead">
+        <div class="row"><span class="tag lv">Semester ${esc(a.semester)}</span>${mediaPill(a)}${a.contoh?'<span class="tag ex">CONTOH</span>':''}</div>
+        <h2>${esc(a.judul)}</h2>
+        <div class="mono small muted">${fmtLong(a.tanggal)} · ${esc(jamStr(a))}</div>
+      </div>
+      <dl class="dl">
+        <dt>Jenis</dt><dd>${esc(a.jenis)}</dd>
+        <dt>Peran</dt><dd>${esc(a.peran)}</dd>
+        <dt>Penyelenggara</dt><dd>${esc(a.penyelenggara)||'—'}</dd>
+        <dt>Pembimbing</dt><dd>${esc(a.pembimbing)}</dd>
+        <dt>Media</dt><dd>${a.media==='zoom'?'Zoom Meeting':'Offline'}</dd>
+        ${a.media==='zoom'?`<dt>Meeting ID</dt><dd class="mono">${esc(a.zoomId)||'—'}</dd>`:`<dt>Lokasi</dt><dd>${esc(a.lokasi)||'—'}</dd>`}
+        <dt>SKP</dt><dd class="mono">${esc(a.skp)||'—'}</dd>
+        <dt>Catatan</dt><dd>${esc(a.catatan)||'—'}</dd>
+      </dl>
+      ${a.media==='zoom'&&a.zoomLink?`<div style="padding:12px 14px;display:flex;flex-direction:column;gap:8px"><span class="lbl small">Link Zoom</span>
+        <div class="linkbox"><span class="nm mono small">${esc(a.zoomLink)}</span><button class="btn ghost" id="cpLink">Salin</button>${safeLink?`<a class="btn ghost" href="${esc(safeLink)}" target="_blank" rel="noopener">Buka</a>`:''}</div></div>`:''}
+    </div>
+    <div class="card" style="padding:14px;display:flex;flex-direction:column;gap:10px">
+      <h3>Foto kegiatan</h3>
+      ${foto.length?`<div class="thumbs">${foto.map(f=>`<button class="thumb" style="padding:0" data-view="${f.id}"><img data-fid="${f.id}" alt="${esc(f.name)}"></button>`).join('')}</div>`:'<span class="small muted">Belum ada foto.</span>'}
+      <h3>Sertifikat</h3>
+      ${sert.length?`<div class="files">${sert.map(f=>`<div class="file">${ICON.doc}<span class="nm">${esc(f.name)}</span><span class="small muted mono">${kb(f.size)}</span>${f.type.startsWith('image/')?`<button class="btn ghost" data-view="${f.id}">Lihat</button>`:''}<button class="btn ghost" data-dl="${f.id}">Unduh</button></div>`).join('')}</div>`:'<span class="small muted">Belum ada sertifikat diunggah.</span>'}
+    </div>
+    ${ui.confirmDel?`<div class="confirm"><b>Hapus kegiatan ini beserta ${foto.length+sert.length} lampiran?</b><span class="small">Tindakan ini tidak bisa dibatalkan.</span><div class="row"><button class="btn" id="aNoDel">Batal</button><button class="btn danger" id="aYesDel">Ya, hapus</button></div></div>`:''}
+    <div class="row"><button class="btn primary" id="aEdit" style="flex:1">Ubah</button><button class="btn danger" id="aDel">Hapus</button></div>`;
+  $('#aBack').onclick=()=>go('acts');
+  $('#aEdit').onclick=()=>go('actform',{actEditing:a.id});
+  $('#aDel').onclick=()=>{ui.confirmDel=true;renderActDetail();};
+  if(ui.confirmDel){ $('#aNoDel').onclick=()=>{ui.confirmDel=false;renderActDetail();}; $('#aYesDel').onclick=async()=>{ await deleteAct(a); toast('Kegiatan dihapus'); go('acts',{confirmDel:false}); }; }
+  const cp=$('#cpLink'); if(cp) cp.onclick=()=>{ navigator.clipboard.writeText(a.zoomLink).then(()=>toast('Link disalin')).catch(()=>{ const r=document.createRange(); r.selectNodeContents(v.querySelector('.linkbox .nm')); const s=getSelection(); s.removeAllRanges(); s.addRange(r); toast('Link terpilih, salin manual'); }); };
+  v.querySelectorAll('[data-dl]').forEach(b=>b.onclick=async()=>{ const f=a.files.find(x=>x.id===b.dataset.dl); saveFile(f.name,await store.getFile(f.id)); });
+  v.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>openViewer(a,b.dataset.view));
+  for(const img of v.querySelectorAll('img[data-fid]')) img.src=await blobURL(img.dataset.fid);
+}
+function seedActs(){
+  const d=n=>{const x=new Date();x.setDate(x.getDate()-n);x.setMinutes(x.getMinutes()-x.getTimezoneOffset());return x.toISOString().slice(0,10);};
+  return [
+    {id:'exa1',judul:'Webinar contoh: Manajemen koagulasi pasca CPB',jenis:'Webinar',peran:'Peserta',penyelenggara:'Penyelenggara Contoh',semester:'2',tanggal:d(5),jamMulai:'19:00',jamSelesai:'21:00',pembimbing:'dr. Contoh, Sp.An-KAKV',media:'zoom',zoomLink:'https://zoom.us/j/0000000000',zoomId:'000 0000 0000',lokasi:'',skp:'2',catatan:'Contoh catatan materi.',files:[],created:2,contoh:true},
+    {id:'exa2',judul:'Journal reading contoh: Ekstubasi dini setelah bedah jantung',jenis:'Journal reading',peran:'Penyaji',penyelenggara:'Prodi Anestesiologi',semester:'2',tanggal:d(12),jamMulai:'07:00',jamSelesai:'08:00',pembimbing:'dr. Contoh, Sp.An-KAKV',media:'offline',zoomLink:'',zoomId:'',lokasi:'Ruang diskusi contoh',skp:'',catatan:'',files:[],created:1,contoh:true},
+  ];
+}
+
+/* ===================== Tema ===================== */
+$('#themeBtn').onclick=()=>{ const root=document.documentElement; const dark = root.dataset.theme ? root.dataset.theme==='dark' : matchMedia('(prefers-color-scheme: dark)').matches; root.dataset.theme = dark?'light':'dark'; try{localStorage.setItem('kakv-theme',root.dataset.theme);}catch(e){} };
+try{ const t=localStorage.getItem('kakv-theme'); if(t) document.documentElement.dataset.theme=t; }catch(e){}
+
+/* ===================== Data contoh (fiktif) ===================== */
+function seed(){
+  const d=n=>{const x=new Date();x.setDate(x.getDate()-n);x.setMinutes(x.getMinutes()-x.getTimezoneOffset());return x.toISOString().slice(0,10);};
+  const base={jk:'L',usiaU:'th',files:[],contoh:true,skills:[],refleksi:'',verif:false,ket:''};
+  return [
+    {...base,id:'ex1',kat:'CABG',tanggal:d(1),nama:'Pasien Contoh Satu',nrm:'100001',usia:'61',diagnosis:'ASA III, CAD 3VD EF 45%, DM tipe 2',tindakanOp:'OPCABG',tindakanAn:'GA + A-line + CVC + TEE',dpjp:'dr. Contoh, Sp.An-KAKV',level:'3',skills:['Arterial line','CVC','TEE','Inotropik / vasopresor'],refleksi:'Hipotensi saat stabilisasi OM, respon dengan norepinefrin dan posisi Trendelenburg.',verif:true,created:3},
+    {...base,id:'ex2',kat:'CHD',tanggal:d(3),nama:'An. Contoh Dua',jk:'P',nrm:'100002',usia:'8',usiaU:'bln',diagnosis:'ASA III, VSD perimembran besar, PH sedang',tindakanOp:'Penutupan VSD',tindakanAn:'GA + A-line + CVC',dpjp:'dr. Contoh, Sp.An-KAKV',level:'2',skills:['Arterial line','Manajemen CPB'],ket:'Weaning CPB dengan milrinone',created:2},
+    {...base,id:'ex3',kat:'ICU',tanggal:d(6),nama:'Pasien Contoh Tiga',nrm:'100003',usia:'54',diagnosis:'Post ROSC, AKI',tindakanOp:'Total arch replacement',tindakanAn:'Ventilasi mekanik, CRRT, monitoring invasif',dpjp:'dr. Contoh, Sp.An-KAKV',level:'3',skills:['Ventilasi mekanik','CRRT'],created:1},
+  ];
+}
+
+/* ===================== Boot ===================== */
+(async()=>{
+  await openDB();
+  try{ RECS = await store.all() || []; }catch(e){ RECS=[]; }
+  try{ const p=await store.get('profile'); if(p) PROFILE={...PROFILE,...p}; }catch(e){}
+  let seeded=false; try{ seeded=await store.get('seeded'); }catch(e){}
+  if(!RECS.length && !seeded){ for(const r of seed()){ await store.put(r); RECS.push(r);} try{await store.set('seeded',true);}catch(e){} }
+  try{ ACTS = await store.allActs() || []; }catch(e){ ACTS=[]; }
+  let seededA=false; try{ seededA=await store.get('seededActs'); }catch(e){}
+  if(!ACTS.length && !seededA){ for(const a of seedActs()){ await store.putAct(a); ACTS.push(a);} try{await store.set('seededActs',true);}catch(e){} }
+  render();
+  try{ DL = window.claude && window.claude.use ? await window.claude.use('downloads') : null; }catch(e){ DL=null; }
+})();
+render();
+</script>
+<script>if("serviceWorker" in navigator) addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));</script></body></html>
