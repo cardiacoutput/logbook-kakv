@@ -289,7 +289,7 @@ try{ if(AUTH_ON && !localStorage.getItem('kakv-session')) document.documentEleme
 /* ===================== Konfigurasi (dari LOGBOOK KAKV 2026.xlsx) ===================== */
 const KAT = [
  {k:'NIVATS',  desc:'NIVATS, TEVAR kompleks (non-intubasi)', target:3,  title:'NIVATS (Teknik Anestesi non-intubasi pada bedah toraks dan vaskular) Target: 3 kasus', op:'Tindakan Operasi', an:'Tindakan Anestesi', dp:'DPJP', c:'--c1'},
- {k:'CHD',     desc:'Penyakit jantung kongenital anak & dewasa', target:50, title:'CHD (Melakukan anestesia bedah jantung pada penyakit jantung kongenital pada anak maupun dewasa) Target: 50 kasus', op:'Tindakan Bedah', an:'Tindakan Anestesi', dp:'DPJP', c:'--c2'},
+ {k:'CHD', label:'CHD / Valve', sheet:'CHD & Valve', desc:'Kongenital anak & dewasa, bedah katup', target:50, title:'CHD / Valve (Melakukan anestesia bedah jantung pada penyakit jantung kongenital pada anak maupun dewasa, dan bedah katup) Target: 50 kasus', op:'Tindakan Bedah', an:'Tindakan Anestesi', dp:'DPJP', c:'--c2'},
  {k:'PERFUSI', desc:'Perfusi dewasa dan anak', target:15, title:'Perfusi (Pengelolaan mesin pintas jantung pada pasien dewasa dan anak) Target: 15 kasus', op:'Tindakan Operasi', an:'Tindakan Perfusi', dp:'DPJP', c:'--c3', head3:' Nama Pasien'},
  {k:'AORTA',   desc:'Operasi aorta / aneurisma', target:20, title:'AORTA (Melakukan Anestesi pada kasus Aneurisma Aorta) Target: 20 kasus', op:'Tindakan Operasi', an:'Tindakan Anestesi', dp:'DPJP Anestesi', c:'--c4', head3:' Nama Pasien'},
  {k:'Diagnostik', desc:'Swan Ganz, IABP, CRRT, TEE, bronkoskopi', target:50, title:'Diagnostik (Mengelola prosedur penunjang diagnostik & terapi termasuk insersi Swan Ganz, IABP, CRRT, TEE, bronkoskopi pasien bedah jantung) Target: 50 kasus', op:'Tindakan Operasi', an:'Tindakan Anestesi', dp:'DPJP Anestesi', c:'--c5'},
@@ -299,6 +299,8 @@ const KAT = [
  {k:'ICU',     desc:'Cardiac critical care dewasa & anak', target:20, title:'ICU (Tatalaksana pasien di ICU, dewasa maupun anak) Target: 20 kasus', op:'Tindakan Operasi', an:'Tindakan di ICU', dp:'DPJP ICU', c:'--c9'},
 ];
 const KMAP = Object.fromEntries(KAT.map(x=>[x.k,x]));
+KAT.forEach(x=>{ x.label=x.label||x.k; x.sheet=x.sheet||x.k; });
+const katLabel = k => (KMAP[k]&&KMAP[k].label)||k;
 const TOTAL_TARGET = KAT.reduce((s,x)=>s+x.target,0);
 const LEVELS = [['1','Observasi'],['2','Asisten'],['3','Mandiri tersupervisi'],['4','Mandiri']];
 const SKILLS = ['Arterial line','CVC','Swan-Ganz / PAC','TEE','DLT / one-lung','Blok regional / ESP','Manajemen CPB','Inotropik / vasopresor','Koagulasi / ROTEM','IABP / ECMO','Pacing','Ventilasi mekanik','CRRT','Bronkoskopi','Ekstubasi dini'];
@@ -404,7 +406,7 @@ function renderHome(){
     <div class="row" style="justify-content:space-between"><h2>Target kompetensi</h2></div>
     <div class="tiles">${KAT.map(x=>{ const n=c[x.k]; const p=Math.min(100,n/x.target*100);
       return `<button class="tile ${n>=x.target?'done':''}" style="--cc:var(${x.c})" data-kat="${x.k}">
-        <span class="k"><span class="dot"></span>${x.k}</span>
+        <span class="k"><span class="dot"></span>${x.label}</span>
         <span class="desc">${esc(x.desc)}</span>
         <span class="num">${n} / ${x.target}</span>
         <span class="bar"><i style="width:${p}%"></i></span></button>`;}).join('')}</div>
@@ -426,7 +428,7 @@ function entryHTML(r){
       <span class="dx">${esc([r.diagnosis,r.tindakanOp].filter(Boolean).join(' · '))||'—'}</span>
       <span class="icons small">${r.verif?`<span style="color:var(--ok)">${ICON.check}Terverifikasi</span>`:''}${nl?`<span>${ICON.doc}${nl}</span>`:''}${nf?`<span>${ICON.cam}${nf}</span>`:''}<span>${fmtLong(r.tanggal)}</span></span>
     </span>
-    <span class="side"><span class="tag">${K.k}</span>${r.level?`<span class="tag lv">L${r.level}</span>`:''}${r.contoh?'<span class="tag ex">CONTOH</span>':''}</span>
+    <span class="side"><span class="tag">${K.label}</span>${r.level?`<span class="tag lv">L${r.level}</span>`:''}${r.contoh?'<span class="tag ex">CONTOH</span>':''}</span>
   </button>`;
 }
 function bindEntries(root){ root.querySelectorAll('.entry').forEach(e=>e.onclick=()=>go('detail',{detail:e.dataset.id,confirmDel:false})); }
@@ -443,7 +445,7 @@ function renderList(){
     <div class="search"><input id="q" type="search" placeholder="Cari nama, NRM, diagnosis, DPJP…" value="${esc(ui.q)}" aria-label="Cari"></div>
     <div class="chips" role="group" aria-label="Filter kategori">
       <button class="chip" aria-pressed="${ui.filter==='ALL'}" data-f="ALL">Semua <span class="mono">${RECS.length}</span></button>
-      ${KAT.map(x=>`<button class="chip" style="--cc:var(${x.c})" aria-pressed="${ui.filter===x.k}" data-f="${x.k}"><span class="dot"></span>${x.k}</button>`).join('')}
+      ${KAT.map(x=>`<button class="chip" style="--cc:var(${x.c})" aria-pressed="${ui.filter===x.k}" data-f="${x.k}"><span class="dot"></span>${x.label}</button>`).join('')}
     </div>
     ${rows.length?Object.keys(groups).sort().reverse().map(m=>{ const [y,mm]=m.split('-').map(Number);
       return `<div class="daygroup"><div class="eyebrow">${mm?BULAN[mm-1]+' '+y:'Tanpa tanggal'} · ${groups[m].length} kasus</div>${groups[m].map(entryHTML).join('')}</div>`; }).join('')
@@ -466,12 +468,12 @@ function renderForm(){
   const dpjpLain = draft._dpjpLain || (!!draft.dpjp && !PEMBIMBING.includes(draft.dpjp));
   const v=$('#v-form');
   v.innerHTML = `
-    <div><div class="eyebrow">${ui.editing?'Ubah kasus':'Kasus baru'}</div><h2>${draft._katUnknown?'Pilih kategori kompetensi':esc(K.k)+' · '+esc(K.desc)}</h2></div>
+    <div><div class="eyebrow">${ui.editing?'Ubah kasus':'Kasus baru'}</div><h2>${draft._katUnknown?'Pilih kategori kompetensi':esc(K.label)+' · '+esc(K.desc)}</h2></div>
     ${!ui.editing?waHeaderHTML():''}
     ${(draft._auto||[]).length?`<div class="note" style="border-left-color:var(--warn)">Kolom bertanda kuning diisi otomatis dari WhatsApp. Periksa isinya${draft._katUnknown?', <b>pilih kategori kompetensi</b> (belum bisa ditebak dari diagnosis/tindakan)':''}, lalu pilih <b>${esc(K.dp)}</b>.</div>`:''}
     <form id="f" novalidate>
       <div class="field"><span class="lbl">Kategori kompetensi <span class="req">*</span></span>
-        <div class="katpick" ${draft._katUnknown?'style="outline:2px dashed var(--warn);outline-offset:4px;border-radius:10px"':''}>${KAT.map(x=>`<button type="button" style="--cc:var(${x.c})" aria-pressed="${!draft._katUnknown&&draft.kat===x.k}" data-k="${x.k}"><span class="dot"></span>${x.k}</button>`).join('')}</div></div>
+        <div class="katpick" ${draft._katUnknown?'style="outline:2px dashed var(--warn);outline-offset:4px;border-radius:10px"':''}>${KAT.map(x=>`<button type="button" style="--cc:var(${x.c})" aria-pressed="${!draft._katUnknown&&draft.kat===x.k}" data-k="${x.k}"><span class="dot"></span>${x.label}</button>`).join('')}</div></div>
 
       <div class="fieldset">
         <div class="eyebrow">Identitas pasien (rekam medis)</div>
@@ -582,11 +584,11 @@ async function saveDraft(){
   if(!wasEdit && ui.waQueue && waIdx!=null){
     ui.waQueue[waIdx].done=true;
     const next=ui.waQueue.findIndex(x=>!x.done&&!x.skip);
-    if(next>=0){ toast(`Kasus ${rec.kat} disimpan. Lanjut pasien berikutnya.`); loadWa(next); return; }
-    ui.waQueue=null; toast(`Kasus ${rec.kat} disimpan. Semua pasien dari WhatsApp selesai.`);
+    if(next>=0){ toast(`Kasus ${katLabel(rec.kat)} disimpan. Lanjut pasien berikutnya.`); loadWa(next); return; }
+    ui.waQueue=null; toast(`Kasus ${katLabel(rec.kat)} disimpan. Semua pasien dari WhatsApp selesai.`);
     go('list',{filter:'ALL'}); return;
   }
-  toast(wasEdit?'Perubahan disimpan':`Kasus ${rec.kat} disimpan`);
+  toast(wasEdit?'Perubahan disimpan':`Kasus ${katLabel(rec.kat)} disimpan`);
   go('detail',{detail:rec.id,editing:null,confirmDel:false});
 }
 
@@ -607,8 +609,9 @@ function guessKat(t){
   if(/\bicu\b|iccu|cvcu|ventilasi mekanik|post ?op hari/.test(x)) return 'ICU';
   if(/ppm|pacemaker|pace ?maker|\bicd\b|\bcrt\b|ablasi|ep study|\btpm\b/.test(x)) return 'PACE';
   if(/aort|aneurisma|aneurysm|diseksi|dissection|bentall|tevar|evar|arch|david/.test(x)) return 'AORTA';
-  if(/cath|kateterisasi|\bpci\b|stent|tavi|tavr|\bbas\b|device closure|mitraclip|mitral clip|coiling|angiografi|ballon|balon/.test(x)) return 'CATH';
+  if(/cath|kateterisasi|\bpci\b|stent|tavi|tavr|\bbas\b|device closure|mitraclip|mitral clip|coiling|\bbmv\b|\bpbmv\b|valvotomi|valvuloplasti|angiografi|ballon|balon/.test(x)) return 'CATH';
   if(/swan|iabp|crrt|\btee\b|bronko|bronchoscop|ecmo/.test(x)) return 'Diagnostik';
+  if(/\bmvr\b|\bavr\b|\btvr\b|\bpvr\b|\bdvr\b|mv ?repair|tv ?repair|av ?repair|valv|katup|\bms\b|\bmr\b|\bas\b|\bar\b|\btr\b|mitral|tricuspid|trikuspid|aortic stenosis|aortic regurg|stenosis aorta|insufisiensi|regurgitasi|\bross\b|\bomc\b|\bcmc\b|\bie\b|endokarditis/.test(x)) return 'CHD';
   if(/\bvsd\b|\basd\b|\btof\b|\bpda\b|tetralogy|\bavsd\b|glenn|fontan|\bbt shunt|switch|\btga\b|\bchd\b|kongenital|congenital/.test(x)) return 'CHD';
   if(/cabg|opcab|bypass koroner|\bcad\b|\b[23]vd\b|\blm\b disease/.test(x)) return 'CABG';
   return '';
@@ -753,7 +756,7 @@ function parseBlock(lines,topDate){
   delete o.dpjpRaw; delete o._dpjpLbl;
   const allTx=[o.diagnosis,o.tindakanOp,o.tindakanAn,o.ket].join(' ');
   const dxop=[o.diagnosis,o.tindakanOp].join(' ').trim();
-  o.kat=(guessKat(allTx)==='ICU'?'ICU':'')||guessKat(dxop)||(dxop?'':guessKat([o.tindakanAn,o.ket].join(' ')));
+  o.kat=(guessKat(allTx)==='ICU'?'ICU':'')||guessKat(o.tindakanOp)||guessKat(o.diagnosis)||(dxop?'':guessKat([o.tindakanAn,o.ket].join(' ')));
   o._valid = !!(o.nrm || o.usia || labeled>=2 || HON_RX.test(o.nama||''));
   return o;
 }
@@ -785,7 +788,7 @@ function waHeaderHTML(){
     <div class="row"><button type="button" class="btn primary" id="waParse" style="flex:1">Baca teks</button><button type="button" class="btn" id="waFile">Unggah .txt</button></div>
     <input type="file" id="waIn" accept=".txt,text/plain" hidden>
     ${res&&!res.length?'<div class="err">Tidak ada data pasien yang terbaca. Pastikan teks memuat nama atau No RM pasien.</div>':''}
-    ${res&&res.length>1?`<div class="eyebrow">${res.length} pasien terbaca</div><div class="wa-list">${res.map((o,i)=>`<div class="wa-item ${o.done?'done':''}"><div><b>${esc(o.nama||'(tanpa nama)')}</b><span class="muted mono">${o.nrm?'RM '+esc(o.nrm):'RM —'}</span> · <span class="muted">${esc([o.kat,o.tindakanOp||o.diagnosis].filter(Boolean).join(' · ')||'—')}</span></div>${o.done?'<span class="small" style="color:var(--ok)">Tersimpan</span>':`<button type="button" class="btn" data-wa="${i}" style="padding:6px 10px">Isi</button>`}</div>`).join('')}</div>
+    ${res&&res.length>1?`<div class="eyebrow">${res.length} pasien terbaca</div><div class="wa-list">${res.map((o,i)=>`<div class="wa-item ${o.done?'done':''}"><div><b>${esc(o.nama||'(tanpa nama)')}</b><span class="muted mono">${o.nrm?'RM '+esc(o.nrm):'RM —'}</span> · <span class="muted">${esc([o.kat&&katLabel(o.kat),o.tindakanOp||o.diagnosis].filter(Boolean).join(' · ')||'—')}</span></div>${o.done?'<span class="small" style="color:var(--ok)">Tersimpan</span>':`<button type="button" class="btn" data-wa="${i}" style="padding:6px 10px">Isi</button>`}</div>`).join('')}</div>
       <button type="button" class="btn primary" id="waAll">Isi berurutan, mulai pasien 1</button>`:''}
   </div>`;
 }
@@ -845,7 +848,7 @@ async function renderDetail(){
     <button class="btn ghost" id="back" style="align-self:flex-start">← Kembali</button>
     <div class="card" style="--cc:var(${K.c});overflow:hidden">
       <div class="dhead">
-        <div class="row"><span class="tag">${K.k}</span>${r.level?`<span class="tag lv">Level ${r.level} · ${lvLabel(r.level)}</span>`:''}${r.verif?`<span class="tag" style="--cc:var(--ok)">Terverifikasi</span>`:`<span class="tag" style="--cc:var(--warn)">Belum diverifikasi</span>`}${r.contoh?'<span class="tag ex">CONTOH</span>':''}</div>
+        <div class="row"><span class="tag">${K.label}</span>${r.level?`<span class="tag lv">Level ${r.level} · ${lvLabel(r.level)}</span>`:''}${r.verif?`<span class="tag" style="--cc:var(--ok)">Terverifikasi</span>`:`<span class="tag" style="--cc:var(--warn)">Belum diverifikasi</span>`}${r.contoh?'<span class="tag ex">CONTOH</span>':''}</div>
         <h2>${esc(showName(r.nama))}</h2>
         <div class="mono small muted">NRM ${esc(r.nrm)} · ${r.jk||'—'} · ${esc(usia)} · ${fmtLong(r.tanggal)}</div>
       </div>
@@ -895,8 +898,8 @@ function renderStat(){
     <h2>Rekap kompetensi</h2>
     <div class="card" style="padding:14px;display:flex;flex-direction:column;gap:12px">
       <h3>Capaian per kategori</h3>
-      ${KAT.map(x=>{const k=c[x.k];const sisa=Math.max(0,x.target-k);return `<div style="--cc:var(${x.c});display:grid;grid-template-columns:86px 1fr auto;gap:10px;align-items:center">
-        <span class="row small" style="gap:6px;font-weight:700"><span class="dot"></span>${x.k}</span>
+      ${KAT.map(x=>{const k=c[x.k];const sisa=Math.max(0,x.target-k);return `<div style="--cc:var(${x.c});display:grid;grid-template-columns:96px 1fr auto;gap:10px;align-items:center">
+        <span class="row small" style="gap:6px;font-weight:700"><span class="dot"></span>${x.label}</span>
         <span class="bar"><i style="width:${Math.min(100,k/x.target*100)}%"></i></span>
         <span class="mono small" style="min-width:68px;text-align:right">${k}/${x.target}${sisa?` <span class="muted">−${sisa}</span>`:' ✓'}</span></div>`;}).join('')}
     </div>
@@ -968,7 +971,7 @@ function exportXlsx(){
   if(typeof XLSX==='undefined'){ toast('Pustaka Excel belum termuat'); return; }
   const wb=XLSX.utils.book_new();
   if(SESSION){ PROFILE.nama=SESSION.nama; PROFILE.npm=SESSION.npm; }
-  const ket=[['Sheet Title','Keterangan','Note','Target Kasus'],...KAT.map(x=>[x.k,x.desc,x.k==='NIVATS'?'non-intubasi':'',x.target]),[],['Nama Trainee',PROFILE.nama||''],['NPM',PROFILE.npm||''],['Angkatan / Periode',PROFILE.angkatan||''],...(SESSION&&SESSION.email?[['Email',SESSION.email]]:[]),['Tanggal Ekspor',fmtDMY(todayISO())]];
+  const ket=[['Sheet Title','Keterangan','Note','Target Kasus'],...KAT.map(x=>[x.sheet,x.desc,x.k==='NIVATS'?'non-intubasi':'',x.target]),[],['Nama Trainee',PROFILE.nama||''],['NPM',PROFILE.npm||''],['Angkatan / Periode',PROFILE.angkatan||''],...(SESSION&&SESSION.email?[['Email',SESSION.email]]:[]),['Tanggal Ekspor',fmtDMY(todayISO())]];
   const wsK=XLSX.utils.aoa_to_sheet(ket); wsK['!cols']=[{wch:14},{wch:46},{wch:14},{wch:12}]; XLSX.utils.book_append_sheet(wb,wsK,'KETERANGAN');
   for(const x of KAT){
     const rows=RECS.filter(r=>r.kat===x.k&&!r.contoh).sort((a,b)=>(a.tanggal||'').localeCompare(b.tanggal||''));
@@ -977,7 +980,7 @@ function exportXlsx(){
     if(!rows.length) aoa.push([1]);
     const ws=XLSX.utils.aoa_to_sheet(aoa); ws['!merges']=[{s:{r:0,c:0},e:{r:0,c:10}}];
     ws['!cols']=[{wch:5},{wch:12},{wch:24},{wch:11},{wch:4},{wch:6},{wch:34},{wch:24},{wch:28},{wch:30},{wch:40}];
-    XLSX.utils.book_append_sheet(wb,ws,x.k);
+    XLSX.utils.book_append_sheet(wb,ws,x.sheet);
   }
   const ka=[['KEGIATAN ILMIAH'+(PROFILE.nama?' — '+PROFILE.nama:'')+(PROFILE.npm?' ('+PROFILE.npm+')':'')],['No','Semester','Tanggal','Jam','Judul Kegiatan','Jenis','Peran','Penyelenggara','Pembimbing','Media','Lokasi / Link Zoom','Meeting ID','Catatan','Foto','Sertifikat']];
   ACTS.filter(a=>!a.contoh).sort((a,b)=>(a.tanggal+a.jamMulai).localeCompare(b.tanggal+b.jamMulai)).forEach((a,i)=>ka.push([i+1,Number(a.semester),fmtDMY(a.tanggal),jamStr(a),a.judul,a.jenis,a.peran,a.penyelenggara||'',a.pembimbing,a.media==='zoom'?'Zoom Meeting':'Offline',a.media==='zoom'?(a.zoomLink||''):(a.lokasi||''),a.media==='zoom'?(a.zoomId||''):'',a.catatan||'',(a.files||[]).filter(f=>f.kind==='foto').length,(a.files||[]).filter(f=>f.kind==='sertifikat').length]));
@@ -1007,7 +1010,7 @@ async function importXlsx(file){
     const wb=XLSX.read(await file.arrayBuffer(),{cellDates:true});
     let added=0, skipped=0;
     for(const name of wb.SheetNames){
-      const K=KAT.find(x=>x.k.toLowerCase()===name.trim().toLowerCase()); if(!K) continue;
+      const nm=name.trim().toLowerCase(); const K=KAT.find(x=>[x.k,x.sheet,x.label].some(v=>v.toLowerCase()===nm)); if(!K) continue;
       const rows=XLSX.utils.sheet_to_json(wb.Sheets[name],{header:1,raw:true,defval:''});
       for(const row of rows.slice(2)){
         const nama=String(row[2]||'').trim(); if(!nama) continue;
