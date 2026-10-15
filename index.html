@@ -449,6 +449,7 @@ function renderForm(){
     draft._for = ui.editing;
   }
   const K=KMAP[draft.kat];
+  const dpjpLain = draft._dpjpLain || (!!draft.dpjp && !PEMBIMBING.includes(draft.dpjp));
   const v=$('#v-form');
   v.innerHTML = `
     <div><div class="eyebrow">${ui.editing?'Ubah kasus':'Kasus baru'}</div><h2>${esc(K.k)} · ${esc(K.desc)}</h2></div>
@@ -476,8 +477,9 @@ function renderForm(){
         <div class="field"><label for="tindakanOp">${esc(K.op)}</label><input id="tindakanOp" value="${esc(draft.tindakanOp)}" placeholder="OPCABG"></div>
         <div class="field"><label for="tindakanAn">${esc(K.an)}</label><input id="tindakanAn" value="${esc(draft.tindakanAn)}" placeholder="${K.k==='ICU'?'Ventilasi mekanik, CRRT…':K.k==='PERFUSI'?'CPB, kardioplegia…':'GA + A-line + CVC + TEE'}" list="anList"></div>
         <datalist id="anList"><option>GA</option><option>GA + TEE</option><option>GA + ESP block</option><option>Sedasi (MAC)</option><option>Non-intubasi + blok regional</option></datalist>
-        <div class="field"><label for="dpjp">${esc(K.dp)}</label><input id="dpjp" value="${esc(draft.dpjp)}" list="dpjpList" placeholder="dr. …, Sp.An-KAKV"></div>
-        <datalist id="dpjpList">${[...new Set(RECS.map(r=>r.dpjp).filter(Boolean))].map(d=>`<option>${esc(d)}</option>`).join('')}</datalist>
+        <div class="field"><label for="dpjpSel">${esc(K.dp)}</label>
+          <select id="dpjpSel"><option value="">Pilih ${esc(K.dp)}…</option>${PEMBIMBING.map(n=>`<option value="${esc(n)}" ${draft.dpjp===n?'selected':''}>${esc(n)}</option>`).join('')}<option value="__lain" ${dpjpLain?'selected':''}>Lainnya (ketik nama)…</option></select>
+          <input id="dpjpLain" value="${esc(dpjpLain?draft.dpjp:'')}" placeholder="Nama ${esc(K.dp)}" ${dpjpLain?'':'hidden'}></div>
         <div class="field"><label for="ket">Keterangan</label><textarea id="ket" placeholder="Permasalahan pasien perioperatif, bila ada">${esc(draft.ket)}</textarea><span class="hint">Diisi dengan permasalahan pasien perioperatif, bila ada.</span></div>
       </div>
 
@@ -514,7 +516,8 @@ function renderForm(){
         <button type="submit" class="btn primary">${ui.editing?'Simpan perubahan':'Simpan kasus'}</button>
       </div>
     </form>`;
-  const sync=()=>{ ['tanggal','nrm','nama','usia','diagnosis','tindakanOp','tindakanAn','dpjp','ket','refleksi'].forEach(id=>draft[id]=$('#'+id).value.trim()); draft.usiaU=$('#usiaU').value; draft.verif=$('#verif').checked; };
+  const sync=()=>{ ['tanggal','nrm','nama','usia','diagnosis','tindakanOp','tindakanAn','ket','refleksi'].forEach(id=>draft[id]=$('#'+id).value.trim()); const ds=$('#dpjpSel').value; draft._dpjpLain = ds==='__lain'; draft.dpjp = ds==='__lain' ? $('#dpjpLain').value.trim() : ds; draft.usiaU=$('#usiaU').value; draft.verif=$('#verif').checked; };
+  $('#dpjpSel').onchange=()=>{ const lain=$('#dpjpSel').value==='__lain'; const i=$('#dpjpLain'); i.hidden=!lain; if(lain) i.focus(); };
   v.querySelectorAll('.katpick button').forEach(b=>b.onclick=()=>{ sync(); draft.kat=b.dataset.k; renderForm(); });
   v.querySelectorAll('#jk button').forEach(b=>b.onclick=()=>{ draft.jk = draft.jk===b.dataset.j?'':b.dataset.j; v.querySelectorAll('#jk button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.j===draft.jk)); });
   v.querySelectorAll('#levels button').forEach(b=>b.onclick=()=>{ draft.level = draft.level===b.dataset.l?'':b.dataset.l; v.querySelectorAll('#levels button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.l===draft.level)); });
@@ -555,7 +558,7 @@ async function saveDraft(){
   const er=$('#ferr'); if(miss.length){ er.hidden=false; er.textContent='Lengkapi '+miss.join(', ')+' sebelum menyimpan.'; er.scrollIntoView({block:'center'}); return; }
   for(const n of draft._new) await store.putFile(n.id,n.blob);
   for(const id of draft._removed) await store.delFile(id);
-  const rec={...draft}; delete rec._new; delete rec._removed; delete rec._for; rec.contoh=false; rec.updated=Date.now();
+  const rec={...draft}; delete rec._new; delete rec._removed; delete rec._for; delete rec._dpjpLain; rec.contoh=false; rec.updated=Date.now();
   await store.put(rec);
   const i=RECS.findIndex(r=>r.id===rec.id); i<0?RECS.push(rec):RECS[i]=rec;
   const wasEdit=!!ui.editing; draft=null;
