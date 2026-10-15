@@ -1,12 +1,12 @@
 {
-  "name": "Logbook Subspesialis Anestesi Kardiovaskuler",
-  "short_name": "Logbook KAKV",
-  "description": "Logbook trainee Subspesialis Anestesi Kardiovaskuler FK Unpad",
+  "name": "e-Logbook Subspesialis Anestesi Kardiovaskuler",
+  "short_name": "e-Logbook KAKV",
+  "description": "e-Logbook trainee Subspesialis Anestesi Kardiovaskuler FK Unpad",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#eef3f3",
-  "theme_color": "#0b6d68",
+  "background_color": "#f3f8f1",
+  "theme_color": "#0a7332",
   "lang": "id",
   "icons": [
     {

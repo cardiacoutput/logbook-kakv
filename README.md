@@ -1,4 +1,4 @@
-# Logbook Subspesialis Anestesi Kardiovaskuler
+# e-Logbook Subspesialis Anestesi Kardiovaskuler
 
 Aplikasi web mobile untuk mencatat logbook trainee Subspesialis Anestesi Kardiovaskuler (KAKV) FK Unpad.
 
@@ -6,7 +6,7 @@ Aplikasi web mobile untuk mencatat logbook trainee Subspesialis Anestesi Kardiov
 
 ## Fitur
 - Pencatatan kasus per 9 kategori kompetensi (NIVATS, CHD / Valve, Perfusi, Aorta, Diagnostik, CABG, Cath, Pace, ICU) dengan target kasus, mengikuti format file *LOGBOOK KAKV 2026.xlsx*.
-- **Tempel dari WhatsApp**: salin pesan laporan/jadwal pasien, aplikasi mengisi nama, No RM, tanggal, usia, diagnosis, tindakan operasi & anestesi, kategori, dan DPJP (bila disebut). Mendukung satu pasien berlabel, daftar bernomor beberapa pasien, dan file ekspor chat (.txt). Di Android, pesan bisa langsung dibagikan dari WhatsApp ke aplikasi (Bagikan → Logbook KAKV). Teks hanya diproses di perangkat.
+- **Tempel dari WhatsApp**: salin pesan laporan/jadwal pasien, aplikasi mengisi nama, No RM, tanggal, usia, diagnosis, tindakan operasi & anestesi, kategori, dan DPJP (bila disebut). Mendukung satu pasien berlabel, daftar bernomor beberapa pasien, dan file ekspor chat (.txt). Di Android, pesan bisa langsung dibagikan dari WhatsApp ke aplikasi (Bagikan → e-Logbook KAKV). Teks hanya diproses di perangkat.
 - Unggah laporan anestesi dan foto kasus; level keterlibatan, keterampilan prosedural, refleksi, tanda verifikasi DPJP.
 - Kegiatan ilmiah per semester (1–4): tanggal, jam, pembimbing, media Zoom Meeting / offline, foto kegiatan, sertifikat.
 - Ekspor ke Excel (format LOGBOOK KAKV + rekap kompetensi + kegiatan ilmiah), impor dari Excel lama, cadangan & pulihkan (.json).
