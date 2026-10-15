@@ -10,7 +10,7 @@ Aplikasi web mobile untuk mencatat logbook trainee Subspesialis Anestesi Kardiov
 - Kegiatan ilmiah per semester (1–4): tanggal, jam, pembimbing, media Zoom Meeting / offline, foto kegiatan, sertifikat.
 - Ekspor ke Excel (format LOGBOOK KAKV + rekap kompetensi + kegiatan ilmiah), impor dari Excel lama, cadangan & pulihkan (.json).
 
-- Login dengan Nama, NPM, dan kode OTP yang dikirim ke WhatsApp. Cukup sekali per perangkat; aktif setelah server OTP dipasang (lihat [`worker/README.md`](worker/README.md)).
+- Masuk dengan akun Google (Gmail). Cukup sekali per perangkat. Nama dan NPM trainee tampil di header dan otomatis terisi di setiap ekspor.
 
 ## Cara pasang di HP
 - **Android (Chrome):** buka link → menu ⋮ → *Tambahkan ke layar utama* / *Instal aplikasi*.
@@ -21,5 +21,16 @@ Semua data (identitas pasien, foto, laporan) **hanya tersimpan di browser perang
 - Lakukan **Cadangkan semua data** secara berkala (menu Ekspor), terutama sebelum ganti HP atau menghapus data browser.
 - Data di HP berbeda tidak tersinkron otomatis.
 - Jangan unggah file ekspor/cadangan ke repositori ini atau grup chat umum.
+
+## Mengaktifkan login Google (admin)
+
+Login aktif setelah konfigurasi Firebase ditempel ke `index.html` (`const FIREBASE_CONFIG = ...`). Selama masih `null`, aplikasi langsung terbuka tanpa login.
+
+1. Buka https://console.firebase.google.com → **Add project** (Google Analytics boleh dimatikan).
+2. **Build → Authentication → Get started → Sign-in method → Google → Enable**, pilih email dukungan, **Save**.
+3. **Authentication → Settings → Authorized domains → Add domain**: `cardiacoutput.github.io`.
+4. **Project settings (ikon roda gigi) → Your apps → ikon Web `</>`**, beri nama, **Register app**. Salin objek `firebaseConfig` yang ditampilkan.
+
+Nilai `firebaseConfig` (termasuk `apiKey`) memang dirancang untuk berada di kode aplikasi web dan aman dipublikasikan; yang membatasi penggunaannya adalah daftar *Authorized domains*.
 
 Logo Universitas Padjadjaran adalah milik Universitas Padjadjaran.

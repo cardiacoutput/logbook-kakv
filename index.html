@@ -182,13 +182,15 @@ nav.tabbar .fab span.b svg{width:26px;height:26px}
 #login .lhead .mark svg{width:40px;height:40px}
 #login .lhead small{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);font-weight:700}
 #login .lhead h1{font-size:22px;line-height:1.2}
-#login form{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px}
-.wa{display:flex;align-items:stretch;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
-.wa span{display:flex;align-items:center;padding:0 10px;background:var(--surface2);border-right:1px solid var(--line);font-family:var(--f-mono);font-size:14px;color:var(--muted)}
-.wa input{border:0;border-radius:0}
-.otpin{font-family:var(--f-mono);font-size:28px;letter-spacing:.5em;text-align:center;padding:12px 0 12px .5em}
+#login .lcard{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:14px}
+.gbtn{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:var(--surface);font-weight:600;font-size:15px}
+.gbtn svg{width:20px;height:20px;flex:none}
+.gbtn:disabled{opacity:.6;cursor:default}
+.who-acct{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface2)}
+.avatar{width:36px;height:36px;border-radius:50%;flex:none;border:1px solid var(--line);background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:13px;display:grid;place-items:center;overflow:hidden;padding:0;font-family:var(--f-display)}
+.avatar img{width:100%;height:100%;object-fit:cover;display:block}
+.brand #who{color:var(--ink);font-weight:600}
 .linkbtn{background:none;border:0;color:var(--accent);font-weight:600;padding:4px 0;text-decoration:underline;text-underline-offset:3px}
-.linkbtn:disabled{color:var(--muted);text-decoration:none;cursor:default}
 /* kegiatan ilmiah */
 .act{display:grid;grid-template-columns:54px 1fr auto;gap:12px;padding:12px;text-align:left;width:100%;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);align-items:start}
 .datebox{border:1px solid var(--line);border-radius:10px;overflow:hidden;text-align:center;background:var(--surface2)}
@@ -225,6 +227,7 @@ nav.tabbar .fab span.b svg{width:26px;height:26px}
   <header class="top"><div class="wrap">
     <div class="logo img"><img src="data:image/webp;base64,UklGRtQ2AABXRUJQVlA4WAoAAAAQAAAArwAArwAAQUxQSD8IAAABoEVtmyFJ+iL+GM8se2Zt27Zt27Zt27Zt27aNse2KP/7volWVlRnXETEBKF0nAvTc9b1PD+wHIHhkrgsAFr3gV5IccveGHhDJGS+AbPXsNNJSSiR/PHN+AOIyRTzQ7/jvScZEkhaNnPDIRgCCzxBxwJLXDyOTGttPkeTnB80IiM8LJwA2fGI6qYmdNDWy/3nzAuLzwQngt3ubZDTWMyk59talAO/zwAnQdZ+vSVNjvS2S0x5YERCfAQJ0O+AHMikbapGMj6wEiK84Aboe+BOpiQ03JfXh5QFxFSYOfr8fSU0spClZu2sRILiK8gLs+CWpiYU1Jcdf0Q+QKnICrP8OqYmFNiUHH98N3leOAEs9SqbEwlskv98OCK5SvEPL5ZNpyqY0JZ9fBpDqcAIc1J9UNm1KnHJxH4ivCAFWf4+MxmZW8o/tgVAF3mPWG5VqbHKL5OPzw/vSC8Du/5LKEkyJow4DQrl5j/mfIiNLUslXF4f3JSbAYaOoiaVpynFHAVJWTrDgS6SyVJV8dSGIKyUBDhhFNZasKUftA0j5uIB+j5DKElbywZkRysY7bPEf1VjKpvxjXXhfKgHhUjKytCPj6YCUiGCh92mJJZ6Mz8+OUBbeYacRjCx3i+y/AcSVggAXk8rSj9TjAV8CAf1eYUqswGS8vzdC0wWs+jcjq9Eiv14Eobmcx96TqazMyBGbQ1wTeeASMrFClXoMvGsaQc/HqMZKTcabHKRJAub+lJFVa8qXZ0RoioDl/mVkBUd+sxBCEwRsNpbKSo4cuDpC0VzAPtOprGjlxK0QiuUEJ9ISKztRD0ZwBXIel1CNFZ6MJ0NcYZzHTYzGSjfllfCuIN65exhZ9RZ5K5wvhEeXpxmZgZGPCHwBPLq9yMgsjHyxG3zDPLq9whozscZXesA3yKPby6wxG2t8oxd8Qzy6vczIjIx8uxd8A7zr9jIjszLyzZ7wdXMuvMTIzIx8ozt8nZz4p1ljdka+1s35ujjBPYzM0Mjnxbs6OMFNrDFLIx+HuE65gCsZmak13gZxnQk4l5HZGnk1gutYwKGMli+MPAtdOhSwK9WYsRZ5GEIHAtafbsasNeVOCO0IVhjLxMy1NHkdhDYE8w1gYvYmjloKAsC7GX6gMoOVf/aFhxN5lZFZHPleV+8C7mGNmRz5IALOZmQ213geDqdaPpnyyOk0ZrRx2tjcGjMyt4YPza3B/+fWH98x5VTi55/k1ntv5JXy2YeoeXXrDbl12Xl5lXjsQUx5ted2tJwybrCqMaONtaUWnEjLqVGz9xmQU4l/dXPfMuWT8kPgZWpOPQ7czJhPkZcDJ+XVIcCO1HxK3ARYnjmdFgNaxtFyyTisD+B/Zsol5RdwguepuRT5KELAJYz5dHar3am5pNwOQbC8WS5RF4d3mGE4LY8SB/aAg8OH1DxSvgsPBNzMmEeR1yK02p+aR8o9W3ksmyyPqEvDAw49BtFyyDigBxwAj1eoOaR8CR4AAs5mzKHIcxBaCTZiyqHETSCtHFrG0fLHOLYFrhU83qPmj/JjOLQZcCFj/kRehdCWYBOm/EncGtKWw8yjabljHNcXvi14vELNHeVH8Gg34GTG3Im8AKE9wQpmuWNcB9KeQ5c/mPImcUgvuPYQcJvFvIl8EoIOCrZhyhvl/ggdcZhlNC1njFPmg+8IBE9bzBnlx3DocMAB1JyJPBOhYw5zT6JljNly8B2Dx5vUfEn8WRw6GXB4zkRegdAZj3mm0LLFbDVIZ+DxGjVXEn8N6Hxw++VL5BUInXPoN46WKZZWhnQOgict5knid96hjsFtS82TyLMR6uHQawBTjphNXwy+Hgi4ljFH1N6FR10FKybLEh6AUB9495lpfhjHtMDVKeAIZkjkPRDU2aFlDC07EtepHwR3MuaG8jtxaMCqZvlxLEL94N2npnlhHNsPrgEBezEzIu+BoIHO9R7IlBVmqzUGARcw5oTyY3g01GPeyWZZsTtCYyB4kDEfkv3b3bmGrZgsH5QnI6DRHm9Qc8FsTF/nGybYhCkXIq+HoPHef2WaB2ZTF3a+AIJdmAnKByEoouvys2kOmNWWcb4QAfswCyKfgqCQznf7zVIGpLSyKwgCDqBWn/IlCArqXI8/LFVeSqsWBwH7UatO+TwEhXW+26+Wqs1SXN4VCIK9qNUW+SgEBXY+fE+tMkvTFne+SBBsW22RN0NQbI8PqNVlafxczhdMsHaqMOV5EBRd8DS1qpL17+Nd4bxbfGqyilLuA0HxBddSq0n5uXjXBM7PMtxSNaU1IWhGwVHUKoq8H4Lm9F2+pVaPpbFzOd8kgvWrKPJoCJpV8Chj1Si/EHFN491cY5JVi2ltZQiaV3AktVoir4SgiZ34z6lVovZnL++aCYKVjVGtGpJGckMImltwWSSZYrJyM41GsnYlBM3usdgRL4wkSY3JSsmSRiPJ/x87YBF4NL8DMOtmV381lSQ1qpWKaVS2HvrKqWv0BOBQhj54AFhgl5u/nkKSplHNms6Sxmgkaf8+c+raMwGABI+ydBLQer7tL31nKNvUGDVZU1jSGJVtjvns1v2X6Q4APohDyXoJaD3jKgfc9MEQY5tJY9SUrAhmSTVGNbaZBn9026Grt6C1BHEoaS/Bo3WfpXY888HPBke2b0lVNaWUrOMpJVXVZOzg5P4f3n3yNkv0RmsXgncoeedDcGiz14Lr7nPOna9933+8svFTh//58TPXnbjzKnN1Q5suBHGoTOdDCA7t9p53+Y33OOaiGx565d3Pf/x3wNARI0ePHjVi+OD///rmozeevu2K0w/YfvXFW7qiXR+CeIdmBQBWUDggbi4AANB7AJ0BKrAAsAA+LRKHQqGhDQYbPgwBYlsANBR1H5R0/ltOo/j9/Zf2l+UCnf0j+kfmP+5f9j/R8upLP+385/yb9E/0/90/v3/W/yn/////3X/tv+o9hf5j/6/uA/px/tf8P/evaU/YD3Bf2v/Pf879VfgB/Tv7l/yf8R++/yw/4D/DfzH3Ef27/A/63/Af8D5AP53/af99+d3zWf7H2Df8Z/mv/v7gH9G/tfq4f6H/yf6f98//L9kn7N/+f/Pfvl/4/sP/nn9w/7H7Xf/n5AP+p6gH/Y9QD9/+4o/tHox8B/tX5N+dP458s/dv7P+1P9u/aX4mv7fw4+f/vn+49D/4/9ofw/9i/cP+7fuB8W/4D7W/Qn4S/0X9i/br4Avxz+U/4n+2fuB/iP3D9yX+77UzX/8z/qvUF9ufp/+X/w/7hf3791Pas1DvA/+++4D7AP51/Tv8t/df24/yH/5+wP9d4FP3r/Yf8/7gPsB/m/9k/4v+E/KL6ZP5P/sf5j/W/tH7X/z/++f9f/Mf4z9q/sJ/lX9Q/1P97/z3/X/y////5v3c///3I/tV/5/dZ/Xr/rOulyRvnxJHRW/3punf2f28coOGP+FV5dE83xHY190uiHRPS/9CXUrZoxfx3iXdz3E3ZUFBD7wT2wZE1EbDcMZNfp4Rh666KAZprelhKHkB0m2qOZLmlJj3kbC1ra5LtyBCVLw6aAy/G0iAj4Rj7oPldhP7mrmYlZFPddrp6mfgXk3M/OBGQ+X8WPg3OoIJRpp0pBFkgLH0cKACb2CgKGwbNOsUoHmO6R6ptiUt9wngtkLs8gnQwkhhPWqmee6FnmJF1dyOyfh+TGjaTQ10LC0sz5LHI47ZVgr0N/r+OG3uFFQQiSjxf8ROBXKXUIQwP4xn+fNP0qTcSai1mm+qif68L/fo0FLfD2pbAWgkYObF2cWpPw17qmxATyU4+brhIw9acSYiRX+MUuvk7yuKuLMS++noI62rhJTDFCub4y+14S2gGLZE8jYg8YyIAwCWP2/SK7/yLnH7rj6Skf7SJg2NMFCW2DWbzmh9De+mksJSYvwlqCPX6Pi76vTmw9xNCNiCOlRc5GeUBLE+9HoRDOGnDuWnGSEp6ccTccNSXqAeiz2mXgNRb3jkrBHpYNxDw4+okW69cdKLIy+tyhF6S+1IZuYTXw14k3P++s7dpinxzbneQqx96K/E+mWK29lgPaNi/ty3egT+cWeyk1BCLIT+DpXarN6r+pRv3uLWUEu1FdO3AxmAaGLZU/gZ5E+VqFjDgBE0TdLCd6vl2Rxr4ndm+RDhi4w+zolI5gjdY/597H1ToJriwAD+/4+8BWSXj6oDhuQcqydJGRYtC6e9jH1nZm1AbZ9qTBZ28j3MjLwX7Humco7FWOy2s/kcEQBZtBlq0AfzWViQP41Nis1uWe9AbN9lHiLtTnUy/DElrMrVmiAmZqfhdvV5MMY9Z0u/qffa0q+GlQtgLkrRPJQGPF9VRUUD7DE/L9pivard7kGUNCuqfugeAltoaHjOWX+jzdJ1Vg0Q5a6cgqJpUqEgnhCbL84cE/TSYXlzwnw8yeCTGpeFlAotAFCpi0oQwJS8sipFYioj0RTfJ5sKBo9cWvLnX5E9Kvl4U9Dm48SvBqr1Wzku0rH/ZUMlpiJHLatM6R21PzYxvktq8YvEd1tGK/ZDUUXD2OViYXCAN/6/hbj76CMKSJ/9QgZIB2zoOU/sqPD5CYz+EYz0tbjWQ8RstAs49k/Bwv8lQZXG8GbzYNb/ETaccr3nR2PNq9CmPCyQi8z3FZj8Ibq1iSzd3jOWtZ7DP5qgGApWKTsriFv4BziklS55bStqM+Dw1Q6AYiCWh3KTDUmEKBwIbmB9A6ZvhvLHpu3h6vCEg+hR0BAfMdtUy5LM63HRW5uw0/HPGr5puhgRuDWQiVqnuGK3Z9652FQr8035zVzh5yMhiIHqyI4U4PMb2FoX4mDYB9739e036K5PWKvEEDlVyILWxgD7DfQamBa+Km1Q6so95u3/vx1zdgzS2QpWXOMVgvdmUCwl/+FrYnnv2M3c1DkzqhxIXYWNpBOZ8mcAAKo5tIAoo3nlkgkzwSOBRhI+VWrcmBp7nDcJN2VFNTIakUwmSKujK/hOCWnmLi4pBFG31AFfm4+Rp0QqZr7GK9FiSRPUOOgjiWlNVvSPjWhZb1/MZ0ozqqYZE1KTkGp1Chx8Z3myArwqOE8VLWj/pX7MEIAEfcpvKe3S6gD3HOm9vy0pYicI005nAKs2JOSXi8M1ivnDPT53Vbqx3aolH1y3F97uJ6n/VhezdAt9CFuffHDg5AaUPb5ExwDaLpQuLaTY/Y+cdrYS3gWLAGxYTBm2EgrgUWlAQQyiLlVcctUHfCGQi4Cm654NxiYRUZz7Vc1sd3pWD/+VBJixVBTPwT1NMY2gLRNivWK4+4/6wXk2uCUUDDYFSjcJtozu4CxhP5FkddwNE15JaDtiwMaKvhRgNVB/KpmgVwL8lgUPm/a/bxSU15ZRp0BdB1dHJAoqQ/7RNRdehHT85JYpkw1q4afFxNis3ztQ430OOb4L/7sOg8Kb2OISBA8nByRB1v6rtGCPu0L42hV1vh6GMravO7AwnGUP1vZxKvX9TajE88xv5dQ2MAGZBAaFUkflakbPjOOhv/ohRQViLh1XsK504aW2S0MKe8wxO3wAEf+Yz2w80IzoU6Ez77YBStEH4lVTp4zxOqOt/qjLud8XVAZcZISspu5NEgvrBzvKshkiLm/ITV1bPB+xVGXO1qB3+nxQE/FrhYJsag19Ap60D20y6MIJ4PwXlg64is6aeZixRtMfXcAu7sEU+iiqJcYWBZbweIZyH1FmgCdvU0Ip4gXZSqTAQH3XWfx1jLGn7PuuSzswLA6N2qH+IOz6c/GyUn54xYA8ixildwG+UtMchPrg7GWqUG0ErKh1JB86rBG9XvVAEIGN/Yk+VQGTTvuGRjKmoCBxDz+ACITqnL5hRt/pkrBvW7uBF/fF3tMh3uMelIbdYr2TYSp2C8lsf1ejV40IQaNQh20qAX5U5fMiLd9gFJqN4QiyqS62foP8FjpXN7TMeRJ7Mtwj0fHbBp/Vz0l/A4CZFZJqTuDijiGXBVFfANs+4KqyjE8M+iYAmjiH1jiXv9/yVqHE0tMfbP22SoTjLEyHcq9Fx/uSMxIzmxhdU3LnPx99QWVjmGt/KBQoqeLe2UlY254vz9UxPj948LEVXmaQXTLFCMBm2oEqXxDoiQ7Oq25OXGDIAfQ7WT28sU/22FZWhmH6+coTtdolwzcP7MEPEwYoY5xb3kD+iKpd6dDvH5W22A42uk/Ty4UgwyPFDpnnEWHYNKtzP65RwkwOl8wVnmwUgVeDW14CHPfoeL7yLeAOi9rJv8r5yHgmW05cC5Fhnz8XjOelZlMsvkj9XArWMNqRUKxyHL9eCcE8JUnjmZQdZb+Dn8D6W04P2UW6JtvJGsdaSGXq0fSFfNStEJbhpGSoLBPcN4KeG74JcUUgJjx4o0SabTjwnBmXDstZskbP9Gh/I4n/y4NjuCU3YllnzfZho9iLpXs3OAN3XkfnFiKzXdEbX4uuXYD2t4j5mVb5UlrNFxF/9HuPN62BQcrGQNE6wXjoNgS5zzIL/wwjVp/a7mVxPrPvlQRDe9koszmXBUICv1O3+WmiNT4KDJfWDp2/BzsmRW8hXNLGp8bbP4uOZpCjqZEfEKtViim54fMQX/dfyQ2cDZZx9SBhkQjZMqCALOCVp9gdYv1C9RuuF8ATOCZdXwqCIWP+HpuBtlEVwZbBMdMFtU3PoP8S0KrSHiB4vIu64eKR6UxV49B1jvc4YJrk0XZea7wYByzNw58qWYj+93FloHrIRQTB1yDD/R9LNZVaD/ba66K2VwQWyejCn+dyJ4Wr3A/N1VXwdHQgUS3X0lMBUvb6yVf90EAbBcAFqkc347iB80dspkrX7q6gp5LqBcldDgUk60CI8f6dWPIqAq3zi1vU9Mc4SnAgwKm8wRHYP7TmHPW73NV+sd1PbVEzGJZJdcpTpBF7hEVUdlLEB7P3I9c6/iHvx2ZUnlhk6lLFJ6DGBWctviffJzZ5IisxLykMkDW+kvHOx7cNouJwMFMdoGTWamy71naM+UvgdbJhUS6MHk0D1Fy04KNO2I2DuG0qY4bmNFCXV8OZPr8Asbx4fBOkJEoohbD+ZOhPwAHD1tXG7rJZE30virKp/gsel9R23C4QrOVOBpwFkersyZw+4Rm51MgHE8cv9SAg5HzqiseZJ21qwk12himSE0Xtl2ESORKfIc+FrLj5qOZu/2AVkk7JPTazziccXxppC2nsHmZkeSqJjHClT1KBOI2m4ECiZ38sycoUJ/5lDVuAmNiz6F54+NAAc65fxPKSd+WPJZzlE2I0Y1mgAVAWITSOCyWFZOcIH6tZVzaD1qdQ8bjlt5GCx22dcEsNBaG/+RIxhn/AB+AQnTGz9fMQwoSwa3ORn0f53awvZorfmypQQDedYGO//9eVF8wli1ODFirF29EuEdhIo5CBNE5j1Pdn8HKqkHm+5jhNFIy3HvvD9yF8vXYGFTRGkXOIxhqoGlPOLY3jvonjG+YQLhlZ9kKkItd1lm3Iw9ONt15GD8Y48kBTP+q1nTrTq8YbCMle9kqxF5vgdF6MeBD3vWH66VInzQFTCgAw6oX/pl4mT/9voPTH16wf7qRz6Ara1A16ZoZeLSqKHGmz0/imuMNMUj4LlVj7bSAtpH0J4diqX/d1yP22B0of16DNKYr7qWaWl4cHEhdfag05jDkGhLiJNK00BtKRYEUfvUoYbbFjpiotf0f5m7UpsmChdZmdDCDUB5ZvYjaGtnfHRm48fywBBPXp9U6PcstKZIX335coiMDbtrShnGQ+iAWILYsd5WfrePcWGeYI2+SHqACVjGngmV7JdJTYfCcgvs25lpgq4fGX6cXqPIL9Jvrtz6OnjO79DWr6xRfRm4y473lzmXqZsOW1vJ91ttvdyjkLznYAzbTg4DkVCIxlm/Hk2jE/wMF3U4S8dIvWYIzrpEnPwBQvwJtS6RZHouCm6KK4zjAjn4Ay1ImBeFRZtzpik58yiDzPQq+T0e7x2In8vVODOX7H+bWj/VOo9gUVWa7ekmNWnxVDEZWRojrqsZ16N8Opb2mYIWrhCwJh3tz2iCOz76uzU4E9bCXq186EvmWTXWRqvAaaxLHrtwI4DoFiYLQlHeNO1cwmnxytRx6RavyGjymUht5GXa5kRQ2r3+Yavje01ZWUIfzB8UsC2iGdnhwhe5QqiK8uIyV2WWy0i9MB8AoLT27dzQhvbwXvn+NCOjxFulAmce9V8rLffVGLopKO/EuLtuTJmymUDh6PL0oFgLjQIk/3HenhKfaXQM8rQaMjKP/A4E/1JclLUX1WAWwhR2yHJRHH9uSI3t/PEY/+hMTPiv9keXwUtVZtt6BZTOf/AJNnLl1FjJzcyg9PFx0sEkQZUTKFeoAFQjbRI/z8jZ6XqWk4U+jg1ZLYdnLLPWxvTygMRtBeUs/vmtd2ZLRrmOzXfEx/fixXNDLaNVbv/U+CYIGGn9FBJg7nx1lC69owmCssD69sRmAvwvACmQfbVZfywkocCX0mbc1tXVlaJP2R/IZr9IpsEeMRPwWRIcV9oDmdkMiyGloyOlCI5NhVUEul/cdajs0UqipEYETHM72IiWkYMwhdNB38QAhzyMRkAQ34vv5RUtEf+6OSU/5dOrgtdHPTAxgrYR33RU+jfMcQD25jqVetOYtNn6NEn2a+iasSprwlEG/ilYnaiRFMwT+AAjd1MHyIBtj0U+cMTcHyVTARoe/WaaGiL9hKg4FA33DOe+IXFmZCZblIXJNRxkWUufUTVL4Ph+0iHMpNrqo6+OPXRJwO8SKhNtUrNpjPPhy40YeeVU4z3AOsdvTBN3Op24EoeP2g4H2T2zmDrRMXuqoCTc/XbEEAD50h7P1MuW9gUpvnOHMmcDdDFc6jLuY/AhNjrJu/yTtKaHHk+u8rA88LYeRt0szM1ntobib69wFZbfMH+WLln/vcGUUUYMyGq7cXfT7cxL4qN/AXBbkP0uP+XOoBLAR1BWcjrZEhuwvICjUCjwS0j2eT/UemFBvPUXY2hkXaqrknUZoCjybxv6VyO4OStAiGLxcbuXGQ81whLsgiEpCeC/VECrp4AD+uT5mM7r+dpB5Xg4n1gXBRfjTEpBkSw4Wpft367UXU2JYV5Jjlcb/YOEEEajsRa0Ynk7aERCCdM7nQ1iCECAyl0DhE9XgmWTZAQTDWvJK/KYJyIEdDyHd7maCiEK1OMKQMcvT+dQMVAOpgQXl0rDZltrd+xK0uB0KDanVNkosl+vqwkkg5oJjW/1zwZ3nMAXK/Qd5gqO14QtmUSgHK4IlEPoBF/tLtYg/rMAvF3aP75cZbtgnHW+VSGIYeI150Hm4gRBtFgIKaTI8jZPwSMjjd6O+ARVK+xrGvrqVZ8nMi/zGBk10GaGAjFhwRhWyND/3IVd/cYhavkjzN1zO7Mp/DKV3R0sChg70e42YbxzLEpWP6L5seeFnceNjgSeo0GEjFcJ1S+zhSbI7ndecCZbBGfgQ8l1Fo6NXNMMUyHkU5Vue4cYmc/1y4sRuqWtB+jMpqESnUrTtRDn916YQHIJ2Dr7qLmvZe+9u7g1pZBM9SDWodw+dwkt6JmhsxOkPXjh0A2vkIbetJx//dwJecNZCV35wD5snTMze2lYqdJyIincg6ObPOhF26A9p9sFSR/DfP1jisby4ju60M+tiPsTTLcs7n6mch8VCUwk8kk1KLmHbz+LbBqlKJlnDZGlFuc2E/lSd2UOnf/G37kYdXH3Piss9ZbwFpv/snUyFUnJNCSYI8KxpwV1OPTabFDzU4J9EoQMhnyzkvy8swPKVdBMq45PjsIwWSYboLbXO3HOzWll15dz7EMQO/i5Mah426Vxr5/vSc8Y/5eP4nH/Av3WCZAWK5eS675z29CtWPqou7FQ9o76gN1zQV0Nzy8o/JhjkGfHizoMBBhouFsgGFwbpEURLJ3+i7LTLgYXxcIkuaZWTZv/gS3pAxFazoNWo3JxMSkz747deKWfkSivu44Br/cnaA+OEluraaDKeQkXzJnJ3E1equ+t/hML3RtfHNhR9XrLO5c+eGFYbjtQXb0WuUFDzYeoQEVMYE/YLS0Lun2UJK5g5trWemb/sTCv48dQ0DcGhPt/bSzlvDvAPQS/XuGeLXoe4Qy2puh9DT13sgEwE/7JlGp9wiD9jIpqJ2yo1VoDoAgUZcUhkM34AZK/qWw5MAWStjgBbF0n7iaYDkzDyVBtT//d3elgkkbLGL4tTVph81ulP6H8P80m0DTSf5He4Vk48XN+hKNW14RdIazyEhKqdpULpbed35m/P6ZJapkvN3itjxy9bFTlS/G976L60C5jYGfbh6YRksGJb50kfVGPIoP1jvUtrEKJME94juD8uDwoQO7N/XkCoJJhcGZRMbLQRyoe1nuiNbvpGpQTuGZS1uy6Y+G6PLnSjKX2g7o1P6+I6QzaC8fOsQWvLTe/4fubxSh4ZFQ+jNe+x1vxpkvdZmkt13noecDB8msB389NyPlnjh66PC5N7wpyMnmKqQbOC23xDAzLC9WarJcpYRivwQwKIHEI/kWwnKpXaA+ofHbUlsLALqimJOsD6ZUtloUslbPF8DoKo5VNTFgEp6Fk6lYL4xSu/NCFNRYe3U+bFYp91n5wEXQine0yZV8GvycgMSNg42A0lrUz/i2gl6YUic/vV1m9mmUUP64ijjJ8s15Xph79zZ+ffqNVrJXeJCZBq3o4PlIi+8bSZkOqUoig5DoZ3l72B/9oMneceEF+ix5nsivz7p/R8iQVSCfsFG4x3wA1HTPP4x1psXFdHC590gdNrUC+xU3Hsi0R2jlpl+101rogZVxIEZu2XQIu0cZoeU18rzNbqG1T8c3iDHPZa9zY/TgunAulhDKRxxpSKGfEbANaP1xjd0My9XQ2J8p/Pmk6CPYbjb27gm5KyIqR94yr5eEfT+7tbiOjv6ktoxp9Rb0PAceYYDgpEw3Mbnlu8Hv6/cc+LAlW1BAcLZSG3ARnL/xXZQXUWJKi6o5mjU7TAFgmbhjMstkJDhWh7qGiQtrGdUEnuZBYEDBEPWKw89AN4h8QPCJF9bsDmTgbtTD3+f8dj7OO+8SJ3R21BQa6xymM30yu42DC5no3qgf1hksawZGbrLP1ryJ3ckHSy22GKw6yUTozp2AEQWDRaP+caf/55h3Y7po+w1K0qDQKZ2rsSU3CanU1P9iy3oMQns5OZwqcvlVsg/y+CMfTc+mqSN0DrZH9Tl4C1Ej+cU9ZY2K+AzTNBoN/C2DmebDAKIaj84MRiZXaKPaR573taIXi6QClqpr4ERRap3dlYyNsSdX+xE1w2s2J+vh4ssXNK2pDeuTABPRktL/iL6298Dyrxds6xLISGAX3l2ImEmipBkeO1XxYJuGvDmCrMm4/kNYXuBVBgvM+SdnC90w+AvQAcHOdfdZKtaRv9ptl0398laEu1L/PeUmKjot9G7hwz/FiEY48NOWrw0lLaIwB+tTwu/xi4EdhBy7jIf21KkHqDQcNZ1ttnXVw4qx9y2t4tmoz3gG6EnEjDevDtElS9d0PLODE3FPgxd2siBPkEtjBqK7Le1ao48hjsWLY6uUsiEX8LNr0kDdNc3bP2xv9J3l8wf1NGgzoXV5QtEtHD0jm6seHxhTfDQW5pTFAKc/Hja5TeOy//fggIhBavEF10ldvQQrOOMECyG1bxYR8pM3laU9C87ov/Nu5i8EZFPGU9QdP6FelBWONPkwatHqYDo3PBHTqMbY/w63/89Z5AkrTx6nFtLVaZ/ceblxBH3P746Wp4IfpDsAXYJRv7s1m2DJcM86NUQYetwub3lYTWWG6eg7YabMTPtfYLXQlnAlc+A9rNS1+gB3IcHcaVhjQ8dNcb3KSXBh1zuPyaO/RlmNCdMIZKnZRVhCVCBZZMj0tUFF7Zb7et6oCdGqAZn54AVcA5l9gzPtpcniUJ0di/TwYxdiw/YgfXx1wZdvnVRQMyY1ATDJhZvXPPTE4zO1e829n2yajClwHmdcDe2Hopch9fym2EJ5lYo7rQ0gmdccy/GtZh4gAf3zMFeL+5qu4f3xyCEpaBS5HerU/ALCkEt3u2JGx6SEmihfsh0e7dN9B0Q2Gcs8lgREer2R8wraXsiLyTMM4vBY9yEVemnH0AiE/9m0+oMdN0kYkGYpQKOHoQje9Q0Qz9oWoRX+PHHGv7uSlaHySwScdSOjUN5fZX19qGGueKw5grAakMsgqDGgxOS08/KGQXsWQ9TzIBg/1J8lQLzQxVzbIchMT7x2dqup9FRtgcM/APOWNhsbRE4czoBS22lQYCqPM/VrxnQn067MhUOi3ojYCo4rdA7AxjmSZzsURs4UsW0JDLkdXU75+96mKNQQrzewXqQbbNNI7farntaiKRhqQeyngfTltVAEsjq+JdDOtGC6wWsBxBiBr55NfBiJ9ImoXix9CXgAi/Skt6FNIcW04y2821nWEvd+djYUFbzUY+CDX74BWINnT7sz5dD/bCadVKRNHqWph8lczfMJgy8lXGO0UMdH0XNOjlJVG82lI9X22Gg2aeV5CmGglX23gFWwEaLQ0LB1524cwkmeANwCxZQSxFUUq6eV32C3pcuV/oSroX7k/+zdcT1Kuc+mV6bq6VV6FjrymkZjV/I6k0XdQzCTYmePYccjeUqm650pwvKQom1RNjxgGUhC83wKiaURw1du7/yxuj8UYgG393nHHn9cLZUuoKtZp+KSE5HP1n+k3WX2cfqsb3FocyKz4P6HelsPUDIaVHWnGQclkcsLS8dstJ/989DclniJ25xXhiJiFZSGun7xDRUsNga2IGpQCzDbOA1Nwfdp2+jjmJ1NaENX7fZWUnwuttuFf4FKmrmK+aKl+l2T3JYxlbQzUDV11kmO5NnI0rm0/cTzqPN9KdnfksNsiTdI8d6LBj+1mSSgCIyXbiQYZ2lX1iGRdwVYM5H6AK+HGNGZberoKm5e6wR0MdZkht+lR/oW9/W3Ii5NgIKuF0Wu0NdMcDVwMadVRrF1YKnAmZE6ru+0ADXRFRGk3Gk4rYuO8rcvUzqaFXh2gMVy6v9UA6bavCebV23PtfO7Uyx5//zjyYbWqxVJdHTWpo/xcssUH+RZ/yYp+0Q61dvA87uee6sG8/tQg9f8MED4DxC0TLcrm4cnPJjzqph6p7mqpUy8QbfeDtAvnl24mFI5s9qeu5sN4WHGTiwwzOwsMtMHV4u5eJ1h/2hg/SIjHJatMIO1qS/Wmtw7Sp9of2gRJEuZGcJJMO1LeTuB1uF6O+LZbD9KgVc4upQ87ZD+fml+MV2wXaqGFCrBBlYlvZ8PMpzppBDl84xJtZuPWU34j0hc5g6YhYR4nRG6uU0wdPUql0siVjg9VK4hKg7m1vio/HnezHVCTkpm1IhV7kxg01Hb0eXKtp2lrf8DA+EjSh9eGSNB2LACmG+IAD0cUV21YCITuWf6evSUMchX9BLgnIaaZGdFXScHgdJ1jpB8U9dBHQcemf+aAdKk/481UHQRBuXW/FSugfO4s+zZncqHkKA0xCSMIYB6pCrDrgqS1g5Ps+zjNqEF9Y17E9jqTdrOtYdm1I+DHW/SHERg2m5JMTAa3DH7iX5duWXMoChl8WJB/wHj5AAQVM9f/C8+DjQwq2wteBiCYPj2SfqPTOFauqDV0dkldMK5MKubYWyx0IzgnlSHENqF7f3yk964T1OLTqRkBNsQ2+aiKESr064yNx+dg1d58go6bTSgYOzsAY2WiNNplEbCsvXh440piyrtMzqYJ5rSV2iyGDmv7/yJFzxAQepOoTFWOezvy6x1ZG1nFHnLBQoxuC0Do5XJML/1HhQXN8RzH93ACri7izhBoWpcLhs+nC4teelWHr0DEyzlbiguNusQT+oUCBIeNilvOUeXwy4BKuAVLdDmQTOhhot3wZv4jkcXwjNKDelwrGp/sm4FVsu/+QSVzLloltrTUoPdMmJ1fIWdvxkRYjsZ0zciohIc8ZDf+Pm2R3ZP2SAMqUPv0d3t+pc63ZRupqRKwHC+L51FgdKVwe7/7pxqHcSaubpb5C1nMsqNiBxIJ+dU4vmuK+NTtQvLTZfGpsjiQo0kfYmHBPDAylyKZBuouxTi9V+2KSpT/pzYgF7RjKaonFNFRJcTUez/6zyhMtjOs5cmAL8y28We+2qxPJpZuiWTOxbp+Qis/cspziHG0uuuEwwTdQpAmPf3nZDNgkBabtkO0buip3JXxnyH++UCzVPcgLdQXPn01PdnlLHz0VsY3XUqoOJaTHXsmtk8PyM3LPBbe5nHYzJsfIcqaVyznjbo49rCsBrtazSaQPWk2s+TfVLyH1xMMnUz107DAH8aBXc3bD++3Jc0vr/1DbXSiYxeYOUhT3sLL087pqIxFBmhv4s9WT4cR81LTo0khcNL3ed+3YxQe33HGuGhhpEXQ/4V111lhvW483ZVuqfkaT7fHD/fUnagm35mEtKJP5yIP//Wzd2lr2ZQgbuJG43EjiyrevFYF8EKjmkKhS3V6RWahSc5wy8C4FImvAjdLrfatolqFhpIYpsrJDWDVkJ+pYTgQLc8A/gJAqO5NHOUtYuWfTAo88O11qL43643nsYgWQJOwgoe4hbmd6JS2clTjcBKzxgrklSD15BeO7ta8hX5A8d5K+mW5XTCwOsIfyvDreAwnR3Rz1IOI3FKRkZvfa9429WH499PKiSZJV73qKIWXsLDQZA3TEP5Co0iIDVYd59hh1KgvTV43ysSXTsiuuexas9acXPv6KMTsG9xZH4fGllfFWtjDXb+dZ7G7fufeaK0Qy5vcXl/rm5dYg0330Vy9D1kfAmjmiOytsRD66HWfIN0eVt7DWZ5tjpZBmGDzsERlfE1Qhg/74vIJEImHJ8hFHb98C7G+xLfcZTz8P80FRLx78tCOFTBm9JFoQHuyF6rR6yEN6PMaMLuKR1tPPAz0KIAbt5PGH2CqjAnf3lg7kTC/MyiObdtBof+YMyJMt7GuQIdMYmZBLuE+JL8yvTH/yaKWCsVU8el2BZYLwTj2owMAmZTPnK+2Gh+IJhyV0fR/nMpe6vlnOT5y21kHps+bDjYz0XyA9pb7uNchq0HHTPG2Ul9G71fvw+UmhldwmQdVjAx/Jrpn66JV0V/biZzOMqroCp9C5R0kCf/7hJt8lavT8UMu+QGAi/13RAlf0lv8aFoj5NmIlOWCNFxr/zAM0kOG/44MhINIe1oWOzs5vDpo3Xe60BVMM6Iq+5hLHwHOrPs9zD9d88VOqo/Fyugb7IXiUFEEtsOi94gjFcmGr/rOmkMUSnm8P5Ep1Rk/QisZNWqdEHHQiWP5XGpwwK0Nw62n0PkKhc5F1u2EequlqxLXyWMbhT+JhvGqot4tlRX2ritYFnzoW3nI4sx/T2FkPGT7lm6ffjJq9PT5+XkhVQgWg1IRapfyfwqSOiojbAwQum14i/Ck7UXiJ84WkX8dB/ZU0ZteXD1tza2LYAQ9dFdOCShp/36lS/OVqU3KYcFrUuZpLbVSpwCarMNOBMA4GhiTDR88bM9fcoNrQvb43QgZEn5TyCg9PE+hcWAA4Y/3yqLBASxDODxHMd4AI0fxczPd2TCyDgSPKnC0FsWiO0JDm3kNADIximFhgdFz1hAUJABJbQ+gfj9t8lfWH7PPZZH1Otk8pgcYVyXs5R7sisFmnBUT8WovoXPsoEY6UP6TsaFVf7LGcZ/THikwgEK9QZ7sobptP3NO556qv2rNpzoMc+S18MFEkyMT20mYrtqLF+jY3/vXVJKwL/Uir/VgRPCqmbYA4pvhKkf1P/IMcr9ydcIyAEdFEuXE3/Y5ZO2LWl2GVKa8oFckYqZddPd67zJuYdTN2oY963u/lI3vg84bIv11kn0JGN6ZTagRXZvqXzISe18MP2h01H4W7xA5Yz0QMxPHyBiqBJhA5KcZRXB+ZPwR5W0FjJDWHJtNHOT1qpkx2VDqhybpem2r1pivwxExksx8o59D+6of9uAEyX1lzokQ2EEdm/s7XchHFNXB25UahFeO8BKan70fy0i7OyJeluRanuK+txmailbyY7qt+VAuMVKxumByqaQ3nHEDyibglbBBIPug90A6RhZgvx3DjC6YtzOPkrzPJ/i/s5KsOGFpp7F8LTMYpkiZ4CH2emHOrrbkDf5SU7I/vfo4sxzqTCW0KtS9ZyhRDb2aiOAB8c9O+gGxbB2qajOUBhpmFKUiH1Bu5B8URt1v9KFsMF7lrR9WSzKzNLqIP9b6o7C7GFBEls664k8MTC8CJeH0UZlpAd3kj4E79apXmozsTkumvM1+pK9tsvoQANX1ri+H5OaeoOmFAfpr34W+InWlC9Xjb21NxNXKj9fOjSlfWfN8t6BWSMpttzAuvb3ZTn5u8odsdflI9Su8Tmxp7+nBhJYlifvdLXqbwjOgvB0O17YC7YUsyoen5syKTqlDaQ6sJ4Hb7+yWxuDwkPphoF92xmHIBaPkia3Z2C8kWwzgo2tKoiMYbJagLP9nsS8FB7tivR9d4nWg5dveVNIKwFslqOQWFa3oMZvlEUbDWibKmxlVCCGIC4hFXVt9hrowbCeo0YqCxJVN1M6ltYiUns5/s6zDM0v+UVL3SKO2NcgMG+h81Cb1KZC4F1iCUGtvvmBJteE7ZYCIuJNBVAvzXoOB+yeOFAJ7TQs0DTc3mKVAUwKRXuKiL828DiQNRVbkM7xWseMx6nAFf3C6vf8N+pHA/vYU9T+wGK17aRfvtcWduIiQQMWAIrCjH2YArTbaFbax9DtooT5xnwCbxo8s04StiXsFTlukV0YyenqFDxRNd6P4KEVS2w4ZlxxFzpD1Fosx3rY+X3AJm3a8Sf2n7fAJvg7ggbYK/lTeUkor3LgHKrJgRKYrv5kfq4IMQMGIxr1Jn1U47HHFSZHrtk2TVKGPMzwdPiNz0eTk4QMoXAvrVyJqlBDNJKRM/gvdOj7U2sVPGCWtSEbWHbPj+CelD+aY1aNb7naIPwuuXinRpMH1/fjkNE7UnyX5Wedxhj1EC0c61o2qjlDM52SIf+FLIn2vO2C1cBbqIl0TUps2+BO+lEF+5rA/9WPBpFHdbwP+OPivqNQtgd6gGjyHBSRaPWUT9qOIeNvt1MS13hVIdImXCtEQ999yZTvTiP6zNByssqE/bQ2TJfHn4S0XQ9jt3c3gyhdwEtzp8Gfh0KrFQE8GfQuKcgRywaq+2+bHux+VBIcKy2z+VW3IpPPOsCdSL99sFj6W1czAePIgVSs5emyT/apJ1CGX9AP5g1YWC6sVfd7+8PXjHLEzo7+nLdyzMqoUB50eCmtilL9+/kOMqZ0sur+/gG6bDSRA4liM/s/ery6k0Lh4vT1g9BTnYaN3W8HAb3f3VWyC26iPKAQ/mzpBKiew/e2JFLLrOHCt/pKlubBr+bn7vpNzFiL6ATPjgBivXNwF3/GF/RDW5OxIaH5exm3itgcKHzX9+aVyJVdGyai6BGQxiCWPuHMrCMMiji4DwJrQIN1K392ax3d55Qdy4nQBbd3IB08izoluG2ka+x6qbK/pA9J/Z5+PUa+HPntaVZPeGDAJIBbMEgOiVTVsfKKNx/wQfj6bgQal3QnGt1OMVrWsHUbPGtx03nKaxRzVpv3QL3dHdTyRqdr8YohQ5OFACc4djsgDMeg3E/Dzr2GaWuVcWAIF9tY+bk1znRHMJRgJopc6Ux24llQQV7PkSFwbSDPTRnPjhb6HJg3jblBo1NFigmSh8lhbDbnTMiAytz3NAzRpGT6LYP7rhQ3c02yO1FY0EC+vsRa2sjB9rK9r6QxWX/aCrUH+wzoYfImqWd5f/BRUyQsME9Qe+OR5UJyjHxaLjZ5tiTxr651uX4JqIUxVZ0xD4T9X+G9qmBeK3G38Ew6pUS5ggrXHkFSKCSnYuMF4sBjAcegE6mLtJOi8OCkB37dedmYU6MP26h9tnMEBRTrxDcUml3Q3BVHSms6DwA+i3eCnOOF4CP5ZnSTId/wwOsj5tCMt1iEqCVnWlHpXMbZRZT4j/IZF+/B307uizcXKF5oTSI3lzMRkpE4H/7YSLQlkbTmr0SyryzuxR44N0DbzEmyahsFaeijGsTPNGi53MzfRqDofyKWVyZRjxcMw9gPdZMtO4tgq7zDZ7Cu6fXfrcNri+6wWmokk+I+c7IjkRVi9+jQ4OuCOijAITCPXAXua8HAuuPuh9t8yRCUOeqVdxbV0NbXYZKg+2c3UEcnKrf5NBlJ9R6Xb91fE9mtdnj5Kj5KedY/zXAT2RYEvN4/g5uCFOp4NMX5nJ3QmYlaWtq8Ia0p8dxHVHNv/iZndPUT2l1n67dgW7P3u+y9MW/CNfe0CFD/DvhDl65FmHSq0+oIU4MRyTUFCO/mJdaIFd/9IIi8mWChnoV1lwaBGl1fkTn7tdoEHrtx/RjjNqJc35MN2f33H685pEPXGnGUqZS7/YHVKFDseYDhqHxV7k9GrqyCp3lY7nPlcQnjAwxkXuIEzISGia68N+BnpKv6hNhBxiOokx+e0EEN5DbVgB9MqB8eT5E/NaSPukNE84eoJxl9XbbFzDubpCrXU8Vmp6SrvqqBim6y759DJ8GIAoZyosDojX7yAk8TD/dk7MGcGmcYhATJywalGXKAy6A367wRNqlVqsIsMILY4+h2GfV0GWLvNWAd+N2tpW+ele4NUnuh68uQtGUgvD99yoouoF1FacZfF3AOhBFnoB1nOfVAAP0aoo9lngQxZBdUhojFwvRz5m5zUBkIPiwd/8YJPnNBXVYjIzT0AAAAA==" alt="Logo Universitas Padjadjaran"></div>
     <div class="brand"><small>Logbook Subspesialis</small><b>Anestesi Kardiovaskuler</b><span id="who">Fakultas Kedokteran Unpad</span></div>
+    <button class="avatar" id="acctBtn" hidden aria-label="Akun saya"></button>
     <button class="btn ghost" id="themeBtn" aria-label="Ganti tema"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
   </div></header>
 
@@ -250,11 +253,12 @@ nav.tabbar .fab span.b svg{width:26px;height:26px}
 </div></nav>
 
 <script>
-/* ===================== Login OTP WhatsApp ===================== */
-// Isi dengan alamat server OTP (Cloudflare Worker, lihat folder /worker).
-// Selama masih kosong, halaman login tidak aktif dan aplikasi langsung terbuka.
-const AUTH = { api: '' };
-try{ if(AUTH.api && !localStorage.getItem('kakv-session')) document.documentElement.classList.add('locked'); }catch(e){ if(AUTH.api) document.documentElement.classList.add('locked'); }
+/* ===================== Login Google (Firebase) ===================== */
+// Tempel objek firebaseConfig dari Firebase Console (Project settings → Your apps → Web app).
+// Selama masih null, halaman login tidak aktif dan aplikasi langsung terbuka.
+const FIREBASE_CONFIG = null;
+const AUTH_ON = !!(FIREBASE_CONFIG && FIREBASE_CONFIG.apiKey);
+try{ if(AUTH_ON && !localStorage.getItem('kakv-session')) document.documentElement.classList.add('locked'); }catch(e){ if(AUTH_ON) document.documentElement.classList.add('locked'); }
 /* ===================== Konfigurasi (dari LOGBOOK KAKV 2026.xlsx) ===================== */
 const KAT = [
  {k:'NIVATS',  desc:'NIVATS, TEVAR kompleks (non-intubasi)', target:3,  title:'NIVATS (Teknik Anestesi non-intubasi pada bedah toraks dan vaskular) Target: 3 kasus', op:'Tindakan Operasi', an:'Tindakan Anestesi', dp:'DPJP', c:'--c1'},
@@ -336,7 +340,9 @@ document.querySelectorAll('nav.tabbar button').forEach(b=>b.addEventListener('cl
   if(b.dataset.go==='form') go('form',{editing:null}); else go(b.dataset.go);
 }));
 function render(){
-  $('#who').textContent = PROFILE.nama ? `${PROFILE.nama}${PROFILE.angkatan?' · '+PROFILE.angkatan:''}` : 'Fakultas Kedokteran Unpad';
+  $('#who').textContent = PROFILE.nama ? PROFILE.nama : 'Fakultas Kedokteran Unpad';
+  $('#who').title = PROFILE.nama ? [PROFILE.nama, PROFILE.npm&&('NPM '+PROFILE.npm), PROFILE.angkatan].filter(Boolean).join(' · ') : '';
+  renderAvatar();
   ({home:renderHome,list:renderList,form:renderForm,detail:renderDetail,stat:renderStat,more:renderMore,acts:renderActs,actform:renderActForm,actdetail:renderActDetail})[ui.view]();
 }
 
@@ -639,15 +645,18 @@ function renderMore(){
   $('#v-more').innerHTML=`
     <h2>Profil & ekspor</h2>
     ${SESSION?`<div class="card" style="padding:14px;display:flex;flex-direction:column;gap:10px">
-      <div class="row" style="justify-content:space-between"><div style="min-width:0"><b>${esc(SESSION.nama)}</b><div class="small muted mono">NPM ${esc(SESSION.npm)} · WA ${maskPhone(SESSION.phone)}</div></div><button class="btn" id="lgout">Keluar</button></div>
-      ${ui.confirmOut?`<div class="confirm"><b>Keluar dari aplikasi?</b><span class="small">Data logbook tetap tersimpan di perangkat ini. Untuk masuk lagi perlu kode OTP baru.</span><div class="row"><button class="btn" id="lgNo">Batal</button><button class="btn danger" id="lgYes">Ya, keluar</button></div></div>`:''}
+      <div class="row" style="flex-wrap:nowrap">${SESSION.photo?`<span class="avatar" style="width:44px;height:44px"><img src="${esc(SESSION.photo)}" alt="" referrerpolicy="no-referrer"></span>`:`<span class="avatar" style="width:44px;height:44px">${initialsOf(SESSION.nama)}</span>`}
+        <div style="min-width:0;flex:1"><b>${esc(SESSION.nama)}</b><div class="small muted mono">NPM ${esc(SESSION.npm)}</div><div class="small muted" style="overflow-wrap:anywhere">${esc(SESSION.email)}</div></div></div>
+      <div class="row"><button class="btn" id="acEdit" style="flex:1">Ubah nama/NPM</button><button class="btn" id="lgout" style="flex:1">Keluar</button></div>
+      ${ui.confirmOut?`<div class="confirm"><b>Keluar dari aplikasi?</b><span class="small">Data logbook tetap tersimpan di perangkat ini. Untuk masuk lagi, pilih akun Google Anda.</span><div class="row"><button class="btn" id="lgNo">Batal</button><button class="btn danger" id="lgYes">Ya, keluar</button></div></div>`:''}
     </div>`:''}
     <div class="card" style="padding:14px;display:flex;flex-direction:column;gap:12px">
-      <div class="field"><label for="pNama">Nama trainee</label><input id="pNama" value="${esc(PROFILE.nama)}" placeholder="dr. …" ${SESSION?'readonly title="Dari data login"':''}></div>
+      <div class="field"><label for="pNama">Nama trainee</label><input id="pNama" value="${esc(PROFILE.nama)}" placeholder="dr. …" ${SESSION?'readonly title="Dari akun yang didaftarkan"':''}></div>
       <div class="grid2">
-        <div class="field"><label for="pNpm">NPM</label><input id="pNpm" class="mono" value="${esc(PROFILE.npm)}" ${SESSION?'readonly title="Dari data login"':''}></div>
+        <div class="field"><label for="pNpm">NPM</label><input id="pNpm" class="mono" value="${esc(PROFILE.npm)}" ${SESSION?'readonly title="Dari akun yang didaftarkan"':''}></div>
         <div class="field"><label for="pAkt">Angkatan / periode</label><input id="pAkt" value="${esc(PROFILE.angkatan)}" placeholder="KAKV 2026"></div>
       </div>
+      ${SESSION?'<span class="small muted">Nama dan NPM terisi otomatis dari akun yang didaftarkan dan dipakai di setiap ekspor.</span>':''}
     </div>
     <div class="card">
       <label class="switch" for="pMask"><span><b>Samarkan nama pasien</b><br><span class="small muted">Tampilkan inisial saja di layar. Ekspor Excel tetap memuat nama lengkap.</span></span><input type="checkbox" id="pMask" ${PROFILE.mask?'checked':''}></label>
@@ -660,8 +669,11 @@ function renderMore(){
     </div>
     <input type="file" id="inX" accept=".xlsx,.xls" hidden><input type="file" id="inJ" accept=".json,application/json" hidden>
     <div class="note">Data tersimpan hanya di browser perangkat ini dan tidak dikirim ke server mana pun. Lakukan cadangan berkala. Data berisi identitas pasien: jangan bagikan file ekspor lewat grup chat umum.</div>`;
-  const saveP=async()=>{ PROFILE.nama=$('#pNama').value.trim(); PROFILE.npm=$('#pNpm').value.trim(); PROFILE.angkatan=$('#pAkt').value.trim(); PROFILE.mask=$('#pMask').checked; await store.set('profile',PROFILE); render(); };
+  const saveP=async()=>{ PROFILE.nama=$('#pNama').value.trim(); PROFILE.npm=$('#pNpm').value.trim(); PROFILE.angkatan=$('#pAkt').value.trim(); PROFILE.mask=$('#pMask').checked; await store.set('profile',PROFILE);
+    if(SESSION&&SESSION.angkatan!==PROFILE.angkatan){ SESSION.angkatan=PROFILE.angkatan; try{ await store.set('session',SESSION); await store.set('acct:'+SESSION.uid,{nama:SESSION.nama,npm:SESSION.npm,angkatan:SESSION.angkatan}); }catch(e){} lsSet('kakv-session',JSON.stringify(SESSION)); }
+    render(); };
   ['pNama','pNpm','pAkt'].forEach(id=>$('#'+id).onchange=saveP); $('#pMask').onchange=saveP;
+  const ae=$('#acEdit'); if(ae) ae.onclick=editAccount;
   const lo=$('#lgout'); if(lo){ lo.onclick=()=>{ui.confirmOut=true;renderMore();}; if(ui.confirmOut){ $('#lgNo').onclick=()=>{ui.confirmOut=false;renderMore();}; $('#lgYes').onclick=logout; } }
   $('#exX').onclick=exportXlsx; $('#imX').onclick=()=>$('#inX').click(); $('#inX').onchange=e=>importXlsx(e.target.files[0]);
   $('#exJ').onclick=exportJson; $('#imJ').onclick=()=>$('#inJ').click(); $('#inJ').onchange=e=>importJson(e.target.files[0]);
@@ -669,7 +681,8 @@ function renderMore(){
 function exportXlsx(){
   if(typeof XLSX==='undefined'){ toast('Pustaka Excel belum termuat'); return; }
   const wb=XLSX.utils.book_new();
-  const ket=[['Sheet Title','Keterangan','Note','Target Kasus'],...KAT.map(x=>[x.k,x.desc,x.k==='NIVATS'?'non-intubasi':'',x.target])];
+  if(SESSION){ PROFILE.nama=SESSION.nama; PROFILE.npm=SESSION.npm; }
+  const ket=[['Sheet Title','Keterangan','Note','Target Kasus'],...KAT.map(x=>[x.k,x.desc,x.k==='NIVATS'?'non-intubasi':'',x.target]),[],['Nama Trainee',PROFILE.nama||''],['NPM',PROFILE.npm||''],['Angkatan / Periode',PROFILE.angkatan||''],...(SESSION&&SESSION.email?[['Email',SESSION.email]]:[]),['Tanggal Ekspor',fmtDMY(todayISO())]];
   const wsK=XLSX.utils.aoa_to_sheet(ket); wsK['!cols']=[{wch:14},{wch:46},{wch:14},{wch:12}]; XLSX.utils.book_append_sheet(wb,wsK,'KETERANGAN');
   for(const x of KAT){
     const rows=RECS.filter(r=>r.kat===x.k&&!r.contoh).sort((a,b)=>(a.tanggal||'').localeCompare(b.tanggal||''));
@@ -747,91 +760,150 @@ async function importJson(file){
 let SESSION = null;
 const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
 const lsSet=(k,v)=>{try{v==null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch(e){}};
-function normPhone(s){ let d=String(s||'').replace(/\D/g,''); if(d.startsWith('0')) d='62'+d.slice(1); else if(d.startsWith('8')) d='62'+d; return /^628\d{7,12}$/.test(d)?d:''; }
-const maskPhone=p=>p?('+'+p.slice(0,2)+' '+p.slice(2,5)+'-••••-'+p.slice(-3)):'';
-async function authApi(path,body){
-  let r; try{ r=await fetch(AUTH.api.replace(/\/$/,'')+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}); }
-  catch(e){ throw new Error('Tidak bisa terhubung ke server. Periksa koneksi internet lalu coba lagi.'); }
-  let j={}; try{ j=await r.json(); }catch(e){}
-  if(!r.ok||!j.ok) throw new Error(j.error||('Server menolak permintaan ('+r.status+').'));
-  return j;
+const FB_VER='10.12.2';
+let fbAuth=null;
+function loadScript(src){ return new Promise((res,rej)=>{ const s=document.createElement('script'); s.src=src; s.onload=res; s.onerror=()=>rej(new Error('load')); document.head.appendChild(s); }); }
+async function loadFirebase(){
+  if(fbAuth) return fbAuth;
+  try{
+    if(!window.firebase||!firebase.auth){
+      await loadScript(`https://www.gstatic.com/firebasejs/${FB_VER}/firebase-app-compat.js`);
+      await loadScript(`https://www.gstatic.com/firebasejs/${FB_VER}/firebase-auth-compat.js`);
+    }
+    if(!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+    fbAuth=firebase.auth();
+    try{ await fbAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL); }catch(e){}
+    return fbAuth;
+  }catch(e){ throw new Error('Tidak bisa memuat layanan login. Periksa koneksi internet lalu coba lagi.'); }
 }
+function authMsg(e){
+  const c=(e&&e.code)||'';
+  if(c==='auth/popup-closed-by-user'||c==='auth/cancelled-popup-request') return 'Login dibatalkan. Tekan tombol di atas untuk mencoba lagi.';
+  if(c==='auth/network-request-failed') return 'Tidak ada koneksi internet. Sambungkan lalu coba lagi.';
+  if(c==='auth/unauthorized-domain') return 'Alamat aplikasi ini belum didaftarkan di Firebase (Authentication → Settings → Authorized domains).';
+  if(c==='auth/operation-not-allowed') return 'Login Google belum diaktifkan di Firebase (Authentication → Sign-in method → Google).';
+  if(c==='auth/user-disabled') return 'Akun ini dinonaktifkan oleh admin.';
+  return (e&&e.message&&!c)?e.message:'Login gagal ('+(c||'tidak diketahui')+'). Coba lagi.';
+}
+const initialsOf=n=>String(n||'?').replace(/^(dr|drg|prof)\.?\s+/i,'').split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join('')||'?';
 async function ensureLogin(){
-  if(!AUTH.api) return true;
+  if(!AUTH_ON) return true;
   try{ SESSION=await store.get('session'); }catch(e){}
-  if(!SESSION||!SESSION.token){ const m=lsGet('kakv-session'); if(m){ try{ SESSION=JSON.parse(m); await store.set('session',SESSION); }catch(e){} } }
-  if(SESSION&&SESSION.token){ lsSet('kakv-session',JSON.stringify(SESSION)); document.documentElement.classList.remove('locked'); return true; }
+  if(!SESSION||!SESSION.uid){ const m=lsGet('kakv-session'); if(m){ try{ SESSION=JSON.parse(m); await store.set('session',SESSION); }catch(e){ SESSION=null; } } }
+  if(SESSION&&SESSION.uid&&SESSION.npm){ lsSet('kakv-session',JSON.stringify(SESSION)); document.documentElement.classList.remove('locked'); return true; }
   document.documentElement.classList.add('locked');
   return new Promise(res=>showLogin(res));
 }
+function loginHead(){
+  const logoSrc=(document.querySelector('header .logo img')||{}).src;
+  return `<div class="lhead">${logoSrc?`<img src="${logoSrc}" alt="Logo Universitas Padjadjaran">`:`<div class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-ink)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h4l2-5 3 10 3-7 2 2h6"/></svg></div>`}
+    <div><small>Logbook Subspesialis</small><h1>Anestesi Kardiovaskuler</h1><div class="small muted">Fakultas Kedokteran Unpad</div></div></div>`;
+}
+const G_ICON='<svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.6-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.6-.4-3.5z"/></svg>';
 function showLogin(done){
   const L=$('#login'); L.hidden=false;
-  const logoSrc=(document.querySelector('header .logo img')||{}).src;
-  const st={step:'form',nama:'',npm:'',wa:'',phone:'',busy:false,err:'',resendAt:0};
-  let tick=null;
-  const head=`<div class="lhead">${logoSrc?`<img src="${logoSrc}" alt="Logo Universitas Padjadjaran">`:`<div class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-ink)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h4l2-5 3 10 3-7 2 2h6"/></svg></div>`}
-    <div><small>Logbook Subspesialis</small><h1>Anestesi Kardiovaskuler</h1><div class="small muted">Fakultas Kedokteran Unpad</div></div></div>`;
+  const st={busy:true,err:''};
   const draw=()=>{
-    if(st.step==='form'){
-      L.innerHTML=head+`<form id="lf" novalidate style="display:flex;flex-direction:column;gap:14px">
-        <div><h2 style="font-size:18px">Masuk</h2><span class="small muted">Kode OTP akan dikirim ke WhatsApp Anda.</span></div>
-        <div class="field"><label for="l_nama">Nama lengkap</label><input id="l_nama" autocomplete="name" value="${esc(st.nama)}" placeholder="dr. Nama Lengkap"></div>
-        <div class="field"><label for="l_npm">NPM</label><input id="l_npm" class="mono" inputmode="numeric" autocomplete="off" value="${esc(st.npm)}" placeholder="1308…"></div>
-        <div class="field"><label for="l_wa">Nomor WhatsApp</label><div class="wa"><span>+62</span><input id="l_wa" type="tel" inputmode="tel" autocomplete="tel-national" class="mono" value="${esc(st.wa)}" placeholder="812 3456 7890"></div></div>
-        ${st.err?`<div class="err">${esc(st.err)}</div>`:''}
-        <button class="btn primary block" type="submit" ${st.busy?'disabled':''}>${st.busy?'Mengirim kode…':'Kirim kode OTP'}</button>
-      </form>`;
-      $('#lf').onsubmit=async e=>{ e.preventDefault();
-        st.nama=$('#l_nama').value.trim(); st.npm=$('#l_npm').value.trim(); st.wa=$('#l_wa').value.trim();
-        const phone=normPhone(st.wa);
-        if(!st.nama||!st.npm||!st.wa){ st.err='Lengkapi nama, NPM, dan nomor WhatsApp.'; draw(); return; }
-        if(!/^\d{6,20}$/.test(st.npm)){ st.err='NPM hanya berisi angka.'; draw(); return; }
-        if(!phone){ st.err='Nomor WhatsApp tidak valid. Contoh: 0812 3456 7890.'; draw(); return; }
-        st.phone=phone; await send();
-      };
-      if(!st.busy) setTimeout(()=>{ const f=$(!st.nama?'#l_nama':!st.npm?'#l_npm':'#l_wa'); f&&f.focus(); },50);
-    } else {
-      const left=Math.max(0,Math.ceil((st.resendAt-Date.now())/1000));
-      L.innerHTML=head+`<form id="lo" novalidate style="display:flex;flex-direction:column;gap:14px">
-        <div><h2 style="font-size:18px">Masukkan kode OTP</h2><span class="small muted">Kode 6 angka sudah dikirim ke WhatsApp <b class="mono">${maskPhone(st.phone)}</b>. Berlaku 5 menit.</span></div>
-        <input id="l_otp" class="otpin" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••" aria-label="Kode OTP">
-        ${st.err?`<div class="err">${esc(st.err)}</div>`:''}
-        <button class="btn primary block" type="submit" ${st.busy?'disabled':''}>${st.busy?'Memeriksa…':'Masuk'}</button>
-        <div class="row" style="justify-content:space-between">
-          <button type="button" class="linkbtn" id="l_back">Ganti nomor</button>
-          <button type="button" class="linkbtn" id="l_resend" ${left||st.busy?'disabled':''}>${left?`Kirim ulang (${left} d)`:'Kirim ulang kode'}</button>
-        </div></form>`;
-      const oi=$('#l_otp'); oi.focus();
-      oi.oninput=()=>{ oi.value=oi.value.replace(/\D/g,'').slice(0,6); if(oi.value.length===6&&!st.busy) verify(oi.value); };
-      $('#lo').onsubmit=e=>{ e.preventDefault(); const v=oi.value.replace(/\D/g,''); if(v.length!==6){ st.err='Kode harus 6 angka.'; draw(); return; } verify(v); };
-      $('#l_back').onclick=()=>{ clearInterval(tick); st.step='form'; st.err=''; draw(); };
-      $('#l_resend').onclick=()=>send();
-    }
+    L.innerHTML=loginHead()+`<div class="lcard">
+      <div><h2 style="font-size:18px">Masuk</h2><span class="small muted">Gunakan akun Google (Gmail) Anda. Cukup sekali di perangkat ini.</span></div>
+      <button class="gbtn" id="gIn" ${st.busy?'disabled':''}>${G_ICON}<span>${st.busy?'Menyiapkan…':'Masuk dengan Google'}</span></button>
+      ${st.err?`<div class="err">${esc(st.err)}</div>`:''}
+      <span class="small muted">Aplikasi hanya membaca nama, email, dan foto profil akun Google Anda.</span></div>`;
+    const b=$('#gIn'); if(b) b.onclick=signIn;
   };
-  async function send(){
-    st.busy=true; st.err=''; draw();
-    try{ await authApi('/otp/request',{nama:st.nama,npm:st.npm,phone:st.phone});
-      st.step='otp'; st.resendAt=Date.now()+60000; clearInterval(tick);
-      tick=setInterval(()=>{ const b=$('#l_resend'); if(!b){clearInterval(tick);return;} const left=Math.max(0,Math.ceil((st.resendAt-Date.now())/1000)); b.disabled=left>0||st.busy; b.textContent=left?`Kirim ulang (${left} d)`:'Kirim ulang kode'; if(!left) clearInterval(tick); },1000);
-    }catch(e){ st.err=e.message; }
-    st.busy=false; draw();
+  async function afterUser(u){
+    if(!u) return false;
+    let saved=null; try{ saved=await store.get('acct:'+u.uid); }catch(e){}
+    const base={uid:u.uid,email:u.email||'',photo:u.photoURL||'',gname:u.displayName||''};
+    if(saved&&saved.npm){ finish({...base,nama:saved.nama,npm:saved.npm,angkatan:saved.angkatan||''}); return true; }
+    showProfileForm({...base,nama:u.displayName||'',npm:'',angkatan:''},finish);
+    return true;
   }
-  async function verify(code){
+  async function finish(sess){
+    SESSION={...sess,at:Date.now()};
+    try{ await store.set('session',SESSION); await store.set('acct:'+SESSION.uid,{nama:SESSION.nama,npm:SESSION.npm,angkatan:SESSION.angkatan}); }catch(e){}
+    lsSet('kakv-session',JSON.stringify(SESSION));
+    try{ if(navigator.storage&&navigator.storage.persist) navigator.storage.persist(); }catch(e){}
+    L.hidden=true; L.innerHTML=''; document.documentElement.classList.remove('locked');
+    done(true);
+  }
+  async function signIn(){
     st.busy=true; st.err=''; draw();
-    try{ const j=await authApi('/otp/verify',{phone:st.phone,code});
-      SESSION={token:j.token,nama:(j.user&&j.user.nama)||st.nama,npm:(j.user&&j.user.npm)||st.npm,phone:st.phone,at:Date.now()};
-      try{ await store.set('session',SESSION); }catch(e){}
-      lsSet('kakv-session',JSON.stringify(SESSION));
-      try{ if(navigator.storage&&navigator.storage.persist) navigator.storage.persist(); }catch(e){}
-      clearInterval(tick); L.hidden=true; L.innerHTML=''; document.documentElement.classList.remove('locked');
-      done(true); return;
-    }catch(e){ st.err=e.message; }
+    try{
+      const auth=await loadFirebase();
+      const prov=new firebase.auth.GoogleAuthProvider(); prov.setCustomParameters({prompt:'select_account'});
+      let res;
+      try{ res=await auth.signInWithPopup(prov); }
+      catch(e){
+        if(e&&(e.code==='auth/popup-blocked'||e.code==='auth/operation-not-supported-in-this-environment')){ await auth.signInWithRedirect(prov); return; }
+        throw e;
+      }
+      if(await afterUser(res.user)) return;
+    }catch(e){ st.err=e.code?authMsg(e):e.message; }
     st.busy=false; draw();
   }
   draw();
+  // Kembali dari login redirect, atau sudah masuk Google tapi profil belum lengkap.
+  (async()=>{
+    try{
+      const auth=await loadFirebase();
+      const r=await auth.getRedirectResult().catch(e=>{ st.err=authMsg(e); return null; });
+      const u=(r&&r.user)||auth.currentUser||await new Promise(res=>{ const off=auth.onAuthStateChanged(x=>{ off(); res(x); }); });
+      if(await afterUser(u)) return;
+    }catch(e){ st.err=e.message; }
+    st.busy=false; draw();
+  })();
+}
+function showProfileForm(acc,onSave,onCancel){
+  const L=$('#login'); L.hidden=false; document.documentElement.classList.add('locked');
+  let err='';
+  const draw=()=>{
+    L.innerHTML=loginHead()+`<form class="lcard" id="pf" novalidate>
+      <div><h2 style="font-size:18px">${onCancel?'Ubah data trainee':'Lengkapi data trainee'}</h2><span class="small muted">Nama dan NPM ini dipakai di header aplikasi dan otomatis terisi di setiap ekspor logbook.</span></div>
+      <div class="who-acct">${acc.photo?`<span class="avatar"><img src="${esc(acc.photo)}" alt="" referrerpolicy="no-referrer" onerror="this.parentNode.textContent='${initialsOf(acc.nama||acc.gname)}'"></span>`:`<span class="avatar">${initialsOf(acc.nama||acc.gname)}</span>`}<span class="small" style="min-width:0;overflow-wrap:anywhere">${esc(acc.email)}</span></div>
+      <div class="field"><label for="f_nama">Nama lengkap (dengan gelar)</label><input id="f_nama" autocomplete="name" value="${esc(acc.nama)}" placeholder="dr. Nama Lengkap"></div>
+      <div class="grid2">
+        <div class="field"><label for="f_npm">NPM</label><input id="f_npm" class="mono" inputmode="numeric" value="${esc(acc.npm)}" placeholder="1308…"></div>
+        <div class="field"><label for="f_akt">Angkatan / periode</label><input id="f_akt" value="${esc(acc.angkatan)}" placeholder="KAKV 2026"></div>
+      </div>
+      ${err?`<div class="err">${esc(err)}</div>`:''}
+      <div class="row">${onCancel?'<button type="button" class="btn" id="pfCancel" style="flex:1">Batal</button>':''}<button class="btn primary" type="submit" style="flex:2">${onCancel?'Simpan':'Simpan dan mulai'}</button></div>
+    </form>`;
+    $('#pf').onsubmit=e=>{ e.preventDefault();
+      acc.nama=$('#f_nama').value.trim(); acc.npm=$('#f_npm').value.trim(); acc.angkatan=$('#f_akt').value.trim();
+      if(!acc.nama||!acc.npm){ err='Nama dan NPM wajib diisi.'; draw(); return; }
+      if(!/^\d{6,20}$/.test(acc.npm)){ err='NPM hanya berisi angka.'; draw(); return; }
+      onSave(acc);
+    };
+    if(onCancel) $('#pfCancel').onclick=()=>{ L.hidden=true; L.innerHTML=''; document.documentElement.classList.remove('locked'); onCancel(); };
+    setTimeout(()=>{ const f=$(!acc.nama?'#f_nama':'#f_npm'); f&&f.focus(); },50);
+  };
+  draw();
+}
+function editAccount(){
+  showProfileForm({...SESSION},async acc=>{
+    SESSION={...SESSION,nama:acc.nama,npm:acc.npm,angkatan:acc.angkatan};
+    try{ await store.set('session',SESSION); await store.set('acct:'+SESSION.uid,{nama:acc.nama,npm:acc.npm,angkatan:acc.angkatan}); }catch(e){}
+    lsSet('kakv-session',JSON.stringify(SESSION));
+    PROFILE.nama=SESSION.nama; PROFILE.npm=SESSION.npm; PROFILE.angkatan=SESSION.angkatan; try{ await store.set('profile',PROFILE); }catch(e){}
+    $('#login').hidden=true; $('#login').innerHTML=''; document.documentElement.classList.remove('locked');
+    toast('Data trainee disimpan'); render();
+  },()=>render());
 }
 async function logout(){
+  try{ const a=await loadFirebase(); await a.signOut(); }catch(e){}
   SESSION=null; try{ await store.set('session',null); }catch(e){} lsSet('kakv-session',null); location.reload();
+}
+function renderAvatar(){
+  const b=$('#acctBtn'); if(!b) return;
+  if(!SESSION){ b.hidden=true; return; }
+  b.hidden=false; const ini=initialsOf(SESSION.nama);
+  if(b.dataset.for!==SESSION.uid+SESSION.photo+ini){
+    b.dataset.for=SESSION.uid+SESSION.photo+ini;
+    b.innerHTML = SESSION.photo?`<img src="${esc(SESSION.photo)}" alt="" referrerpolicy="no-referrer">`:ini;
+    const im=b.querySelector('img'); if(im) im.onerror=()=>{ b.textContent=ini; };
+  }
+  b.onclick=()=>go('more');
 }
 
 /* ===================== Kegiatan ilmiah ===================== */
@@ -1064,7 +1136,7 @@ function seed(){
   if(!(await ensureLogin())) return;
   try{ RECS = await store.all() || []; }catch(e){ RECS=[]; }
   try{ const p=await store.get('profile'); if(p) PROFILE={...PROFILE,...p}; }catch(e){}
-  if(SESSION){ PROFILE.nama=SESSION.nama; PROFILE.npm=SESSION.npm; try{ await store.set('profile',PROFILE); }catch(e){} }
+  if(SESSION){ PROFILE.nama=SESSION.nama; PROFILE.npm=SESSION.npm; if(SESSION.angkatan) PROFILE.angkatan=SESSION.angkatan; try{ await store.set('profile',PROFILE); }catch(e){} }
   let seeded=false; try{ seeded=await store.get('seeded'); }catch(e){}
   if(!RECS.length && !seeded){ for(const r of seed()){ await store.put(r); RECS.push(r);} try{await store.set('seeded',true);}catch(e){} }
   try{ ACTS = await store.allActs() || []; }catch(e){ ACTS=[]; }
