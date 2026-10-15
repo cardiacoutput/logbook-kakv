@@ -256,7 +256,14 @@ nav.tabbar .fab span.b svg{width:26px;height:26px}
 /* ===================== Login Google (Firebase) ===================== */
 // Tempel objek firebaseConfig dari Firebase Console (Project settings → Your apps → Web app).
 // Selama masih null, halaman login tidak aktif dan aplikasi langsung terbuka.
-const FIREBASE_CONFIG = null;
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyDvDN6XmLSsJMnWup4TsmuZWu5LiwR8MNM",
+  authDomain: "logbook-kakv.firebaseapp.com",
+  projectId: "logbook-kakv",
+  storageBucket: "logbook-kakv.firebasestorage.app",
+  messagingSenderId: "1095387083525",
+  appId: "1:1095387083525:web:e386ae0d0d335226bbbd6c"
+};
 const AUTH_ON = !!(FIREBASE_CONFIG && FIREBASE_CONFIG.apiKey);
 try{ if(AUTH_ON && !localStorage.getItem('kakv-session')) document.documentElement.classList.add('locked'); }catch(e){ if(AUTH_ON) document.documentElement.classList.add('locked'); }
 /* ===================== Konfigurasi (dari LOGBOOK KAKV 2026.xlsx) ===================== */
