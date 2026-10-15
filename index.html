@@ -199,6 +199,19 @@ nav.tabbar .fab span.b svg{width:26px;height:26px}
 .acct-name{font-size:11.5px;max-width:110px;font-weight:600;line-height:1.25;text-align:right;color:var(--ink);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere;min-width:0}
 @media (max-width:370px){.acct-name{display:none}}
 .linkbtn{background:none;border:0;color:var(--accent);font-weight:600;padding:4px 0;text-decoration:underline;text-underline-offset:3px}
+/* tempel whatsapp */
+.wa-panel{display:flex;flex-direction:column;gap:10px;padding:14px;border:1px solid color-mix(in srgb,var(--c1) 45%,var(--line));border-radius:var(--r);background:color-mix(in srgb,var(--c1) 7%,var(--surface))}
+.wa-panel textarea{min-height:130px;font-size:13.5px}
+.wa-open{display:flex;align-items:center;gap:10px;width:100%;padding:12px 14px;border-radius:var(--r);border:1px dashed color-mix(in srgb,var(--c1) 60%,var(--line));background:var(--surface);text-align:left}
+.wa-open svg{width:22px;height:22px;color:var(--c1);flex:none}
+.wa-open b{display:block}
+.wa-list{display:flex;flex-direction:column;gap:6px}
+.wa-item{display:flex;gap:10px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);font-size:13px}
+.wa-item div{flex:1;min-width:0}
+.wa-item b{display:block}
+.wa-item.done{opacity:.55}
+.wa-bar{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:10px 12px;border-radius:10px;background:color-mix(in srgb,var(--c1) 12%,var(--surface));font-size:13px}
+input.auto,textarea.auto,select.auto{border-color:color-mix(in srgb,var(--warn) 70%,var(--line));background:color-mix(in srgb,var(--warn) 7%,var(--surface))}
 /* kegiatan ilmiah */
 .act{display:grid;grid-template-columns:54px 1fr auto;gap:12px;padding:12px;text-align:left;width:100%;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);align-items:start}
 .datebox{border:1px solid var(--line);border-radius:10px;overflow:hidden;text-align:center;background:var(--surface2)}
@@ -449,10 +462,13 @@ function renderForm(){
     draft._for = ui.editing;
   }
   const K=KMAP[draft.kat];
+  const au=f=>(draft._auto||[]).includes(f)?'auto':'';
   const dpjpLain = draft._dpjpLain || (!!draft.dpjp && !PEMBIMBING.includes(draft.dpjp));
   const v=$('#v-form');
   v.innerHTML = `
     <div><div class="eyebrow">${ui.editing?'Ubah kasus':'Kasus baru'}</div><h2>${esc(K.k)} · ${esc(K.desc)}</h2></div>
+    ${!ui.editing?waHeaderHTML():''}
+    ${(draft._auto||[]).length?`<div class="note" style="border-left-color:var(--warn)">Kolom bertanda kuning diisi otomatis dari WhatsApp. Periksa isinya, lalu pilih <b>${esc(K.dp)}</b>.</div>`:''}
     <form id="f" novalidate>
       <div class="field"><span class="lbl">Kategori kompetensi <span class="req">*</span></span>
         <div class="katpick">${KAT.map(x=>`<button type="button" style="--cc:var(${x.c})" aria-pressed="${draft.kat===x.k}" data-k="${x.k}"><span class="dot"></span>${x.k}</button>`).join('')}</div></div>
@@ -460,22 +476,22 @@ function renderForm(){
       <div class="fieldset">
         <div class="eyebrow">Identitas pasien (rekam medis)</div>
         <div class="grid2">
-          <div class="field"><label for="tanggal">Tanggal <span class="req">*</span></label><input id="tanggal" type="date" value="${esc(draft.tanggal)}"></div>
-          <div class="field"><label for="nrm">NRM <span class="req">*</span></label><input id="nrm" inputmode="numeric" class="mono" value="${esc(draft.nrm)}" placeholder="679682"></div>
+          <div class="field"><label for="tanggal">Tanggal <span class="req">*</span></label><input id="tanggal" type="date" value="${esc(draft.tanggal)}" class="${au('tanggal')}"></div>
+          <div class="field"><label for="nrm">NRM <span class="req">*</span></label><input id="nrm" inputmode="numeric" class="mono ${au('nrm')}" value="${esc(draft.nrm)}" placeholder="679682"></div>
         </div>
-        <div class="field"><label for="nama">Nama pasien <span class="req">*</span></label><input id="nama" value="${esc(draft.nama)}" placeholder="Nama lengkap sesuai RM" autocomplete="off"></div>
+        <div class="field"><label for="nama">Nama pasien <span class="req">*</span></label><input id="nama" class="${au('nama')}" value="${esc(draft.nama)}" placeholder="Nama lengkap sesuai RM" autocomplete="off"></div>
         <div class="grid3">
           <div class="field"><span class="lbl">JK</span><div class="seg" id="jk">${['L','P'].map(j=>`<button type="button" aria-pressed="${draft.jk===j}" data-j="${j}">${j}</button>`).join('')}</div></div>
-          <div class="field f-usia"><label for="usia">Usia</label><input id="usia" inputmode="decimal" value="${esc(draft.usia)}" placeholder="66"></div>
+          <div class="field f-usia"><label for="usia">Usia</label><input id="usia" inputmode="decimal" class="${au('usia')}" value="${esc(draft.usia)}" placeholder="66"></div>
           <div class="field"><label for="usiaU">Satuan</label><select id="usiaU">${['th','bln','hari'].map(u=>`<option ${ (draft.usiaU||'th')===u?'selected':''}>${u}</option>`).join('')}</select></div>
         </div>
       </div>
 
       <div class="fieldset">
         <div class="eyebrow">Klinis & tindakan</div>
-        <div class="field"><label for="diagnosis">Diagnosis <span class="req">*</span></label><textarea id="diagnosis" placeholder="ASA III, CAD 3VD EF 43%, HT">${esc(draft.diagnosis)}</textarea></div>
-        <div class="field"><label for="tindakanOp">${esc(K.op)}</label><input id="tindakanOp" value="${esc(draft.tindakanOp)}" placeholder="OPCABG"></div>
-        <div class="field"><label for="tindakanAn">${esc(K.an)}</label><input id="tindakanAn" value="${esc(draft.tindakanAn)}" placeholder="${K.k==='ICU'?'Ventilasi mekanik, CRRT…':K.k==='PERFUSI'?'CPB, kardioplegia…':'GA + A-line + CVC + TEE'}" list="anList"></div>
+        <div class="field"><label for="diagnosis">Diagnosis <span class="req">*</span></label><textarea id="diagnosis" class="${au('diagnosis')}" placeholder="ASA III, CAD 3VD EF 43%, HT">${esc(draft.diagnosis)}</textarea></div>
+        <div class="field"><label for="tindakanOp">${esc(K.op)}</label><input id="tindakanOp" class="${au('tindakanOp')}" value="${esc(draft.tindakanOp)}" placeholder="OPCABG"></div>
+        <div class="field"><label for="tindakanAn">${esc(K.an)}</label><input id="tindakanAn" class="${au('tindakanAn')}" value="${esc(draft.tindakanAn)}" placeholder="${K.k==='ICU'?'Ventilasi mekanik, CRRT…':K.k==='PERFUSI'?'CPB, kardioplegia…':'GA + A-line + CVC + TEE'}" list="anList"></div>
         <datalist id="anList"><option>GA</option><option>GA + TEE</option><option>GA + ESP block</option><option>Sedasi (MAC)</option><option>Non-intubasi + blok regional</option></datalist>
         <div class="field"><label for="dpjpSel">${esc(K.dp)}</label>
           <select id="dpjpSel"><option value="">Pilih ${esc(K.dp)}…</option>${PEMBIMBING.map(n=>`<option value="${esc(n)}" ${draft.dpjp===n?'selected':''}>${esc(n)}</option>`).join('')}<option value="__lain" ${dpjpLain?'selected':''}>Lainnya (ketik nama)…</option></select>
@@ -519,12 +535,13 @@ function renderForm(){
   const sync=()=>{ ['tanggal','nrm','nama','usia','diagnosis','tindakanOp','tindakanAn','ket','refleksi'].forEach(id=>draft[id]=$('#'+id).value.trim()); const ds=$('#dpjpSel').value; draft._dpjpLain = ds==='__lain'; draft.dpjp = ds==='__lain' ? $('#dpjpLain').value.trim() : ds; draft.usiaU=$('#usiaU').value; draft.verif=$('#verif').checked; };
   $('#dpjpSel').onchange=()=>{ const lain=$('#dpjpSel').value==='__lain'; const i=$('#dpjpLain'); i.hidden=!lain; if(lain) i.focus(); };
   v.querySelectorAll('.katpick button').forEach(b=>b.onclick=()=>{ sync(); draft.kat=b.dataset.k; renderForm(); });
+  if(!ui.editing) bindWa(sync);
   v.querySelectorAll('#jk button').forEach(b=>b.onclick=()=>{ draft.jk = draft.jk===b.dataset.j?'':b.dataset.j; v.querySelectorAll('#jk button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.j===draft.jk)); });
   v.querySelectorAll('#levels button').forEach(b=>b.onclick=()=>{ draft.level = draft.level===b.dataset.l?'':b.dataset.l; v.querySelectorAll('#levels button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.l===draft.level)); });
   v.querySelectorAll('#skills .chip').forEach(b=>b.onclick=()=>{ const s=b.dataset.s; const i=draft.skills.indexOf(s); i<0?draft.skills.push(s):draft.skills.splice(i,1); b.setAttribute('aria-pressed',draft.skills.includes(s)); });
   $('#addLap').onclick=()=>$('#inLap').click(); $('#addFoto').onclick=()=>$('#inFoto').click();
   $('#inLap').onchange=e=>addFiles(e.target.files,'laporan'); $('#inFoto').onchange=e=>addFiles(e.target.files,'foto');
-  $('#cancel').onclick=()=>{ cleanupDraft(); go(ui.editing?'detail':'home',{detail:ui.editing}); };
+  $('#cancel').onclick=()=>{ ui.waQueue=null; ui.waOpen=false; cleanupDraft(); go(ui.editing?'detail':'home',{detail:ui.editing}); };
   $('#f').onsubmit=async e=>{ e.preventDefault(); sync(); await saveDraft(); };
   renderFormFiles();
 }
@@ -558,12 +575,223 @@ async function saveDraft(){
   const er=$('#ferr'); if(miss.length){ er.hidden=false; er.textContent='Lengkapi '+miss.join(', ')+' sebelum menyimpan.'; er.scrollIntoView({block:'center'}); return; }
   for(const n of draft._new) await store.putFile(n.id,n.blob);
   for(const id of draft._removed) await store.delFile(id);
-  const rec={...draft}; delete rec._new; delete rec._removed; delete rec._for; delete rec._dpjpLain; rec.contoh=false; rec.updated=Date.now();
+  const rec={...draft}; delete rec._new; delete rec._removed; delete rec._for; delete rec._dpjpLain; delete rec._auto; delete rec._waIdx; rec.contoh=false; rec.updated=Date.now();
   await store.put(rec);
   const i=RECS.findIndex(r=>r.id===rec.id); i<0?RECS.push(rec):RECS[i]=rec;
-  const wasEdit=!!ui.editing; draft=null;
+  const wasEdit=!!ui.editing; const waIdx=draft._waIdx; draft=null;
+  if(!wasEdit && ui.waQueue && waIdx!=null){
+    ui.waQueue[waIdx].done=true;
+    const next=ui.waQueue.findIndex(x=>!x.done&&!x.skip);
+    if(next>=0){ toast(`Kasus ${rec.kat} disimpan. Lanjut pasien berikutnya.`); loadWa(next); return; }
+    ui.waQueue=null; toast(`Kasus ${rec.kat} disimpan. Semua pasien dari WhatsApp selesai.`);
+    go('list',{filter:'ALL'}); return;
+  }
   toast(wasEdit?'Perubahan disimpan':`Kasus ${rec.kat} disimpan`);
   go('detail',{detail:rec.id,editing:null,confirmDel:false});
+}
+
+/* ===================== Tempel dari WhatsApp ===================== */
+const WA_ICON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21l1.6-4.8A8.5 8.5 0 1 1 8 19.6z"/><path d="M9 10h.01M12 10h.01M15 10h.01"/></svg>';
+const AN_RX=/\b(GA|general anest\w*|regional|spinal|SAB|epidural|CSE|sedasi|MAC|TIVA|ETT|LMA|DLT|blok|block|ESP|PVB|non[- ]?intubasi|OLV|iv sedasi)\b/i;
+const MONTH_RX='jan(?:uari|uary)?|feb(?:ruari|ruary)?|mar(?:et|ch)?|apr(?:il)?|mei|may|jun(?:i|e)?|jul(?:i|y)?|agu(?:stus)?|aug(?:ust)?|sep(?:tember)?|okt(?:ober)?|oct(?:ober)?|nov(?:ember)?|des(?:ember)?|dec(?:ember)?';
+function findDate(t){
+  let m=String(t||'').match(/\b(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{2,4})\b/);
+  if(m) return parseDate(`${m[1]}-${m[2]}-${m[3]}`);
+  m=String(t||'').match(new RegExp('\\b(\\d{1,2})\\s+('+MONTH_RX+')\\.?\\s+(\\d{4})\\b','i'));
+  if(m) return parseDate(`${m[1]} ${m[2]} ${m[3]}`);
+  return '';
+}
+function guessKat(t){
+  const x=' '+String(t||'').toLowerCase()+' ';
+  if(/nivats|non[- ]?intubasi/.test(x)) return 'NIVATS';
+  if(/\bicu\b|iccu|cvcu|ventilasi mekanik|post ?op hari/.test(x)) return 'ICU';
+  if(/ppm|pacemaker|pace ?maker|\bicd\b|\bcrt\b|ablasi|ep study|\btpm\b/.test(x)) return 'PACE';
+  if(/aort|aneurisma|aneurysm|diseksi|dissection|bentall|tevar|evar|arch|david/.test(x)) return 'AORTA';
+  if(/cath|kateterisasi|\bpci\b|stent|tavi|tavr|\bbas\b|device closure|mitraclip|mitral clip|coiling|angiografi|ballon|balon/.test(x)) return 'CATH';
+  if(/swan|iabp|crrt|\btee\b|bronko|bronchoscop|ecmo/.test(x)) return 'Diagnostik';
+  if(/\bvsd\b|\basd\b|\btof\b|\bpda\b|tetralogy|\bavsd\b|glenn|fontan|\bbt shunt|switch|\btga\b|\bchd\b|kongenital|congenital/.test(x)) return 'CHD';
+  if(/cabg|opcab|bypass koroner|\bcad\b|\b[23]vd\b|\blm\b disease/.test(x)) return 'CABG';
+  return '';
+}
+function matchStaf(t){
+  const x=String(t||'').toLowerCase().replace(/\b(dr|dokter|prof|sp\.?an\S*|subsp\S*|kv|kakv|ti|k)\b\.?/g,' ');
+  const toks=x.split(/[^a-z]+/).filter(w=>w.length>=4);
+  if(!toks.length) return '';
+  const hit=PEMBIMBING.filter(n=>{ const head=n.split(',')[0].toLowerCase(); return toks.some(w=>head.split(/[^a-z]+/).includes(w)); });
+  return hit.length===1?hit[0]:'';
+}
+function cleanWaText(raw){
+  let headDate='';
+  const lines=String(raw||'').replace(/\r/g,'').split('\n').map(l=>{
+    // Awalan baris ekspor chat WhatsApp: "[16/10/26 07.30.12] Nama: " atau "16/10/26 07.30 - Nama: "
+    const m=l.match(/^\s*\[?(\d{1,2}[\/.\-]\d{1,2}[\/.\-]\d{2,4}),?\s+\d{1,2}[.:]\d{2}(?:[.:]\d{2})?\s*(?:[AaPp]\.?[Mm]\.?)?\]?\s*(?:-\s*)?(?:[^:]{1,40}:\s)?/);
+    if(m){ if(!headDate) headDate=findDate(m[1]); l=l.slice(m[0].length); }
+    return l.replace(/[*_~`]/g,'').replace(/\u200e|\u200f/g,'').trimEnd();
+  });
+  return {lines, headDate};
+}
+const LBL={
+  nama:/^(?:nama(?:\s+pasien)?|pasien|nm|identitas)$/i,
+  nrm:/^(?:no\.?\s*)?(?:rm|nrm|mr|no\.?\s*rm|rekam\s*medi[sk]|no\.?\s*rekam\s*medi[sk]|medrec)$/i,
+  tanggal:/^(?:tgl|tanggal|tgl\.?\s*op(?:erasi)?|tanggal\s+operasi|hari\/?tgl|hari,?\s*tanggal|date)$/i,
+  usia:/^(?:usia|umur|u|age)$/i,
+  jk:/^(?:jk|jenis\s*kelamin|sex|gender)$/i,
+  diagnosis:/^(?:diagnosis|diagnosa|dx|diag)$/i,
+  tindakanAn:/^(?:tindakan\s+anestesi|anestesi|anestesia|teknik(?:\s+anestesi)?|rencana\s+anestesi|jenis\s+anestesi|ra|an)$/i,
+  tindakanOp:/^(?:tindakan(?:\s+operasi)?|operasi|op|rencana(?:\s+(?:tindakan|operasi))?|prosedur|pro|tindakan\s+bedah|bedah)$/i,
+  dpjp:/^(?:dpjp(?:\s+an(?:estesi)?)?|konsulen(?:\s+anestesi)?|supervisor|spv|dpjp\s+icu)$/i,
+  ket:/^(?:ket|keterangan|catatan|note|masalah)$/i,
+};
+function applyAge(o,str){ const m=String(str).match(/(\d{1,3}(?:[.,]\d)?)\s*(th|thn|tahun|y|yo|bl|bln|bulan|mo|hr|hari|d)?\b/i); if(!m) return false;
+  o.usia=m[1].replace(',','.'); const u=(m[2]||'th').toLowerCase(); o.usiaU=/^b|^mo/.test(u)?'bln':/^h|^d/.test(u)?'hari':'th'; return true; }
+function applyName(o,str){
+  let n=String(str).trim().replace(/[,;]+$/,'');
+  const h=n.match(/^(tn|ny|nn|an|by|sdr|sdri|mr|mrs|ms)\.?\s+/i);
+  if(h&&!o.jk){ const t=h[1].toLowerCase(); if(/^(tn|mr|sdr)$/.test(t)) o.jk='L'; else if(/^(ny|nn|mrs|ms|sdri)$/.test(t)) o.jk='P'; }
+  // "Tn. A, 56 th" → pisahkan usia bila menempel
+  const age=n.match(/[,(\/]\s*(\d{1,3}\s*(?:th|thn|tahun|bl|bln|bulan|hr|hari|y|yo)\b.*)$/i);
+  if(age){ applyAge(o,age[1]); n=n.slice(0,age.index).trim(); }
+  o.nama=n.replace(/\s*[\(\[].*$/,'').trim();
+}
+function parseBlock(lines,headDate){
+  const o={}; const free=[];
+  for(const raw of lines){
+    const l=raw.replace(/^\s*(?:\d{1,2}[.)]|[-•●▪➤>])\s*/,'').trim(); if(!l) continue;
+    const m=l.match(/^([A-Za-z][A-Za-z .\/,]{0,28}?)\s*[:=]\s*(.*)$/);
+    let used=false;
+    if(m){
+      const key=Object.keys(LBL).find(k=>LBL[k].test(m[1].trim())); const val=m[2].trim();
+      if(key&&val){ used=true;
+        if(key==='nama') applyName(o,val);
+        else if(key==='nrm') o.nrm=val.replace(/\D/g,'');
+        else if(key==='tanggal') o.tanggal=findDate(val)||o.tanggal;
+        else if(key==='usia') applyAge(o,val);
+        else if(key==='jk') o.jk=/^(l|lk|laki|m|male|pria)/i.test(val)?'L':/^(p|pr|perempuan|w|wanita|f|female)/i.test(val)?'P':'';
+        else if(key==='dpjp') o.dpjpRaw=val;
+        else o[key]=val;
+      }
+    }
+    if(!used) free.push(l);
+  }
+  // Baris tanpa label, mis. "1. Tn. Soleh / 66 th / RM 679682 / CAD 3VD / OPCABG / GA"
+  const labeled=Object.keys(o).length;
+  for(let l of free){
+    if(labeled>=2 && !/[\/|]/.test(l)) continue; // pesan berlabel: abaikan baris obrolan bebas
+    const dp=l.match(/(?:^|[,;\/]\s*|\s)(?:dpjp(?:\s+an(?:estesi)?)?|konsulen|spv)\b\.?\s*[:.]?\s*([^,;\/]+)$/i);
+    if(dp){ if(!o.dpjpRaw) o.dpjpRaw=dp[1].trim(); l=l.slice(0,dp.index).trim(); }
+    const segs=(/[\/|]/.test(l)?l.split(/\s*[\/|]\s*/):l.split(/\s*[,;]\s*/)).map(x=>x.trim()).filter(Boolean);
+    const rest=[];
+    for(let sg of segs){
+      let mm;
+      if(!o.nrm && (mm=sg.match(/^(?:no\.?\s*)?(?:rm|nrm|mr|medrec)\.?\s*[:.]?\s*(\d[\d.\-]{3,})\s*[,;]?\s*(.*)$/i)) && mm[2]){ o.nrm=mm[1].replace(/\D/g,''); sg=mm[2]; }
+      if(!o.nrm && (mm=sg.match(/^(?:no\.?\s*)?(?:rm|nrm|mr|medrec)\.?\s*[:.]?\s*([\d.\- ]{4,})$/i))){ o.nrm=mm[1].replace(/\D/g,''); continue; }
+      if(!o.nrm && /^\d[\d.\-]{4,}$/.test(sg)){ o.nrm=sg.replace(/\D/g,''); continue; }
+      if(!o.usia && /^\d{1,3}(?:[.,]\d)?\s*(?:th|thn|tahun|bl|bln|bulan|hr|hari|y|yo)\b\.?$/i.test(sg)){ applyAge(o,sg); continue; }
+      if(!o.jk && /^(l|p|lk|pr)$/i.test(sg)){ o.jk=/^l/i.test(sg)?'L':'P'; continue; }
+      if(!o.tanggal && findDate(sg) && sg.length<=24){ o.tanggal=findDate(sg); continue; }
+      if(!o.nama && /^(tn|ny|nn|an|by|sdr|sdri|mr|mrs|ms)\.?\s+\S/i.test(sg)){ applyName(o,sg); continue; }
+      if(!o.tindakanAn && AN_RX.test(sg) && sg.length<=60){ o.tindakanAn=sg; continue; }
+      if(!o.dpjpRaw && /^(dpjp|konsulen|spv)\b/i.test(sg)){ o.dpjpRaw=sg.replace(/^\S+\s*[:.]?\s*/,''); continue; }
+      rest.push(sg);
+    }
+    if(!o.nama && rest.length && /^[A-Za-z][A-Za-z'. ]{2,40}$/.test(rest[0]) && !guessKat(rest[0])) applyName(o,rest.shift());
+    if(!o.diagnosis && rest.length) o.diagnosis=rest.shift();
+    if(!o.tindakanOp && rest.length) o.tindakanOp=rest.shift();
+    if(rest.length) o.ket=[o.ket,...rest].filter(Boolean).join('; ');
+  }
+  if(!o.tanggal) o.tanggal=headDate||'';
+  if(o.dpjpRaw){ o.dpjp=matchStaf(o.dpjpRaw)||o.dpjpRaw; delete o.dpjpRaw; }
+  const allTx=[o.diagnosis,o.tindakanOp,o.tindakanAn,o.ket].join(' ');
+  o.kat=(guessKat(allTx)==='ICU'?'ICU':'')||guessKat([o.diagnosis,o.tindakanOp].join(' '))||guessKat([o.tindakanAn,o.ket].join(' '));
+  o._valid = !!(o.nrm || o.usia || labeled>=2 || /^(tn|ny|nn|an|by|sdr|sdri|mr|mrs|ms)\.?\s/i.test(o.nama||''));
+  return o;
+}
+function parseWhatsApp(raw){
+  const {lines,headDate}=cleanWaText(raw);
+  // tanggal di baris judul (mis. "Jadwal OK Kamis, 16 Oktober 2026")
+  let topDate=headDate;
+  const firstPatient=lines.findIndex(l=>/^\s*\d{1,2}[.)]\s+\S/.test(l)||/^\s*(?:nama|pasien)\s*[:=]/i.test(l));
+  for(const l of lines.slice(0,firstPatient>0?firstPatient:0)){ const d=findDate(l); if(d){ topDate=d; break; } }
+  const numbered=lines.filter(l=>/^\s*\d{1,2}[.)]\s+\S/.test(l)).length;
+  let blocks=[];
+  if(numbered>=1){
+    let cur=null;
+    for(const l of lines.slice(Math.max(0,firstPatient))){
+      if(/^\s*\d{1,2}[.)]\s+\S/.test(l)){ if(cur) blocks.push(cur); cur=[l]; }
+      else if(cur) cur.push(l);
+    }
+    if(cur) blocks.push(cur);
+    // nomor yang sebenarnya hanya poin dalam satu pasien berlabel → gabungkan
+    if(blocks.every(b=>!/(?:nama|pasien|rm|nrm)\s*[:=]|\b(?:tn|ny|nn|an|by)\.?\s/i.test(b.join(' '))&&!/\d{5,}/.test(b.join(' ')))) blocks=[lines];
+  } else {
+    let cur=[]; const nameStarts=lines.filter(l=>/^\s*(?:nama(?:\s+pasien)?|pasien)\s*[:=]/i.test(l)).length;
+    if(nameStarts>1){ for(const l of lines){ if(/^\s*(?:nama(?:\s+pasien)?|pasien)\s*[:=]/i.test(l)&&cur.length){ blocks.push(cur); cur=[]; } cur.push(l); } blocks.push(cur); }
+    else blocks=[lines];
+  }
+  return blocks.map(b=>parseBlock(b,topDate)).filter(o=>o._valid&&(o.nama||o.nrm||o.diagnosis)).map(o=>{ delete o._valid; return o; });
+}
+function waHeaderHTML(){
+  const q=ui.waQueue;
+  if(q&&draft&&draft._waIdx!=null){
+    const done=q.filter(x=>x.done).length;
+    return `<div class="wa-bar"><span>${WA_ICON.replace('<svg','<svg style="width:16px;height:16px;vertical-align:-3px;margin-right:6px;color:var(--c1)"')}Dari WhatsApp · pasien <b>${draft._waIdx+1}</b> dari ${q.length}${done?` · ${done} tersimpan`:''}</span>
+      <span class="row" style="gap:6px"><button type="button" class="btn" id="waSkip" style="padding:6px 10px">Lewati</button><button type="button" class="btn" id="waList" style="padding:6px 10px">Daftar</button></span></div>`;
+  }
+  if(!ui.waOpen) return `<button type="button" class="wa-open" id="waOpen">${WA_ICON}<span><b>Tempel dari WhatsApp</b><span class="small muted">Isi otomatis nama, No RM, tanggal, diagnosis, dan tindakan dari teks pesan</span></span></button>`;
+  const res=ui.waResult;
+  return `<div class="wa-panel">
+    <div class="row" style="justify-content:space-between"><b>Tempel dari WhatsApp</b><button type="button" class="btn ghost" id="waClose" aria-label="Tutup">✕</button></div>
+    <span class="small muted">Di WhatsApp, tekan lama pesan → <b>Salin</b>, lalu tempel di sini. Bisa satu pasien atau daftar beberapa pasien. Teks hanya dibaca di HP ini.</span>
+    <textarea id="waText" placeholder="Contoh:&#10;Nama: Tn. Soleh Tatang, 66 th&#10;RM: 679682&#10;Tgl: 31-08-2026&#10;Dx: CAD 3VD EF 43%, HT&#10;Tindakan: OPCABG&#10;Anestesi: GA&#10;&#10;atau: 1. Tn. Soleh / 66 th / RM 679682 / CAD 3VD / OPCABG / GA">${esc(ui.waRaw||'')}</textarea>
+    <div class="row"><button type="button" class="btn primary" id="waParse" style="flex:1">Baca teks</button><button type="button" class="btn" id="waFile">Unggah .txt</button></div>
+    <input type="file" id="waIn" accept=".txt,text/plain" hidden>
+    ${res&&!res.length?'<div class="err">Tidak ada data pasien yang terbaca. Pastikan teks memuat nama atau No RM pasien.</div>':''}
+    ${res&&res.length>1?`<div class="eyebrow">${res.length} pasien terbaca</div><div class="wa-list">${res.map((o,i)=>`<div class="wa-item ${o.done?'done':''}"><div><b>${esc(o.nama||'(tanpa nama)')}</b><span class="muted mono">${o.nrm?'RM '+esc(o.nrm):'RM —'}</span> · <span class="muted">${esc([o.kat,o.tindakanOp||o.diagnosis].filter(Boolean).join(' · ')||'—')}</span></div>${o.done?'<span class="small" style="color:var(--ok)">Tersimpan</span>':`<button type="button" class="btn" data-wa="${i}" style="padding:6px 10px">Isi</button>`}</div>`).join('')}</div>
+      <button type="button" class="btn primary" id="waAll">Isi berurutan, mulai pasien 1</button>`:''}
+  </div>`;
+}
+function bindWa(sync){
+  const on=(id,fn)=>{ const e=$('#'+id); if(e) e.onclick=fn; };
+  on('waOpen',()=>{ sync(); ui.waOpen=true; renderForm(); setTimeout(()=>{ const t=$('#waText'); t&&t.focus(); },50); });
+  on('waClose',()=>{ sync(); ui.waOpen=false; ui.waResult=null; renderForm(); });
+  on('waFile',()=>$('#waIn').click());
+  const fi=$('#waIn'); if(fi) fi.onchange=async e=>{ const f=e.target.files[0]; if(!f) return; ui.waRaw=(await f.text()).slice(0,200000); runWaParse(sync); };
+  on('waParse',()=>{ ui.waRaw=$('#waText').value; runWaParse(sync); });
+  on('waAll',()=>{ ui.waQueue=ui.waResult; const i=ui.waQueue.findIndex(x=>!x.done); loadWa(i<0?0:i); });
+  $('#v-form').querySelectorAll('[data-wa]').forEach(b=>b.onclick=()=>{ ui.waQueue=ui.waResult; loadWa(+b.dataset.wa); });
+  on('waSkip',()=>{ const q=ui.waQueue; q[draft._waIdx].skip=true; const n=q.findIndex(x=>!x.done&&!x.skip); if(n>=0) loadWa(n); else { ui.waQueue=null; draft=null; toast('Selesai. Pasien yang dilewati tidak disimpan.'); go('list',{filter:'ALL'}); } });
+  on('waList',()=>{ ui.waResult=ui.waQueue; ui.waQueue=null; ui.waOpen=true; draft=null; renderForm(); });
+}
+function runWaParse(sync){
+  sync(); const res=parseWhatsApp(ui.waRaw||''); ui.waResult=res;
+  if(res.length===1){ fillDraftFromWa(res[0]); ui.waOpen=false; ui.waResult=null; renderForm(); toast('Terisi dari WhatsApp. Periksa lalu pilih DPJP.'); return; }
+  renderForm();
+}
+function fillDraftFromWa(o,idx){
+  const keep=draft&&!draft.nama&&!draft.nrm?draft:newDraft();
+  const auto=[];
+  for(const f of ['tanggal','nama','nrm','usia','diagnosis','tindakanOp','tindakanAn','ket']) if(o[f]){ keep[f]=o[f]; auto.push(f); }
+  if(o.usiaU) keep.usiaU=o.usiaU; if(o.jk) keep.jk=o.jk; if(o.kat) keep.kat=o.kat;
+  if(o.dpjp){ keep.dpjp=o.dpjp; if(!PEMBIMBING.includes(o.dpjp)) keep._dpjpLain=true; }
+  if(!keep.tanggal) keep.tanggal=todayISO();
+  keep._auto=auto; keep._for=null; if(idx!=null) keep._waIdx=idx;
+  draft=keep;
+}
+function loadWa(i){
+  draft=null; draft=newDraft(); draft._for=null; fillDraftFromWa(ui.waQueue[i],i);
+  ui.waOpen=false; ui.editing=null; go('form',{editing:null});
+}
+function handleShareTarget(){
+  try{
+    const u=new URL(location.href); const t=[u.searchParams.get('title'),u.searchParams.get('text'),u.searchParams.get('url')].filter(Boolean).join('\n');
+    if(!u.searchParams.has('share')&&!t) return;
+    history.replaceState(null,'',u.pathname);
+    if(!t) return;
+    ui.waRaw=t; ui.waOpen=true; draft=newDraft(); draft._for=null; ui.editing=null;
+    const res=parseWhatsApp(t); ui.waResult=res;
+    if(res.length===1){ fillDraftFromWa(res[0]); ui.waOpen=false; ui.waResult=null; }
+    go('form',{editing:null});
+  }catch(e){}
 }
 
 /* ===================== Detail ===================== */
@@ -1168,6 +1396,7 @@ function seed(){
   let seededA=false; try{ seededA=await store.get('seededActs'); }catch(e){}
   if(!ACTS.length && !seededA){ for(const a of seedActs()){ await store.putAct(a); ACTS.push(a);} try{await store.set('seededActs',true);}catch(e){} }
   render();
+  handleShareTarget();
   try{ DL = window.claude && window.claude.use ? await window.claude.use('downloads') : null; }catch(e){ DL=null; }
 })();
 render();
