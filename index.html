@@ -676,7 +676,14 @@ function skillsFrom(t){
 function parseHeaderLine(o,l){
   const dp=l.match(/(?:^|[,;\/]\s*|\s)(?:dpjp(?:\s+an(?:estesi)?)?|konsulen|spv)\b\.?\s*[:.]?\s*([^,;\/]+)$/i);
   if(dp){ if(!o.dpjpRaw) o.dpjpRaw=dp[1].trim(); l=l.slice(0,dp.index).trim(); }
-  const segs=(/[\/|]/.test(l)?l.split(/\s*[\/|]\s*/):l.split(/\s*[,;]\s*/)).map(x=>x.trim()).filter(Boolean);
+  // No RM dan usia di mana pun dalam baris, mis. "Tn. Budi (65 th) RM: 686115 - CAD 3VD - CABG"
+  const sepKind=/[\/|]/.test(l)?'/':/\s[-–—]\s/.test(l)?'-':',';
+  const sepStr=sepKind==='/'?' / ':sepKind==='-'?' - ':', ';
+  let mx;
+  if(!o.nrm && (mx=l.match(/\b(?:no\.?\s*)?(?:rm|nrm|mr|medrec)\.?\s*[:.]?\s*(\d[\d.\-]{3,}\d)/i))){ o.nrm=mx[1].replace(/\D/g,''); l=l.slice(0,mx.index)+sepStr+l.slice(mx.index+mx[0].length); }
+  if(!o.usia && (mx=l.match(/\(\s*(\d{1,3}(?:[.,]\d)?\s*(?:th|thn|tahun|bl|bln|bulan|hr|hari|y|yo)\.?)\s*\)/i))){ applyAge(o,mx[1]); l=l.slice(0,mx.index)+sepStr+l.slice(mx.index+mx[0].length); }
+  const sep=sepKind==='/'?/\s*[\/|]\s*/:sepKind==='-'?/\s+[-–—]\s+|\s*[-–—]\s*$|^\s*[-–—]\s*/:/\s*[,;]\s*/;
+  const segs=l.split(sep).map(x=>x.replace(/^[\s,;\-–—]+|[\s,;\-–—]+$/g,'').trim()).filter(Boolean);
   const rest=[];
   for(let sg of segs){
     let mm;
@@ -723,7 +730,7 @@ function parseBlock(lines,topDate){
   });
   for(const {l,head} of free){
     if(!head && labeled>=2) continue;              // laporan lengkap: abaikan baris bebas
-    if(!head && !/[\/|,;]/.test(l)) continue;      // baris bebas tanpa pemisah bukan data pasien
+    if(!head && !/[\/|,;]|\s[-–—]\s/.test(l)) continue;      // baris bebas tanpa pemisah bukan data pasien
     const rest=parseHeaderLine(o,l);
     if(head||labeled<2){
       if(!o.nama && rest.length && /^[A-Za-z][A-Za-z'. ]{2,40}$/.test(rest[0]) && !guessKat(rest[0])) applyName(o,rest.shift());
