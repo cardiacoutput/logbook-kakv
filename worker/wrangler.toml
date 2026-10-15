@@ -1,0 +1,22 @@
+name = "logbook-kakv-otp"
+main = "otp-worker.js"
+compatibility_date = "2025-06-01"
+
+# Buat dulu dengan: npx wrangler kv namespace create OTP_KV
+# lalu salin "id" yang muncul ke bawah ini.
+[[kv_namespaces]]
+binding = "OTP_KV"
+id = "ISI_DENGAN_ID_KV"
+
+[vars]
+ALLOWED_ORIGINS = "https://cardiacoutput.github.io"
+WA_PROVIDER = "fonnte"
+# Untuk Meta WhatsApp Cloud API, ganti WA_PROVIDER = "meta" dan isi:
+# META_PHONE_NUMBER_ID = "..."
+# META_TEMPLATE = "otp_logbook_kakv"
+# META_LANG = "id"
+
+# Secret (JANGAN ditulis di file ini), pasang dengan perintah:
+#   npx wrangler secret put OTP_SECRET
+#   npx wrangler secret put FONNTE_TOKEN      (atau META_TOKEN)
+#   npx wrangler secret put ALLOWLIST         (opsional, daftar trainee)

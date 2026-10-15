@@ -10,6 +10,8 @@ Aplikasi web mobile untuk mencatat logbook trainee Subspesialis Anestesi Kardiov
 - Kegiatan ilmiah per semester (1–4): tanggal, jam, pembimbing, media Zoom Meeting / offline, foto kegiatan, sertifikat.
 - Ekspor ke Excel (format LOGBOOK KAKV + rekap kompetensi + kegiatan ilmiah), impor dari Excel lama, cadangan & pulihkan (.json).
 
+- Login dengan Nama, NPM, dan kode OTP yang dikirim ke WhatsApp. Cukup sekali per perangkat; aktif setelah server OTP dipasang (lihat [`worker/README.md`](worker/README.md)).
+
 ## Cara pasang di HP
 - **Android (Chrome):** buka link → menu ⋮ → *Tambahkan ke layar utama* / *Instal aplikasi*.
 - **iPhone (Safari):** buka link → tombol Bagikan → *Tambah ke Layar Utama*.
