@@ -114,6 +114,9 @@ form{display:flex;flex-direction:column;gap:14px}
 .field .hint{font-size:12px;color:var(--muted)}
 input,select,textarea{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%}
 textarea{min-height:76px;resize:vertical}
+input[type=date],input[type=time]{-webkit-appearance:none;appearance:none;min-height:44px;display:block;min-width:0;text-align:left}
+input[type=date]::-webkit-date-and-time-value,input[type=time]::-webkit-date-and-time-value{text-align:left}
+select{-webkit-appearance:none;appearance:none;min-height:44px;padding-right:34px;background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 18px) 50%,calc(100% - 13px) 50%;background-size:5px 5px;background-repeat:no-repeat;text-overflow:ellipsis}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .grid3{display:grid;grid-template-columns:1.2fr .8fr 1fr;gap:12px}
 .seg{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
@@ -705,10 +708,10 @@ function exportXlsx(){
     ws['!cols']=[{wch:5},{wch:12},{wch:24},{wch:11},{wch:4},{wch:6},{wch:34},{wch:24},{wch:28},{wch:30},{wch:40}];
     XLSX.utils.book_append_sheet(wb,ws,x.k);
   }
-  const ka=[['KEGIATAN ILMIAH'+(PROFILE.nama?' — '+PROFILE.nama:'')+(PROFILE.npm?' ('+PROFILE.npm+')':'')],['No','Semester','Tanggal','Jam','Judul Kegiatan','Jenis','Peran','Penyelenggara','Pembimbing','Media','Lokasi / Link Zoom','Meeting ID','SKP','Catatan','Foto','Sertifikat']];
-  ACTS.filter(a=>!a.contoh).sort((a,b)=>(a.tanggal+a.jamMulai).localeCompare(b.tanggal+b.jamMulai)).forEach((a,i)=>ka.push([i+1,Number(a.semester),fmtDMY(a.tanggal),jamStr(a),a.judul,a.jenis,a.peran,a.penyelenggara||'',a.pembimbing,a.media==='zoom'?'Zoom Meeting':'Offline',a.media==='zoom'?(a.zoomLink||''):(a.lokasi||''),a.media==='zoom'?(a.zoomId||''):'',a.skp?Number(a.skp):'',a.catatan||'',(a.files||[]).filter(f=>f.kind==='foto').length,(a.files||[]).filter(f=>f.kind==='sertifikat').length]));
-  const wsA=XLSX.utils.aoa_to_sheet(ka); wsA['!merges']=[{s:{r:0,c:0},e:{r:0,c:15}}];
-  wsA['!cols']=[{wch:5},{wch:9},{wch:12},{wch:16},{wch:44},{wch:14},{wch:11},{wch:24},{wch:28},{wch:13},{wch:34},{wch:14},{wch:5},{wch:30},{wch:6},{wch:10}];
+  const ka=[['KEGIATAN ILMIAH'+(PROFILE.nama?' — '+PROFILE.nama:'')+(PROFILE.npm?' ('+PROFILE.npm+')':'')],['No','Semester','Tanggal','Jam','Judul Kegiatan','Jenis','Peran','Penyelenggara','Pembimbing','Media','Lokasi / Link Zoom','Meeting ID','Catatan','Foto','Sertifikat']];
+  ACTS.filter(a=>!a.contoh).sort((a,b)=>(a.tanggal+a.jamMulai).localeCompare(b.tanggal+b.jamMulai)).forEach((a,i)=>ka.push([i+1,Number(a.semester),fmtDMY(a.tanggal),jamStr(a),a.judul,a.jenis,a.peran,a.penyelenggara||'',a.pembimbing,a.media==='zoom'?'Zoom Meeting':'Offline',a.media==='zoom'?(a.zoomLink||''):(a.lokasi||''),a.media==='zoom'?(a.zoomId||''):'',a.catatan||'',(a.files||[]).filter(f=>f.kind==='foto').length,(a.files||[]).filter(f=>f.kind==='sertifikat').length]));
+  const wsA=XLSX.utils.aoa_to_sheet(ka); wsA['!merges']=[{s:{r:0,c:0},e:{r:0,c:14}}];
+  wsA['!cols']=[{wch:5},{wch:9},{wch:12},{wch:16},{wch:44},{wch:14},{wch:11},{wch:24},{wch:28},{wch:13},{wch:34},{wch:14},{wch:30},{wch:6},{wch:10}];
   const rk=[['REKAP KOMPETENSI KASUS'+(PROFILE.nama?' — '+PROFILE.nama:'')+(PROFILE.npm?' ('+PROFILE.npm+')':'')],['No','Kategori','Tanggal','NRM','Level','Keterangan Level','Keterampilan','Refleksi','Laporan Anestesi','Foto','Verifikasi DPJP']];
   RECS.filter(r=>!r.contoh).sort((a,b)=>(a.tanggal||'').localeCompare(b.tanggal||'')).forEach((r,i)=>rk.push([i+1,r.kat,fmtDMY(r.tanggal),r.nrm,r.level?Number(r.level):'',lvLabel(r.level),(r.skills||[]).join(', '),r.refleksi||'',(r.files||[]).filter(f=>f.kind==='laporan').length,(r.files||[]).filter(f=>f.kind==='foto').length,r.verif?'Ya':'Belum']));
   const wsR=XLSX.utils.aoa_to_sheet(rk); wsR['!cols']=[{wch:5},{wch:11},{wch:12},{wch:11},{wch:6},{wch:20},{wch:40},{wch:40},{wch:10},{wch:6},{wch:12}];
@@ -923,6 +926,13 @@ function renderAvatar(){
 }
 
 /* ===================== Kegiatan ilmiah ===================== */
+const PEMBIMBING = [
+  'Dr. Reza W. Sudjud, dr., Sp.An-T.I., Subsp.An.Kv(K), Subsp.An.TI(K)',
+  'Muhammad Budi Kurniawan, dr., Sp.An-TI., Subsp.An.KV(K)',
+  'Budiana Rismawan, dr., Subsp.An.Kv(K), Subsp.An.TI(K), M.Kes.',
+  'Doddy Tavianto, dr., Sp.An-T.I., Subsp.An.Kv(K)',
+  'Hana Nur Ramila, dr., Sp.An-T.I., Subsp.An.Kv(K)',
+];
 const JENIS = ['Webinar','Seminar','Simposium','Workshop','Kongres','Journal reading','Laporan kasus','Referat','Kuliah pakar','Lainnya'];
 const PERAN = ['Peserta','Penyaji','Pembicara','Moderator','Panitia'];
 const BLN3 = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
@@ -936,7 +946,6 @@ function sortAct(a,b){ return (b.tanggal+(b.jamMulai||'')).localeCompare(a.tangg
 function renderActs(){
   const sc={1:0,2:0,3:0,4:0}; ACTS.forEach(a=>sc[a.semester]=(sc[a.semester]||0)+1);
   const rows=ACTS.filter(a=>ui.actSem==='ALL'||a.semester===ui.actSem).sort(sortAct);
-  const skp=rows.reduce((s,a)=>s+(Number(a.skp)||0),0);
   $('#v-acts').innerHTML=`
     <div class="row" style="justify-content:space-between"><h2>Kegiatan ilmiah</h2><button class="btn primary" id="addAct"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>Tambah</button></div>
     <div class="semcount">${['1','2','3','4'].map(s=>`<div><b class="mono">${sc[s]}</b><span>Smt ${s}</span></div>`).join('')}</div>
@@ -944,7 +953,7 @@ function renderActs(){
       <button class="chip" aria-pressed="${ui.actSem==='ALL'}" data-s="ALL">Semua <span class="mono">${ACTS.length}</span></button>
       ${['1','2','3','4'].map(s=>`<button class="chip" aria-pressed="${ui.actSem===s}" data-s="${s}">Semester ${s}</button>`).join('')}
     </div>
-    ${rows.length?`<div class="daygroup">${skp?`<div class="eyebrow">${rows.length} kegiatan · ${skp} SKP</div>`:''}${rows.map(actCard).join('')}</div>`
+    ${rows.length?`<div class="daygroup"><div class="eyebrow">${rows.length} kegiatan</div>${rows.map(actCard).join('')}</div>`
       :`<div class="card empty">Belum ada kegiatan${ui.actSem!=='ALL'?' di semester '+ui.actSem:''}. Tekan <b>Tambah</b> untuk mencatat webinar, seminar, atau journal reading.</div>`}`;
   $('#addAct').onclick=()=>go('actform',{actEditing:null});
   $('#v-acts').querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{ui.actSem=b.dataset.s;renderActs();});
@@ -968,11 +977,11 @@ function lastSemester(){ const s=[...ACTS].sort(sortAct)[0]; return s?s.semester
 function renderActForm(){
   if(!actDraft || actDraft._for!==ui.actEditing){
     actDraft = ui.actEditing ? {...structuredClone(ACTS.find(a=>a.id===ui.actEditing)),_new:[],_removed:[]}
-      : {id:uid(),judul:'',jenis:'Webinar',peran:'Peserta',penyelenggara:'',semester:lastSemester(),tanggal:todayISO(),jamMulai:'',jamSelesai:'',pembimbing:'',media:'',zoomLink:'',zoomId:'',lokasi:'',skp:'',catatan:'',files:[],created:Date.now(),_new:[],_removed:[]};
+      : {id:uid(),judul:'',jenis:'Webinar',peran:'Peserta',penyelenggara:'',semester:lastSemester(),tanggal:todayISO(),jamMulai:'',jamSelesai:'',pembimbing:'',media:'',zoomLink:'',zoomId:'',lokasi:'',catatan:'',files:[],created:Date.now(),_new:[],_removed:[]};
     actDraft._for=ui.actEditing;
   }
   const a=actDraft; const v=$('#v-actform');
-  const pemb=[...new Set([...ACTS.map(x=>x.pembimbing),...RECS.map(r=>r.dpjp)].filter(Boolean))];
+  const pembLain = a._pembLain || (!!a.pembimbing && !PEMBIMBING.includes(a.pembimbing));
   v.innerHTML=`
     <div><div class="eyebrow">${ui.actEditing?'Ubah kegiatan':'Kegiatan baru'}</div><h2>Kegiatan ilmiah</h2></div>
     <form id="af" novalidate>
@@ -989,7 +998,7 @@ function renderActForm(){
       <div class="fieldset">
         <div class="eyebrow">Waktu & semester</div>
         <div class="field"><span class="lbl">Semester <span class="req">*</span></span>
-          <div class="seg" id="a_sem">${['1','2','3','4'].map(s=>`<button type="button" aria-pressed="${a.semester===s}" data-v="${s}">Semester ${s}</button>`).join('')}</div></div>
+          <div class="seg" id="a_sem">${['1','2','3','4'].map(s=>`<button type="button" aria-pressed="${a.semester===s}" data-v="${s}" aria-label="Semester ${s}">${s}</button>`).join('')}</div></div>
         <div class="field"><label for="a_tgl">Tanggal kegiatan <span class="req">*</span></label><input id="a_tgl" type="date" value="${esc(a.tanggal)}"></div>
         <div class="grid2">
           <div class="field"><label for="a_jm">Jam mulai <span class="req">*</span></label><input id="a_jm" type="time" class="mono" value="${esc(a.jamMulai)}"></div>
@@ -1006,12 +1015,9 @@ function renderActForm(){
           <div class="field"><label for="a_zl">Link Zoom</label><input id="a_zl" type="url" inputmode="url" value="${esc(a.zoomLink)}" placeholder="https://us02web.zoom.us/j/…"></div>
           <div class="field"><label for="a_zi">Meeting ID</label><input id="a_zi" class="mono" inputmode="numeric" value="${esc(a.zoomId)}" placeholder="812 3456 7890"></div>`:''}
         ${a.media==='offline'?`<div class="field"><label for="a_lok">Lokasi</label><input id="a_lok" value="${esc(a.lokasi)}" placeholder="Ruang kuliah Anestesi RSHS, Bandung"></div>`:''}
-        <div class="field"><label for="a_pemb">Pembimbing <span class="req">*</span></label><input id="a_pemb" value="${esc(a.pembimbing)}" list="pembList" placeholder="dr. …, Sp.An-KAKV"></div>
-        <datalist id="pembList">${pemb.map(d=>`<option>${esc(d)}</option>`).join('')}</datalist>
-        <div class="grid2">
-          <div class="field"><label for="a_skp">SKP / poin</label><input id="a_skp" inputmode="decimal" class="mono" value="${esc(a.skp)}" placeholder="2"></div>
-          <div></div>
-        </div>
+        <div class="field"><label for="a_pemb">Pembimbing <span class="req">*</span></label>
+          <select id="a_pemb"><option value="">Pilih pembimbing…</option>${PEMBIMBING.map(n=>`<option value="${esc(n)}" ${a.pembimbing===n?'selected':''}>${esc(n)}</option>`).join('')}<option value="__lain" ${pembLain?'selected':''}>Lainnya (ketik nama)…</option></select>
+          <input id="a_pembLain" value="${esc(pembLain?a.pembimbing:'')}" placeholder="Nama pembimbing lain" ${pembLain?'':'hidden'}></div>
         <div class="field"><label for="a_cat">Catatan / ringkasan materi</label><textarea id="a_cat" placeholder="Poin penting yang dipelajari">${esc(a.catatan)}</textarea></div>
       </div>
 
@@ -1040,8 +1046,9 @@ function renderActForm(){
     </form>`;
   const val=id=>{const e=$('#'+id);return e?e.value.trim():undefined;};
   const sync=()=>{ a.judul=val('a_judul'); a.jenis=val('a_jenis'); a.peran=val('a_peran'); a.penyelenggara=val('a_peny'); a.tanggal=val('a_tgl'); a.jamMulai=val('a_jm'); a.jamSelesai=val('a_js');
-    a.pembimbing=val('a_pemb'); a.skp=val('a_skp'); a.catatan=val('a_cat');
+    const ps=val('a_pemb'); a._pembLain = ps==='__lain'; a.pembimbing = ps==='__lain' ? val('a_pembLain') : ps; a.catatan=val('a_cat');
     if($('#a_zl')){ a.zoomLink=val('a_zl'); a.zoomId=val('a_zi'); } if($('#a_lok')) a.lokasi=val('a_lok'); };
+  $('#a_pemb').onchange=()=>{ const lain=$('#a_pemb').value==='__lain'; const i=$('#a_pembLain'); i.hidden=!lain; if(lain) i.focus(); };
   v.querySelectorAll('#a_sem button').forEach(b=>b.onclick=()=>{ a.semester=b.dataset.v; v.querySelectorAll('#a_sem button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.v===a.semester)); });
   v.querySelectorAll('#a_media button').forEach(b=>b.onclick=()=>{ sync(); a.media=b.dataset.v; renderActForm(); const f=$(a.media==='zoom'?'#a_zl':'#a_lok'); if(f) f.focus(); });
   $('#aAddFoto').onclick=()=>$('#aInFoto').click(); $('#aAddSert').onclick=()=>$('#aInSert').click();
@@ -1072,7 +1079,7 @@ async function saveActDraft(){
   if(a.jamSelesai && a.jamSelesai<=a.jamMulai){ er.hidden=false; er.textContent='Jam selesai harus setelah jam mulai.'; er.scrollIntoView({block:'center'}); return; }
   for(const n of a._new) await store.putFile(n.id,n.blob);
   for(const id of a._removed) await store.delFile(id);
-  const rec={...a}; delete rec._new; delete rec._removed; delete rec._for; rec.contoh=false; rec.updated=Date.now();
+  const rec={...a}; delete rec._new; delete rec._removed; delete rec._for; delete rec._pembLain; delete rec.skp; rec.contoh=false; rec.updated=Date.now();
   await store.putAct(rec);
   const i=ACTS.findIndex(x=>x.id===rec.id); i<0?ACTS.push(rec):ACTS[i]=rec;
   const wasEdit=!!ui.actEditing; actDraft=null;
@@ -1100,7 +1107,6 @@ async function renderActDetail(){
         <dt>Pembimbing</dt><dd>${esc(a.pembimbing)}</dd>
         <dt>Media</dt><dd>${a.media==='zoom'?'Zoom Meeting':'Offline'}</dd>
         ${a.media==='zoom'?`<dt>Meeting ID</dt><dd class="mono">${esc(a.zoomId)||'—'}</dd>`:`<dt>Lokasi</dt><dd>${esc(a.lokasi)||'—'}</dd>`}
-        <dt>SKP</dt><dd class="mono">${esc(a.skp)||'—'}</dd>
         <dt>Catatan</dt><dd>${esc(a.catatan)||'—'}</dd>
       </dl>
       ${a.media==='zoom'&&a.zoomLink?`<div style="padding:12px 14px;display:flex;flex-direction:column;gap:8px"><span class="lbl small">Link Zoom</span>
@@ -1126,8 +1132,8 @@ async function renderActDetail(){
 function seedActs(){
   const d=n=>{const x=new Date();x.setDate(x.getDate()-n);x.setMinutes(x.getMinutes()-x.getTimezoneOffset());return x.toISOString().slice(0,10);};
   return [
-    {id:'exa1',judul:'Webinar contoh: Manajemen koagulasi pasca CPB',jenis:'Webinar',peran:'Peserta',penyelenggara:'Penyelenggara Contoh',semester:'2',tanggal:d(5),jamMulai:'19:00',jamSelesai:'21:00',pembimbing:'dr. Contoh, Sp.An-KAKV',media:'zoom',zoomLink:'https://zoom.us/j/0000000000',zoomId:'000 0000 0000',lokasi:'',skp:'2',catatan:'Contoh catatan materi.',files:[],created:2,contoh:true},
-    {id:'exa2',judul:'Journal reading contoh: Ekstubasi dini setelah bedah jantung',jenis:'Journal reading',peran:'Penyaji',penyelenggara:'Prodi Anestesiologi',semester:'2',tanggal:d(12),jamMulai:'07:00',jamSelesai:'08:00',pembimbing:'dr. Contoh, Sp.An-KAKV',media:'offline',zoomLink:'',zoomId:'',lokasi:'Ruang diskusi contoh',skp:'',catatan:'',files:[],created:1,contoh:true},
+    {id:'exa1',judul:'Webinar contoh: Manajemen koagulasi pasca CPB',jenis:'Webinar',peran:'Peserta',penyelenggara:'Penyelenggara Contoh',semester:'2',tanggal:d(5),jamMulai:'19:00',jamSelesai:'21:00',pembimbing:'dr. Contoh, Sp.An-KAKV',media:'zoom',zoomLink:'https://zoom.us/j/0000000000',zoomId:'000 0000 0000',lokasi:'',catatan:'Contoh catatan materi.',files:[],created:2,contoh:true},
+    {id:'exa2',judul:'Journal reading contoh: Ekstubasi dini setelah bedah jantung',jenis:'Journal reading',peran:'Penyaji',penyelenggara:'Prodi Anestesiologi',semester:'2',tanggal:d(12),jamMulai:'07:00',jamSelesai:'08:00',pembimbing:'dr. Contoh, Sp.An-KAKV',media:'offline',zoomLink:'',zoomId:'',lokasi:'Ruang diskusi contoh',catatan:'',files:[],created:1,contoh:true},
   ];
 }
 
