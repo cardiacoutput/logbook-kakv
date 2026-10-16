@@ -294,6 +294,14 @@ const FIREBASE_CONFIG = {
   appId: "1:1095387083525:web:e386ae0d0d335226bbbd6c"
 };
 const AUTH_ON = !!(FIREBASE_CONFIG && FIREBASE_CONFIG.apiKey);
+// Alamat utama di Firebase Hosting: aplikasi dan halaman login Google satu domain,
+// sehingga login berfungsi di iPhone (ikon layar utama) dan browser yang memisahkan penyimpanan.
+const APP_HOME = 'https://logbook-kakv.firebaseapp.com/';
+const APP_HOME_LIVE = false; // diubah ke true setelah alamat baru aktif
+const FB_HOSTED = /(^|\.)logbook-kakv\.(firebaseapp\.com|web\.app)$/.test(location.hostname);
+if(/\.web\.app$/.test(location.hostname)) location.replace(APP_HOME + location.search); // satu alamat saja (data tersimpan per alamat)
+const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
+const IS_STANDALONE = navigator.standalone===true || (window.matchMedia && matchMedia('(display-mode: standalone)').matches);
 try{ if(AUTH_ON && !localStorage.getItem('kakv-session')) document.documentElement.classList.add('locked'); }catch(e){ if(AUTH_ON) document.documentElement.classList.add('locked'); }
 /* ===================== Konfigurasi (dari LOGBOOK KAKV 2026.xlsx) ===================== */
 const KAT = [
@@ -1075,7 +1083,7 @@ async function loadFirebase(){
       await loadScript(`https://www.gstatic.com/firebasejs/${FB_VER}/firebase-app-compat.js`);
       await loadScript(`https://www.gstatic.com/firebasejs/${FB_VER}/firebase-auth-compat.js`);
     }
-    if(!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+    if(!firebase.apps.length) firebase.initializeApp(FB_HOSTED ? {...FIREBASE_CONFIG, authDomain: location.hostname} : FIREBASE_CONFIG);
     fbAuth=firebase.auth();
     try{ await fbAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL); }catch(e){}
     return fbAuth;
@@ -1113,6 +1121,7 @@ function showLogin(done){
       <div><h2 style="font-size:18px">Masuk</h2><span class="small muted">Gunakan akun Google (Gmail) Anda. Cukup sekali di perangkat ini.</span></div>
       <button class="gbtn" id="gIn" ${st.busy?'disabled':''}>${G_ICON}<span>${st.busy?'Menyiapkan…':'Masuk dengan Google'}</span></button>
       ${st.err?`<div class="err">${esc(st.err)}</div>`:''}
+      ${!FB_HOSTED && IS_IOS && IS_STANDALONE && APP_HOME_LIVE ? `<div class="note" style="border-left-color:var(--warn)">Login dari ikon layar utama iPhone hanya berfungsi di alamat baru. Buka <b class="mono" style="user-select:all">${APP_HOME}</b> di Safari, lalu Bagikan → <b>Tambah ke Layar Utama</b>. Pindahkan data lama lewat Ekspor → Cadangkan.</div>`:''}
       <span class="small muted">Aplikasi hanya membaca nama, email, dan foto profil akun Google Anda.</span></div>`;
     const b=$('#gIn'); if(b) b.onclick=signIn;
   };
@@ -1137,6 +1146,8 @@ function showLogin(done){
     try{
       const auth=await loadFirebase();
       const prov=new firebase.auth.GoogleAuthProvider(); prov.setCustomParameters({prompt:'select_account'});
+      // Di domain sendiri: iPhone & aplikasi layar utama memakai redirect (tanpa jendela terpisah).
+      if(FB_HOSTED && (IS_IOS || IS_STANDALONE)){ await auth.signInWithRedirect(prov); return; }
       let res;
       try{ res=await auth.signInWithPopup(prov); }
       catch(e){
