@@ -1113,7 +1113,9 @@ function applyChat(r,res){
 }
 function gformUrl(r){
   if(!GFORM.url) return '';
-  const vals=Object.fromEntries(DB_COLS.map((c,i)=>[c,dbRow(r,0)[i]]));
+  const row=dbRow(r,0); const vals=Object.fromEntries(DB_COLS.map((c,i)=>[c,row[i]]));
+  vals['Sheet']=dbSheet(r); vals['Memakai CPB?']=String(dbVal(r,'cpb')).trim()?'Ya':'Tidak';
+  for(const k in vals){ const v=String(vals[k]??''); vals[k]=v.length>1500?v.slice(0,1500)+'…':v; }
   const q=Object.entries(GFORM.entries).filter(([c])=>vals[c]!==''&&vals[c]!=null).map(([c,e])=>`${encodeURIComponent(e)}=${encodeURIComponent(vals[c])}`).join('&');
   return GFORM.url+(GFORM.url.includes('?')?'&':'?')+'usp=pp_url&'+q;
 }
