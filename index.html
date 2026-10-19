@@ -270,6 +270,7 @@ input.auto,textarea.auto,select.auto{border-color:color-mix(in srgb,var(--warn) 
     <section class="view" id="v-acts" hidden></section>
     <section class="view" id="v-actform" hidden></section>
     <section class="view" id="v-actdetail" hidden></section>
+    <section class="view" id="v-db" hidden></section>
   </main>
 </div>
 
@@ -378,7 +379,7 @@ const ICON = {
 function go(v, opts={}){
   ui.view=v; Object.assign(ui,opts);
   document.querySelectorAll('section.view').forEach(s=>s.hidden = s.id!=='v-'+v);
-  const tab = v.startsWith('act') ? 'acts' : v==='detail' ? 'list' : v;
+  const tab = v.startsWith('act') ? 'acts' : (v==='detail'||v==='db') ? 'list' : v;
   document.querySelectorAll('nav.tabbar button').forEach(b=>{ if(b.dataset.go===tab) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current'); });
   render(); window.scrollTo(0,0);
 }
@@ -387,7 +388,7 @@ document.querySelectorAll('nav.tabbar button').forEach(b=>b.addEventListener('cl
 }));
 function render(){
   renderAvatar();
-  ({home:renderHome,list:renderList,form:renderForm,detail:renderDetail,stat:renderStat,more:renderMore,acts:renderActs,actform:renderActForm,actdetail:renderActDetail})[ui.view]();
+  ({home:renderHome,list:renderList,form:renderForm,detail:renderDetail,stat:renderStat,more:renderMore,acts:renderActs,actform:renderActForm,actdetail:renderActDetail,db:renderDb})[ui.view]();
 }
 
 /* ===================== Beranda ===================== */
@@ -512,12 +513,23 @@ function renderForm(){
       <div class="fieldset">
         <div class="eyebrow">Klinis & tindakan</div>
         <div class="field"><label for="diagnosis">Diagnosis <span class="req">*</span></label><textarea id="diagnosis" class="${au('diagnosis')}" placeholder="ASA III, CAD 3VD EF 43%, HT">${esc(draft.diagnosis)}</textarea></div>
+        <div class="grid2">
+          <div class="field"><label for="bb">BB (kg)</label><input id="bb" inputmode="decimal" class="mono ${au('bb')}" value="${esc(draft.bb||'')}" placeholder="64"></div>
+          <div class="field"><label for="tb">TB (cm)</label><input id="tb" inputmode="decimal" class="mono ${au('tb')}" value="${esc(draft.tb||'')}" placeholder="160"></div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label for="asa">ASA</label><select id="asa" class="${au('asa')}"><option value="">—</option>${ASA_OPTS.map(a=>`<option value="${a}" ${draft.asa===a?'selected':''}>ASA ${asaRoman(a)}</option>`).join('')}</select></div>
+          <div class="field"><label for="ef">EF (%)</label><input id="ef" inputmode="decimal" class="mono ${au('ef')}" value="${esc(draft.ef||'')}" placeholder="45"></div>
+        </div>
         <div class="field"><label for="tindakanOp">${esc(K.op)}</label><input id="tindakanOp" class="${au('tindakanOp')}" value="${esc(draft.tindakanOp)}" placeholder="OPCABG"></div>
         <div class="field"><label for="tindakanAn">${esc(K.an)}</label><input id="tindakanAn" class="${au('tindakanAn')}" value="${esc(draft.tindakanAn)}" placeholder="${K.k==='ICU'?'Ventilasi mekanik, CRRT…':K.k==='PERFUSI'?'CPB, kardioplegia…':'GA + A-line + CVC + TEE'}" list="anList"></div>
         <datalist id="anList"><option>GA</option><option>GA + TEE</option><option>GA + ESP block</option><option>Sedasi (MAC)</option><option>Non-intubasi + blok regional</option></datalist>
         <div class="field"><label for="dpjpSel">${esc(K.dp)}</label>
           <select id="dpjpSel"><option value="">Pilih ${esc(K.dp)}…</option>${PEMBIMBING.map(n=>`<option value="${esc(n)}" ${draft.dpjp===n?'selected':''}>${esc(n)}</option>`).join('')}<option value="__lain" ${dpjpLain?'selected':''}>Lainnya (ketik nama)…</option></select>
           <input id="dpjpLain" value="${esc(dpjpLain?draft.dpjp:'')}" placeholder="Nama ${esc(K.dp)}" ${dpjpLain?'':'hidden'}></div>
+        <div class="field"><label for="dpjpBtkv">DPJP BTKV / operator</label><input id="dpjpBtkv" class="${au('dpjpBtkv')}" value="${esc(draft.dpjpBtkv||'')}" list="btkvList" placeholder="dr. …, Sp.BTKV"></div>
+        <datalist id="btkvList">${[...new Set(RECS.map(r=>r.dpjpBtkv).filter(Boolean))].map(d=>`<option>${esc(d)}</option>`).join('')}</datalist>
+        <div class="field"><label for="luaran">Luaran</label><select id="luaran" class="${au('luaran')}">${['','Hidup','Meninggal'].map(v=>`<option value="${v}" ${(draft.luaran||'')===v?'selected':''}>${v||'Belum diketahui'}</option>`).join('')}</select></div>
         <div class="field"><label for="ket">Keterangan</label><textarea id="ket" placeholder="Permasalahan pasien perioperatif, bila ada">${esc(draft.ket)}</textarea><span class="hint">Diisi dengan permasalahan pasien perioperatif, bila ada.</span></div>
       </div>
 
@@ -554,7 +566,7 @@ function renderForm(){
         <button type="submit" class="btn primary">${ui.editing?'Simpan perubahan':'Simpan kasus'}</button>
       </div>
     </form>`;
-  const sync=()=>{ draft.rs=$('#rs').value; ['tanggal','nrm','nama','usia','diagnosis','tindakanOp','tindakanAn','ket','refleksi'].forEach(id=>draft[id]=$('#'+id).value.trim()); const ds=$('#dpjpSel').value; draft._dpjpLain = ds==='__lain'; draft.dpjp = ds==='__lain' ? $('#dpjpLain').value.trim() : ds; draft.usiaU=$('#usiaU').value; draft.verif=$('#verif').checked; };
+  const sync=()=>{ draft.rs=$('#rs').value; draft.asa=$('#asa').value; draft.luaran=$('#luaran').value; ['tanggal','nrm','nama','usia','diagnosis','tindakanOp','tindakanAn','ket','refleksi','bb','tb','ef','dpjpBtkv'].forEach(id=>draft[id]=$('#'+id).value.trim()); const ds=$('#dpjpSel').value; draft._dpjpLain = ds==='__lain'; draft.dpjp = ds==='__lain' ? $('#dpjpLain').value.trim() : ds; draft.usiaU=$('#usiaU').value; draft.verif=$('#verif').checked; };
   $('#dpjpSel').onchange=()=>{ const lain=$('#dpjpSel').value==='__lain'; const i=$('#dpjpLain'); i.hidden=!lain; if(lain) i.focus(); };
   v.querySelectorAll('.katpick button').forEach(b=>b.onclick=()=>{ sync(); draft.kat=b.dataset.k; draft._katUnknown=false; renderForm(); });
   if(!ui.editing) bindWa(sync);
@@ -696,7 +708,7 @@ function skillsFrom(t){
 function parseHeaderLine(o,l){
   const dp=l.match(/(?:^|[,;\/]\s*|\s)(?:dpjp(?:\s+an(?:estesi)?)?|konsulen|spv)\b\.?\s*[:.]?\s*([^,;\/]+)$/i);
   if(dp){ if(!o.dpjpRaw) o.dpjpRaw=dp[1].trim(); l=l.slice(0,dp.index).trim(); }
-  // No RM dan usia di mana pun dalam baris, mis. "Tn. Budi (65 th) RM: 686115 - CAD 3VD - CABG"
+  // No RM dan usia di mana pun dalam baris, mis. "Tn. Budi (65 th) RM: 123456 - CAD 3VD - CABG"
   const sepKind=/[\/|]/.test(l)?'/':/\s[-–—]\s/.test(l)?'-':',';
   const sepStr=sepKind==='/'?' / ':sepKind==='-'?' - ':', ';
   let mx;
@@ -721,9 +733,17 @@ function parseHeaderLine(o,l){
 let topRS='';
 function parseBlock(lines,topDate){
   const o={}; const free=[]; let labeled=0, assess='', anPlan='', mon='', ef='';
-  const comorb=[], history=[];
+  const comorb=[], history=[]; let sect=null; const secTx={echo:[],angio:[],lab:[]};
   lines.forEach((raw,idx)=>{
-    const l=stripBullet(raw); if(!l) return;
+    const l=stripBullet(raw); if(!l){ sect=null; return; }
+    let m0;
+    if(/^(?:echo|echocardiograph|ekokardiograf|tte\b)/i.test(l)){ sect='echo'; const d=findDate(l); if(d) secTx.echo.push('('+fmtDMY(d)+')'); return; }
+    if(/^(?:angiograf|kateterisasi|cath\b|rhc\b|coronary angio)/i.test(l)){ sect='angio'; const d=findDate(l); if(d) secTx.angio.push('('+fmtDMY(d)+')'); return; }
+    if(/^lab(?:oratorium)?\b/i.test(l) && !/:/.test(l)){ sect='lab'; return; }
+    if(sect){ if(sect==='echo'&&!ef&&(m0=l.match(/\bEF\s*:?\s*(\d{1,2}(?:[.,]\d)?)\s*%/i))) ef=m0[1]; secTx[sect].push(l); return; }
+    if(!o.bb&&(m0=l.match(/^BB\s*(?:\/\s*TB)?\s*[:=]\s*([\d.,]+)(?:\s*(?:kg)?\s*\/\s*([\d.,]+))?/i))){ o.bb=m0[1].replace(',','.'); if(m0[2]) o.tb=m0[2].replace(',','.'); return; }
+    if(!o.tb&&(m0=l.match(/^TB\s*[:=]\s*([\d.,]+)/i))){ o.tb=m0[1].replace(',','.'); return; }
+    if(!o.asa&&(m0=l.match(/\bASA\s*[:.]?\s*(IV|V|I{1,3}|[1-5])\s*(E\b)?/i))){ const r={I:1,II:2,III:3,IV:4,V:5}; const n=/\d/.test(m0[1])?m0[1]:r[m0[1].toUpperCase()]; o.asa=n+(m0[2]?'E':''); }
     if(idx===0 && (NUM_RX.test(raw)||HON_RX.test(l)) && !/^\s*(?:nama|pasien)\s*[:=]/i.test(l)){ free.push({l,head:true}); return; }
     let mm;
     if((mm=l.match(/^A\s*[:\/]\s*(.+)$/))){ assess=mm[1].trim(); return; }
@@ -780,6 +800,10 @@ function parseBlock(lines,topDate){
   if(!o.tanggal) o.tanggal=topDate||'';
   if(!o.rs) o.rs=topRS||'';
   // DPJP: isi hanya bila cocok dengan staf anestesi KAKV (DPJP bedah/kardiologi diabaikan)
+  if(o.dpjpRaw && SURGEON_RX.test(o.dpjpRaw)) o.dpjpBtkv=o.dpjpRaw.trim();
+  if(ef) o.ef=ef.replace(',','.');
+  const dbx={}; if(secTx.echo.length) dbx.echo=secTx.echo.join('; '); if(secTx.angio.length) dbx.angio=secTx.angio.join('; '); if(secTx.lab.length) dbx.labAwal=secTx.lab.join('; ');
+  if(Object.keys(dbx).length) o.db=dbx;
   if(o.dpjpRaw){ const hit=matchStaf(o.dpjpRaw);
     if(hit) o.dpjp=hit; else if(!SURGEON_RX.test(o.dpjpRaw) && /an(estesi)?|icu|konsulen/i.test(o._dpjpLbl||'')) o.dpjp=o.dpjpRaw; }
   delete o.dpjpRaw; delete o._dpjpLbl;
@@ -844,6 +868,8 @@ function fillDraftFromWa(o,idx){
   const keep=draft&&!draft.nama&&!draft.nrm?draft:newDraft();
   const auto=[];
   for(const f of ['rs','tanggal','nama','nrm','usia','diagnosis','tindakanOp','tindakanAn','ket']) if(o[f]){ keep[f]=o[f]; auto.push(f); }
+  for(const f of ['bb','tb','asa','ef','dpjpBtkv']) if(o[f]){ keep[f]=o[f]; auto.push(f); }
+  if(o.db){ keep.db={...(keep.db||{}),...o.db}; keep.dbAuto=[...new Set([...(keep.dbAuto||[]),...Object.keys(o.db)])]; }
   if(o.usiaU) keep.usiaU=o.usiaU; if(o.jk) keep.jk=o.jk; if(o.kat){ keep.kat=o.kat; keep._katUnknown=false; } else keep._katUnknown=true;
   if(o.skills&&o.skills.length){ keep.skills=[...new Set([...(keep.skills||[]),...o.skills])]; auto.push('skills'); }
   if(o.dpjp){ keep.dpjp=o.dpjp; if(!PEMBIMBING.includes(o.dpjp)) keep._dpjpLain=true; }
@@ -868,6 +894,230 @@ function handleShareTarget(){
   }catch(e){}
 }
 
+/* ===================== Database pasien (format 51 kolom prodi) ===================== */
+const DB_COLS=['No','Tanggal','Nama Pasien','NRM','JK','Tanggal Lahir','Usia','BB (kg)','TB (cm)','Diagnosis','Tindakan','Echo Pre Op','EF','Kateterisasi/ Angiografi/ RHC','ASA','Obat Induksi','Lama Op (menit)','Lama CPB (menit)','Aox (menit)','Iskemik (menit)','Defib','Lab Awal','AGD awal','Lactat Awal','ACT Awal','Jumlah Heparin (mg)','ACT Post Heparin','Protamin (mg)','ACT Post Protamin','Lab Akhir Op','AGD akhir','Lactat Akhir','CO CI','Perdarahan','Rencana Transfusi','Kristaloid','Koloid','Urine','Urine cc/kg/jam','Analgetik','Support Terakhir','Ekstubasi','Lama Rawat Intensif','Semi Intensif','Ruangan','Luaran','DPJP BTKV','DPJP Anestesi','SP2/ Fellow','Residen','Keterangan'];
+// [kunci, label, kelompok, opsi]; rec:1 = disimpan di data kasus (sama dengan form kasus)
+const DB_FIELDS=[
+ ['bb','BB (kg)','pre',{rec:1,num:1}],['tb','TB (cm)','pre',{rec:1,num:1}],['asa','ASA','pre',{rec:1,asa:1}],['ef','EF (%)','pre',{rec:1,num:1}],
+ ['echo','Echo pre op','pre',{long:1}],['angio','Kateterisasi / Angiografi / RHC','pre',{long:1}],['labAwal','Lab awal','pre',{long:1}],['agdAwal','AGD awal','pre'],['laktatAwal','Laktat awal','pre'],
+ ['induksi','Obat induksi','intra',{long:1}],['lamaOp','Lama operasi (menit)','intra',{num:1}],['cpb','Lama CPB (menit)','intra'],['aox','AoX (menit)','intra'],['iskemik','Iskemik (menit)','intra'],['defib','Defib','intra'],
+ ['actAwal','ACT awal','intra'],['heparin','Jumlah heparin (mg)','intra'],['actHeparin','ACT post heparin','intra'],['protamin','Protamin (mg)','intra'],['actProtamin','ACT post protamin','intra'],
+ ['labAkhir','Lab akhir operasi','intra',{long:1}],['agdAkhir','AGD akhir','intra'],['laktatAkhir','Laktat akhir','intra'],['coci','CO / CI','intra'],
+ ['perdarahan','Perdarahan (cc)','intra'],['transfusi','Transfusi','intra'],['kristaloid','Kristaloid (cc)','intra'],['koloid','Koloid (cc)','intra'],['urine','Urine (cc)','intra'],
+ ['analgetik','Analgetik','post',{long:1}],['support','Support terakhir','post',{long:1}],['ekstubasi','Ekstubasi','post'],['lamaICU','Lama rawat intensif','post'],['semiIntensif','Semi intensif','post'],['ruangan','Ruangan','post'],['luaran','Luaran','post',{rec:1,luaran:1}],
+ ['dpjpBtkv','DPJP BTKV','tim',{rec:1}],['residen','Residen','tim'],
+];
+const DB_GROUPS=[['pre','Pre-operasi'],['intra','Intraoperatif'],['post','Pasca-operasi & luaran'],['tim','Tim']];
+// Google Form tujuan (diisi setelah prodi memutuskan): url form + peta entry.xxxx per kolom
+const GFORM = { url:'', entries:{} };
+const dbOpt=k=>(DB_FIELDS.find(f=>f[0]===k)||[])[3]||{};
+function dbVal(r,k){ return dbOpt(k).rec ? (r[k]||'') : ((r.db||{})[k]||''); }
+const numOf=v=>parseFloat(String(v||'').replace(',','.'));
+function urineKgJam(r){ const u=numOf(dbVal(r,'urine')), bb=numOf(r.bb), op=numOf(dbVal(r,'lamaOp')); return (u>0&&bb>0&&op>0)?(u/bb/(op/60)).toFixed(2).replace('.',','):''; }
+function dbFilled(r){ const n=DB_FIELDS.filter(f=>String(dbVal(r,f[0])).trim()).length; return [n,DB_FIELDS.length]; }
+function dbSheet(r){ if(r.kat==='CATH') return 'CATHLAB'; if(/hasan\s*sadikin/i.test(r.rs||'')) return 'RSHS'; if(/santosa/i.test(r.rs||'')) return 'SHBC'; return 'JEJARING LAIN'; }
+function dbRow(r,i){
+  const d=k=>dbVal(r,k);
+  return [i+1,fmtDMY(r.tanggal),r.nama,/^\d+$/.test(r.nrm||'')&&!/^0/.test(r.nrm)?Number(r.nrm):r.nrm,r.jk,'',r.usia?`${r.usia} ${({th:'thn',bln:'bln',hari:'hari'})[r.usiaU||'th']}`:'',
+    d('bb'),d('tb'),r.diagnosis,r.tindakanOp,d('echo'),d('ef'),d('angio'),r.asa?asaRoman(r.asa):'',d('induksi'),d('lamaOp'),d('cpb'),d('aox'),d('iskemik'),d('defib'),
+    d('labAwal'),d('agdAwal'),d('laktatAwal'),d('actAwal'),d('heparin'),d('actHeparin'),d('protamin'),d('actProtamin'),d('labAkhir'),d('agdAkhir'),d('laktatAkhir'),d('coci'),
+    d('perdarahan'),d('transfusi'),d('kristaloid'),d('koloid'),d('urine'),urineKgJam(r),d('analgetik'),d('support'),d('ekstubasi'),d('lamaICU'),d('semiIntensif'),d('ruangan'),
+    d('luaran'),d('dpjpBtkv'),r.dpjp,PROFILE.nama||'',d('residen'),r.ket].map(v=>v==null?'':v);
+}
+function exportDbXlsx(){
+  if(typeof XLSX==='undefined'){ toast('Pustaka Excel belum termuat'); return; }
+  const wb=XLSX.utils.book_new(); const recs=RECS.filter(r=>!r.contoh).sort((a,b)=>(a.tanggal||'').localeCompare(b.tanggal||''));
+  for(const sh of ['RSHS','SHBC','CATHLAB','JEJARING LAIN']){
+    const rows=recs.filter(r=>dbSheet(r)===sh);
+    const aoa=[['Database Pasien Anestesi Kardiovaskular '],[],DB_COLS,...rows.map(dbRow)];
+    const ws=XLSX.utils.aoa_to_sheet(aoa); ws['!cols']=DB_COLS.map((c,i)=>({wch:i===0?5:[2,9,10,11,13,21,29,30,33,34,39,40,45,46,47,48,50].includes(i)?22:12}));
+    XLSX.utils.book_append_sheet(wb,ws,sh);
+  }
+  const buf=XLSX.write(wb,{type:'array',bookType:'xlsx'});
+  saveFile(`Database Pasien Anestesi Kardiovaskular${PROFILE.nama?' - '+PROFILE.nama.replace(/[^\w .,-]/g,''):''}.xlsx`,new Blob([buf]));
+}
+
+/* ---- Membaca _chat.txt dari zip ekspor WhatsApp tanpa membuka foto/dokumen lain ---- */
+async function readChatFromZip(file){
+  const size=file.size, tailLen=Math.min(size,65557+22);
+  const tail=new DataView(await file.slice(size-tailLen).arrayBuffer());
+  let eocd=-1; for(let i=tail.byteLength-22;i>=0;i--){ if(tail.getUint32(i,true)===0x06054b50){ eocd=i; break; } }
+  if(eocd<0) throw new Error('File ini bukan zip yang valid.');
+  const cdCount=tail.getUint16(eocd+10,true), cdSize=tail.getUint32(eocd+12,true), cdOff=tail.getUint32(eocd+16,true);
+  const cd=new DataView(await file.slice(cdOff,cdOff+cdSize).arrayBuffer());
+  let p=0, best=null;
+  for(let n=0;n<cdCount && p+46<=cd.byteLength;n++){
+    if(cd.getUint32(p,true)!==0x02014b50) break;
+    const method=cd.getUint16(p+10,true), csize=cd.getUint32(p+20,true), nlen=cd.getUint16(p+28,true), xlen=cd.getUint16(p+30,true), clen=cd.getUint16(p+32,true), loff=cd.getUint32(p+42,true);
+    const name=new TextDecoder().decode(new Uint8Array(cd.buffer,cd.byteOffset+p+46,nlen));
+    if(/\.txt$/i.test(name) && !/^__MACOSX/.test(name) && (!best || /_chat\.txt$/i.test(name))) best={name,method,csize,loff};
+    p+=46+nlen+xlen+clen;
+  }
+  if(!best) throw new Error('File _chat.txt tidak ditemukan di dalam zip.');
+  const lh=new DataView(await file.slice(best.loff,best.loff+30).arrayBuffer());
+  const start=best.loff+30+lh.getUint16(26,true)+lh.getUint16(28,true);
+  const blob=file.slice(start,start+best.csize);
+  if(best.method===0) return await blob.text();
+  if(best.method===8){
+    if(typeof DecompressionStream==='undefined') throw new Error('Browser ini belum bisa membuka zip. Ekstrak zip-nya dulu, lalu unggah file _chat.txt.');
+    return await new Response(blob.stream().pipeThrough(new DecompressionStream('deflate-raw'))).text();
+  }
+  throw new Error('Jenis kompresi zip ini belum didukung. Ekstrak dulu, lalu unggah _chat.txt.');
+}
+
+/* ---- Membaca isi chat grup pasien ---- */
+function splitChat(raw){
+  const lines=String(raw||'').replace(/\r/g,'').replace(/[‎‏‪-‮⁦-⁩]/g,'').split('\n');
+  const RX1=/^\[(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{2,4}),?\s+(\d{1,2})[.:](\d{2})(?:[.:]\d{2})?\s*(?:[AaPp]\.?[Mm]\.?)?\]\s*([^:]{1,80}?):\s?(.*)$/;
+  const RX2=/^(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{2,4}),?\s+(\d{1,2})[.:](\d{2})(?:[.:]\d{2})?\s*(?:[AaPp]\.?[Mm]\.?)?\s+-\s+([^:]{1,80}?):\s?(.*)$/;
+  const msgs=[]; let cur=null;
+  for(const l of lines){
+    const m=l.match(RX1)||l.match(RX2);
+    if(m){ let d=+m[1], mo=+m[2]; if(mo>12&&d<=12){ const t=d; d=mo; mo=t; } const y=m[3].length===2?'20'+m[3]:m[3];
+      cur={date:`${y}-${String(mo).padStart(2,'0')}-${String(d).padStart(2,'0')}`,time:`${m[4].padStart(2,'0')}:${m[5]}`,from:m[6].replace(/^~\s*/,'').trim(),text:m[7]}; msgs.push(cur); }
+    else if(cur) cur.text+='\n'+l;
+  }
+  return msgs;
+}
+function chatBlock(t,rx){
+  const L=t.split('\n'); const i=L.findIndex(x=>rx.test(x.trim())); if(i<0) return [];
+  const first=L[i].trim().replace(rx,'').trim(); const out=first?[first]:[];
+  for(let j=i+1;j<L.length;j++){ const x=L[j].trim().replace(/^[-•*⁠\s]+/,'').trim(); if(!x){ if(out.length) break; continue; } if(/^[*_]?[A-Za-z][A-Za-z .\/]{1,40}:\s*[*_]?$/.test(x)) break; out.push(x); }
+  return out;
+}
+const daysBetween=(a,b)=>Math.round((new Date(b)-new Date(a))/86400000);
+function parseChatDb(raw){
+  const msgs=splitChat(raw);
+  if(!msgs.length) throw new Error('Isi file tidak dikenali sebagai ekspor chat WhatsApp.');
+  const rec={}, db={}, notes=[];
+  const isReport=m=>m.text.length>150 && /(diagnos|dpjp)/i.test(m.text);
+  const reports=msgs.filter(isReport);
+  if(!reports.length) throw new Error('Tidak ada laporan pasien (berisi DPJP/Diagnosis) di chat ini.');
+  // nama grup (mis. "🖤 01012026 Ny.Contoh")
+  let group=''; for(const m of msgs){ const g=m.text.match(/(?:created group|changed the group name to|membuat grup|mengubah nama grup(?: menjadi)?)\s*[“"]([^”"]+)[”"]/i); if(g) group=g[1]; }
+  // identitas: "Ny. Contoh / P / 60 Thn / 0001234567"
+  for(const m of reports){ const id=m.text.split('\n').map(x=>x.trim()).find(x=>HON_RX.test(x.replace(/^[*_]+/,'')) && (/\/\s*[LP]\s*\//i.test(x)||/\d{5,}/.test(x))); if(id){ const o={}; parseHeaderLine(o,id.replace(/[*_]/g,'')); Object.assign(rec,{nama:o.nama,jk:o.jk,usia:o.usia,usiaU:o.usiaU,nrm:o.nrm}); break; } }
+  // tanggal operasi
+  for(const m of reports){ const t=m.text.match(/operasi[^\n]{0,80}?(\d{1,2}\s+[A-Za-z]+\.?\s+\d{4}|\d{1,2}[\/.-]\d{1,2}[\/.-]\d{2,4})/i); if(t){ const d=findDate(t[1]); if(d){ rec.tanggal=d; break; } } }
+  if(!rec.tanggal){ const g=group.match(/\b(\d{2})(\d{2})(20\d{2})\b/); if(g) rec.tanggal=`${g[3]}-${g[2]}-${g[1]}`; }
+  const first=reports[0];
+  // DPJP
+  for(const m of reports){ const b=chatBlock(m.text,/^[*_]?DPJP\s*:/i); if(b.length){ const bt=b.filter(x=>/btkv|sp\.?\s*b\b|bedah/i.test(x)); if(bt.length){ rec.dpjpBtkv=bt.join('; '); break; } } }
+  for(const m of reports){ const b=chatBlock(m.text,/^[*_]?DPJP\s+(?:ICU|an(?:estesi)?)\s*:/i); const hit=b.map(matchStaf).find(Boolean); if(hit){ rec.dpjp=hit; break; } }
+  // diagnosis & tindakan
+  for(const m of reports){ const b=chatBlock(m.text,/^[*_]?diagnos[ai]s?\s*:/i); if(b.length){
+      const dx=[]; b.forEach((x,k)=>{ const pm=x.match(/^post\s+(.+?)\s+(?:POD[- ]?\d+\s+)?(?:a\.?\s?i\.?|atas indikasi)\s+(.+)$/i); if(k===0&&pm){ rec.tindakanOp=pm[1].trim(); dx.push(pm[2].trim()); } else dx.push(x.replace(/^post\s+\S+\s+POD[- ]?\d+\s*/i,'')); });
+      rec.diagnosis=dx.filter(Boolean).join(', '); break; } }
+  // intraoperatif (laporan pertama yang memuat data operasi)
+  const op=reports.find(m=>/(cpb|durasi operasi|diinduksi|perdarahan)/i.test(m.text))||first, T=op.text;
+  let mm;
+  const ind=chatBlock(T,/^.*diinduksi dengan\s*:?/i).filter(x=>!/^maintenance/i.test(x)); if(ind.length) db.induksi=ind.join(', ');
+  if((mm=T.match(/durasi\s+operasi\s*:?\s*(?:(\d+)\s*jam)?\s*(?:(\d+)\s*menit)?/i))&&(mm[1]||mm[2])) db.lamaOp=String((+mm[1]||0)*60+(+mm[2]||0));
+  if((mm=T.match(/perdarahan\s*:?\s*([\d.]+)\s*(?:cc|ml)/i))) db.perdarahan=mm[1].replace(/\./g,'');
+  if((mm=T.match(/urine?\s*(?:output)?\s*:?\s*([\d.]+)\s*(?:cc|ml)\s*(?:selama|intra)/i))) db.urine=mm[1].replace(/\./g,'');
+  const nums=s=>(s.match(/\d+/g)||[]).join(', ');
+  if((mm=T.match(/\bCPB\s*(?:time)?\s*:?\s*([^\n]+)/i))) db.cpb=nums(mm[1]);
+  if((mm=T.match(/\bA[O0]X\s*(?:time|clamp)?\s*:?\s*([^\n]+)/i))) db.aox=nums(mm[1]);
+  if((mm=T.match(/\bisch?a?emi[ck]\s*(?:time)?\s*:?\s*([^\n]+)/i))) db.iskemik=nums(mm[1]);
+  const cair=chatBlock(T,/^[*_]?cairan\s+masuk/i).join('\n')||T;
+  if((mm=cair.match(/kristaloid\s*:?\s*([\d.]+)\s*(?:cc|ml)/i))) db.kristaloid=mm[1].replace(/\./g,'');
+  if((mm=cair.match(/koloid\s*:?\s*([\d.]+)\s*(?:cc|ml)/i))) db.koloid=mm[1].replace(/\./g,'');
+  if(cair!==T){ const tr=[...cair.matchAll(/\b(PRC|FFP|TC|WB|cryo\w*|trombosit|thrombocyte)\s*:?\s*([\d.]+)\s*(labu|kantong|unit|bag|cc|ml)?/gi)].map(x=>`${x[1].toUpperCase()} ${x[2]}${x[3]?' '+x[3]:''}`); if(tr.length) db.transfusi=tr.join(', '); }
+  // ICU awal: support & analgetik
+  const icu=reports.find(m=>/\bICU\b|\bIBP\b|ventilator/i.test(m.text))||first;
+  if((mm=icu.text.match(/(?:IBP|TD|MAP|BP)\s*:?[^\n]*?\bon\s+([^\n]+)/i))) db.support=mm[1].trim();
+  if((mm=icu.text.match(/^\s*A\s*:\s*(.+)$/m))) db.analgetik=mm[1].trim();
+  // lab akhir operasi
+  for(const m of reports){ const b=chatBlock(m.text,/^[*_]?lab(?:oratorium)?\b.*\b(?:post|pasca)\s*-?\s*op/i); if(b.length){
+      const agd=b.filter(x=>/\bpH\b/i.test(x)), lab=b.filter(x=>!/\bpH\b/i.test(x));
+      const lac=b.join(' ').match(/\bLac(?:tat|tate)?\s*:?\s*([\d.,]+)/i); if(lac) db.laktatAkhir=lac[1];
+      if(agd.length) db.agdAkhir=agd.join('; ').replace(/\s*\bLac(?:tat|tate)?\s*:?\s*[\d.,]+/i,'').trim();
+      if(lab.length) db.labAkhir=lab.join('; '); break; } }
+  // ekstubasi
+  const ventRx=/ventilator|SIMV|PSV|PCV|VCV|\bETT\b|V\s?ett|intubasi/i, oxyRx=/\b(NRM|nasal|NK|HFNC|simple mask|sungkup|SM)\b/i;
+  let ext=msgs.find(m=>/(telah|sudah|post|pasca)\s*(dilakukan\s+)?(di)?ekstubasi|ekstubasi\s+(pukul|jam|pk)\b/i.test(m.text));
+  if(ext) db.ekstubasi=`${fmtDMY(ext.date)} ${ext.time}`;
+  else { let lastVent=null; for(const m of reports){ const rps=(m.text.match(/RPS[\s\S]{0,200}/i)||[m.text])[0];
+      if(ventRx.test(rps)||/V\s?ett/i.test(m.text)) lastVent=m; else if(lastVent && oxyRx.test(rps)){ db.ekstubasi=lastVent.date===m.date?`${fmtDMY(m.date)}, antara ${lastVent.time}–${m.time} (perkiraan)`:`antara ${fmtDMY(lastVent.date)} ${lastVent.time} dan ${fmtDMY(m.date)} ${m.time} (perkiraan)`; notes.push('Waktu ekstubasi diperkirakan dari laporan pertama tanpa ventilator. Periksa kembali.'); break; } } }
+  // luaran & lama rawat intensif
+  const icuStart=(reports.find(m=>/ICU/i.test(m.text))||first).date;
+  const death=msgs.find(m=>/dinyatakan meninggal|meninggal dunia|exitus|kabar duka|telah berpulang/i.test(m.text));
+  const move=msgs.find(m=>/(pindah|alih rawat|transfer)\s+(ke\s+)?(ruang|hcu|iccu|bangsal|ruangan|kamar|ward)/i.test(m.text));
+  if(death){ rec.luaran='Meninggal'; db.lamaICU=`${daysBetween(icuStart,death.date)} hari`; notes.push(`Meninggal ${fmtDMY(death.date)} ${death.time}.`); }
+  else if(move){ rec.luaran='Hidup'; db.lamaICU=`${daysBetween(icuStart,move.date)} hari`; const r=move.text.match(/(?:pindah|alih rawat|transfer)\s+(?:ke\s+)?((?:ruang(?:an)?|hcu|iccu|bangsal|kamar)\s*[A-Za-z0-9 .\-]{0,25})/i); if(r) db.ruangan=r[1].trim(); }
+  else notes.push('Luaran dan lama rawat intensif belum terbaca (chat belum mencatat pindah ruangan/pulang).');
+  if(/🖤/.test(group) && !death) notes.push('Nama grup bertanda 🖤. Periksa luaran pasien.');
+  const rep=(first.from||'').split('/')[0].trim(); if(rep) db.residen=rep;
+  return {rec,db,notes,msgCount:msgs.length,reportCount:reports.length,group};
+}
+
+/* ---- Layar Lengkapi Database ---- */
+let dbDraft=null;
+function openDb(id){ const r=RECS.find(x=>x.id===id); if(!r) return; dbDraft={id, rec:structuredClone(r), result:null, err:''}; go('db'); }
+function renderDb(){
+  const v=$('#v-db'); if(!dbDraft){ go('list'); return; }
+  const r=dbDraft.rec, K=KMAP[r.kat]||KAT[0], auto=new Set(r.dbAuto||[]);
+  const [n,t]=dbFilled(r);
+  const inp=f=>{ const [k,l]=f, o=f[3]||{}; const val=dbVal(r,k); const cls=auto.has(k)?'auto':'';
+    if(o.asa) return `<div class="field"><label for="db_${k}">${l}</label><select id="db_${k}" class="${cls}"><option value="">—</option>${ASA_OPTS.map(a=>`<option value="${a}" ${val===a?'selected':''}>ASA ${asaRoman(a)}</option>`).join('')}</select></div>`;
+    if(o.luaran) return `<div class="field"><label for="db_${k}">${l}</label><select id="db_${k}" class="${cls}">${['','Hidup','Meninggal'].map(x=>`<option value="${x}" ${val===x?'selected':''}>${x||'Belum diketahui'}</option>`).join('')}</select></div>`;
+    if(o.long) return `<div class="field" style="grid-column:1/-1"><label for="db_${k}">${l}</label><textarea id="db_${k}" class="${cls}" style="min-height:58px">${esc(val)}</textarea></div>`;
+    return `<div class="field"><label for="db_${k}">${l}</label><input id="db_${k}" class="${cls} ${o.num?'mono':''}" ${o.num?'inputmode="decimal"':''} value="${esc(val)}"></div>`; };
+  const res=dbDraft.result;
+  v.innerHTML=`
+    <button class="btn ghost" id="dbBack" style="align-self:flex-start">← Kembali ke kasus</button>
+    <div><div class="eyebrow">Database pasien · sheet ${dbSheet(r)}</div><h2>${esc(showName(r.nama))}</h2><div class="mono small muted">NRM ${esc(r.nrm)} · ${esc(K.label)} · ${fmtLong(r.tanggal)} · ${n}/${t} kolom terisi</div></div>
+    <div class="wa-panel">
+      <b>Isi otomatis dari ekspor chat grup pasien</b>
+      <span class="small muted">Di grup WhatsApp pasien: ⋮ / nama grup → <b>Ekspor chat</b> → <b>Tanpa media</b>. Unggah file .zip atau .txt-nya di sini. File hanya dibaca di HP ini.</span>
+      <div class="row"><button type="button" class="btn primary" id="dbUp" style="flex:1">${ICON.doc} Unggah ekspor chat</button></div>
+      <input type="file" id="dbIn" accept=".zip,.txt,application/zip,text/plain" hidden>
+      ${dbDraft.busy?'<span class="small">Membaca chat…</span>':''}
+      ${dbDraft.err?`<div class="err">${esc(dbDraft.err)}</div>`:''}
+      ${res?`<div class="small"><b>${res.filled} kolom terisi</b> dari ${res.reportCount} laporan (${res.msgCount} pesan)${res.group?` · grup "${esc(res.group)}"`:''}.${res.skipped?` ${res.skipped} kolom yang sudah terisi tidak ditimpa.`:''}</div>${res.notes.map(x=>`<div class="small" style="color:var(--warn)">• ${esc(x)}</div>`).join('')}${res.altDate?`<div class="row small" style="gap:8px"><span>Tanggal operasi di chat <b class="mono">${fmtDMY(res.altDate)}</b>, di kasus <b class="mono">${fmtDMY(r.tanggal)}</b>.</span><button type="button" class="btn" id="dbDate" style="padding:6px 10px">Pakai tanggal chat</button></div>`:''}`:''}
+    </div>
+    ${auto.size?'<div class="note" style="border-left-color:var(--warn)">Kolom bertanda kuning diisi otomatis. Periksa lalu lengkapi yang kosong.</div>':''}
+    ${DB_GROUPS.map(([g,gl])=>`<details class="fieldset" ${g!=='tim'?'open':''}><summary class="eyebrow" style="cursor:pointer">${gl}</summary>
+      <div class="grid2" style="margin-top:10px">${DB_FIELDS.filter(f=>f[2]===g).map(inp).join('')}
+      ${g==='intra'?`<div class="field"><span class="lbl">Urine cc/kg/jam</span><div class="mono" style="padding:10px 0" id="db_ukj">${urineKgJam(r)||'— (butuh urine, BB, lama op)'}</div></div>`:''}</div></details>`).join('')}
+    <div class="small muted">Kolom lain di database (nama, NRM, diagnosis, tindakan, DPJP Anestesi, keterangan) diambil dari data kasus. SP2/Fellow terisi dengan nama Anda.</div>
+    <div class="formbar">
+      <button type="button" class="btn" id="dbCancel">Batal</button>
+      <button type="button" class="btn primary" id="dbSave">Simpan</button>
+    </div>
+    ${GFORM.url?'<button class="btn block" id="dbForm">Kirim ke Google Form</button>':'<div class="small muted">Pengiriman ke Google Form diaktifkan setelah prodi memutuskan. Sementara itu, data ini ikut di <b>Ekspor → Ekspor Database Pasien</b>.</div>'}`;
+  const sync=()=>{ for(const f of DB_FIELDS){ const k=f[0], o=f[3]||{}; const e=$('#db_'+k); if(!e) continue; const val=e.value.trim(); if(o.rec) r[k]=val; else { r.db=r.db||{}; r.db[k]=val; } } };
+  v.querySelectorAll('input,textarea,select').forEach(e=>{ if(e.id&&e.id.startsWith('db_')) e.addEventListener('input',()=>{ sync(); const u=$('#db_ukj'); if(u) u.textContent=urineKgJam(r)||'— (butuh urine, BB, lama op)'; }); });
+  $('#dbBack').onclick=$('#dbCancel').onclick=()=>{ const id=dbDraft.id; dbDraft=null; go('detail',{detail:id}); };
+  $('#dbUp').onclick=()=>$('#dbIn').click();
+  const dd=$('#dbDate'); if(dd) dd.onclick=()=>{ sync(); r.tanggal=res.altDate; res.altDate=''; toast('Tanggal kasus diganti ke '+fmtDMY(r.tanggal)); renderDb(); };
+  $('#dbIn').onchange=async e=>{ const f=e.target.files[0]; if(!f) return; sync(); dbDraft.busy=true; dbDraft.err=''; renderDb();
+    try{ const raw=/\.zip$/i.test(f.name)||f.type.includes('zip')?await readChatFromZip(f):await f.text(); dbDraft.result=applyChat(r,parseChatDb(raw)); }
+    catch(err){ dbDraft.err=err.message||'File tidak bisa dibaca.'; }
+    dbDraft.busy=false; renderDb(); };
+  $('#dbSave').onclick=async()=>{ sync(); const rec=dbDraft.rec; rec.updated=Date.now(); await store.put(rec); const i=RECS.findIndex(x=>x.id===rec.id); if(i>=0) RECS[i]=rec; const id=rec.id; dbDraft=null; toast('Data database disimpan'); go('detail',{detail:id}); };
+  const gf=$('#dbForm'); if(gf) gf.onclick=()=>{ sync(); const u=gformUrl(r); if(u) window.open(u,'_blank'); };
+}
+function applyChat(r,res){
+  const auto=new Set(r.dbAuto||[]); let filled=0, skipped=0; const warn=[...res.notes];
+  if(res.rec.nrm && r.nrm && res.rec.nrm.replace(/^0+/,'')!==String(r.nrm).replace(/^0+/,'')) warn.unshift(`NRM di chat (${res.rec.nrm}) berbeda dengan kasus ini (${r.nrm}). Pastikan chat yang diunggah benar.`);
+  const put=(k,val,isRec)=>{ if(!val) return; const cur=isRec?r[k]:(r.db||{})[k]; if(cur && !auto.has(k)){ if(String(cur).trim()!==String(val).trim()) skipped++; return; } if(isRec) r[k]=val; else { r.db=r.db||{}; r.db[k]=val; } auto.add(k); filled++; };
+  for(const [k,v] of Object.entries(res.db)) put(k,v,!!dbOpt(k).rec);
+  for(const k of ['dpjpBtkv','luaran']) put(k,res.rec[k],true);
+  // data kasus dasar hanya diisi bila masih kosong
+  for(const k of ['diagnosis','tindakanOp','tanggal','usia','jk']) if(res.rec[k] && !r[k]){ r[k]=res.rec[k]; if(k==='usia'&&res.rec.usiaU) r.usiaU=res.rec.usiaU; filled++; }
+  if(res.rec.dpjp && !r.dpjp){ r.dpjp=res.rec.dpjp; filled++; }
+  r.dbAuto=[...auto];
+  const altDate = res.rec.tanggal && r.tanggal && res.rec.tanggal!==r.tanggal ? res.rec.tanggal : '';
+  return {altDate,filled,skipped,notes:warn,msgCount:res.msgCount,reportCount:res.reportCount,group:res.group};
+}
+function gformUrl(r){
+  if(!GFORM.url) return '';
+  const vals=Object.fromEntries(DB_COLS.map((c,i)=>[c,dbRow(r,0)[i]]));
+  const q=Object.entries(GFORM.entries).filter(([c])=>vals[c]!==''&&vals[c]!=null).map(([c,e])=>`${encodeURIComponent(e)}=${encodeURIComponent(vals[c])}`).join('&');
+  return GFORM.url+(GFORM.url.includes('?')?'&':'?')+'usp=pp_url&'+q;
+}
+
 /* ===================== Detail ===================== */
 async function renderDetail(){
   const r=RECS.find(x=>x.id===ui.detail); const v=$('#v-detail');
@@ -889,10 +1139,19 @@ async function renderDetail(){
         <dt>${esc(K.op)}</dt><dd>${esc(r.tindakanOp)||'—'}</dd>
         <dt>${esc(K.an)}</dt><dd>${esc(r.tindakanAn)||'—'}</dd>
         <dt>${esc(K.dp)}</dt><dd>${esc(r.dpjp)||'—'}</dd>
+        <dt>BB / TB</dt><dd class="mono">${esc(r.bb||'—')} kg / ${esc(r.tb||'—')} cm</dd>
+        <dt>ASA / EF</dt><dd class="mono">${r.asa?'ASA '+asaRoman(r.asa):'—'} / ${r.ef?esc(r.ef)+'%':'—'}</dd>
+        <dt>DPJP BTKV</dt><dd>${esc(r.dpjpBtkv)||'—'}</dd>
+        <dt>Luaran</dt><dd>${esc(r.luaran)||'Belum diketahui'}</dd>
         <dt>Keterangan</dt><dd>${esc(r.ket)||'—'}</dd>
         <dt>Keterampilan</dt><dd>${(r.skills||[]).length?r.skills.map(s=>`<span class="tag lv" style="display:inline-block;margin:0 4px 4px 0">${esc(s)}</span>`).join(''):'—'}</dd>
         <dt>Refleksi</dt><dd>${esc(r.refleksi)||'—'}</dd>
       </dl>
+    </div>
+    <div class="card" style="padding:14px;display:flex;flex-direction:column;gap:10px">
+      <div class="row" style="justify-content:space-between"><h3>Database pasien</h3><span class="small muted mono">${dbFilled(r)[0]}/${dbFilled(r)[1]} kolom · sheet ${dbSheet(r)}</span></div>
+      <div class="bar" style="--cc:var(--accent)"><i style="width:${Math.round(dbFilled(r)[0]/dbFilled(r)[1]*100)}%"></i></div>
+      <button class="btn" id="dbOpen">${ICON.doc} Lengkapi Database</button>
     </div>
     <div class="card" style="padding:14px;display:flex;flex-direction:column;gap:10px">
       <h3>Laporan anestesi</h3>
@@ -904,6 +1163,7 @@ async function renderDetail(){
     <div class="row"><button class="btn primary" id="edit" style="flex:1">Ubah</button><button class="btn danger" id="del">Hapus</button></div>`;
   $('#back').onclick=()=>go('list');
   $('#edit').onclick=()=>go('form',{editing:r.id});
+  $('#dbOpen').onclick=()=>openDb(r.id);
   $('#del').onclick=()=>{ui.confirmDel=true;renderDetail();};
   if(ui.confirmDel){ $('#noDel').onclick=()=>{ui.confirmDel=false;renderDetail();}; $('#yesDel').onclick=async()=>{ await deleteRec(r); toast('Kasus dihapus'); go('list',{confirmDel:false}); }; }
   v.querySelectorAll('[data-dl]').forEach(b=>b.onclick=async()=>{ const f=r.files.find(x=>x.id===b.dataset.dl); const blob=await store.getFile(f.id); saveFile(f.name,blob); });
@@ -983,6 +1243,7 @@ function renderMore(){
     </div>
     <div class="card list">
       <button class="it" id="exX"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4zM4 10h16M10 4v16"/></svg><div><b>Ekspor Excel logbook</b><small>Format LOGBOOK KAKV: KETERANGAN + 9 sheet kategori + rekap kompetensi + kegiatan ilmiah</small></div></button>
+      <button class="it" id="exDB"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4zM4 9h16M4 14h16M9 4v16"/></svg><div><b>Ekspor Database Pasien</b><small>Format "Database Pasien Anestesi Kardiovaskular" 51 kolom: sheet RSHS, SHBC, CATHLAB, JEJARING LAIN</small></div></button>
       <button class="it" id="imX"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21V9M7 14l5-5 5 5M4 3h16"/></svg><div><b>Impor dari Excel</b><small>Ambil isi file LOGBOOK KAKV yang sudah ada</small></div></button>
       <button class="it" id="exJ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7v10c0 2 4 4 8 4s8-2 8-4V7M4 7c0 2 4 4 8 4s8-2 8-4-4-4-8-4-8 2-8 4zM4 12c0 2 4 4 8 4s8-2 8-4"/></svg><div><b>Cadangkan semua data</b><small>File .json termasuk foto & laporan</small></div></button>
       <button class="it" id="imJ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5"/></svg><div><b>Pulihkan dari cadangan</b><small>Gabungkan isi file .json ke perangkat ini</small></div></button>
@@ -996,7 +1257,7 @@ function renderMore(){
   $('#v-more').querySelectorAll('#pTheme button').forEach(b=>b.onclick=()=>{ setTheme(b.dataset.v); renderMore(); });
   const ae=$('#acEdit'); if(ae) ae.onclick=editAccount;
   const lo=$('#lgout'); if(lo){ lo.onclick=()=>{ui.confirmOut=true;renderMore();}; if(ui.confirmOut){ $('#lgNo').onclick=()=>{ui.confirmOut=false;renderMore();}; $('#lgYes').onclick=logout; } }
-  $('#exX').onclick=exportXlsx; $('#imX').onclick=()=>$('#inX').click(); $('#inX').onchange=e=>importXlsx(e.target.files[0]);
+  $('#exX').onclick=exportXlsx; $('#exDB').onclick=exportDbXlsx; $('#imX').onclick=()=>$('#inX').click(); $('#inX').onchange=e=>importXlsx(e.target.files[0]);
   $('#exJ').onclick=exportJson; $('#imJ').onclick=()=>$('#inJ').click(); $('#inJ').onchange=e=>importJson(e.target.files[0]);
 }
 function exportXlsx(){
@@ -1235,6 +1496,8 @@ function renderAvatar(){
 }
 
 /* ===================== Kegiatan ilmiah ===================== */
+const ASA_OPTS=['1','2','3','4','5','1E','2E','3E','4E','5E'];
+const asaRoman=a=>{ const m=String(a||'').match(/^([1-5])(E?)$/); return m?['I','II','III','IV','V'][m[1]-1]+(m[2]?' E':''):String(a||''); };
 const RUMAH_SAKIT = ['RSUP Dr. Hasan Sadikin','RS Santosa Bandung Central'];
 function matchRS(t){ const x=String(t||'').toLowerCase(); if(/hasan\s*sadikin|\brshs\b|rsup\s*hs\b/.test(x)) return RUMAH_SAKIT[0]; if(/santosa/.test(x)) return RUMAH_SAKIT[1]; return ''; }
 const PEMBIMBING = [
