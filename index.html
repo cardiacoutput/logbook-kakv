@@ -1014,7 +1014,7 @@ function exportXlsx(){
     ws['!cols']=[{wch:5},{wch:12},{wch:24},{wch:11},{wch:4},{wch:6},{wch:34},{wch:24},{wch:28},{wch:30},{wch:40},{wch:26}];
     XLSX.utils.book_append_sheet(wb,ws,x.sheet);
   }
-  const ka=[['KEGIATAN ILMIAH'+(PROFILE.nama?' — '+PROFILE.nama:'')+(PROFILE.npm?' ('+PROFILE.npm+')':'')],['No','Semester','Tanggal','Jam','Judul Kegiatan','Jenis','Peran','Penyelenggara','Pembimbing','Media','Lokasi / Link Zoom','Meeting ID','Catatan','Foto','Sertifikat']];
+  const ka=[['KEGIATAN ILMIAH'+(PROFILE.nama?' — '+PROFILE.nama:'')+(PROFILE.npm?' ('+PROFILE.npm+')':'')],['No','Semester','Tanggal','Jam','Judul Kegiatan','Jenis','Peran','Penyelenggara','Pembimbing','Media','Lokasi / Link Zoom','Meeting ID','Catatan','Foto','Dokumen Ilmiah']];
   ACTS.filter(a=>!a.contoh).sort((a,b)=>(a.tanggal+a.jamMulai).localeCompare(b.tanggal+b.jamMulai)).forEach((a,i)=>ka.push([i+1,Number(a.semester),fmtDMY(a.tanggal),jamStr(a),a.judul,a.jenis,a.peran,a.penyelenggara||'',a.pembimbing,a.media==='zoom'?'Zoom Meeting':'Offline',a.media==='zoom'?(a.zoomLink||''):(a.lokasi||''),a.media==='zoom'?(a.zoomId||''):'',a.catatan||'',(a.files||[]).filter(f=>f.kind==='foto').length,(a.files||[]).filter(f=>f.kind==='sertifikat').length]));
   const wsA=XLSX.utils.aoa_to_sheet(ka); wsA['!merges']=[{s:{r:0,c:0},e:{r:0,c:14}}];
   wsA['!cols']=[{wch:5},{wch:9},{wch:12},{wch:16},{wch:44},{wch:14},{wch:11},{wch:24},{wch:28},{wch:13},{wch:34},{wch:14},{wch:30},{wch:6},{wch:10}];
@@ -1342,11 +1342,11 @@ function renderActForm(){
           <input type="file" id="aInFoto" accept="image/*" multiple hidden>
         </div>
         <div class="drop">
-          <span class="lbl">Sertifikat</span>
-          <span class="hint small muted">PDF atau foto sertifikat kehadiran.</span>
+          <span class="lbl">Dokumen ilmiah</span>
+          <span class="hint small muted">File PPT, PDF atau sertifikat partisipasi</span>
           <div class="files" id="aSert"></div>
-          <div class="row"><button type="button" class="btn" id="aAddSert">${ICON.doc} Unggah sertifikat</button></div>
-          <input type="file" id="aInSert" accept="application/pdf,image/*" multiple hidden>
+          <div class="row"><button type="button" class="btn" id="aAddSert">${ICON.doc} Unggah file</button></div>
+          <input type="file" id="aInSert" accept="application/pdf,image/*,.ppt,.pptx,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation" multiple hidden>
         </div>
       </div>
       <div class="err" id="aerr" hidden></div>
@@ -1426,7 +1426,7 @@ async function renderActDetail(){
     <div class="card" style="padding:14px;display:flex;flex-direction:column;gap:10px">
       <h3>Foto kegiatan</h3>
       ${foto.length?`<div class="thumbs">${foto.map(f=>`<button class="thumb" style="padding:0" data-view="${f.id}"><img data-fid="${f.id}" alt="${esc(f.name)}"></button>`).join('')}</div>`:'<span class="small muted">Belum ada foto.</span>'}
-      <h3>Sertifikat</h3>
+      <h3>Dokumen ilmiah</h3>
       ${sert.length?`<div class="files">${sert.map(f=>`<div class="file">${ICON.doc}<span class="nm">${esc(f.name)}</span><span class="small muted mono">${kb(f.size)}</span>${f.type.startsWith('image/')?`<button class="btn ghost" data-view="${f.id}">Lihat</button>`:''}<button class="btn ghost" data-dl="${f.id}">Unduh</button></div>`).join('')}</div>`:'<span class="small muted">Belum ada sertifikat diunggah.</span>'}
     </div>
     ${ui.confirmDel?`<div class="confirm"><b>Hapus kegiatan ini beserta ${foto.length+sert.length} lampiran?</b><span class="small">Tindakan ini tidak bisa dibatalkan.</span><div class="row"><button class="btn" id="aNoDel">Batal</button><button class="btn danger" id="aYesDel">Ya, hapus</button></div></div>`:''}
