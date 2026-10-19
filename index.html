@@ -442,7 +442,7 @@ function entryHTML(r){
     <span class="stripe"></span>
     <span class="main">
       <span class="t1"><b>${esc(showName(r.nama))||'—'}</b><span class="mono small muted">NRM ${esc(r.nrm)||'—'}</span></span>
-      <span class="dx">${esc([r.diagnosis,r.tindakanOp].filter(Boolean).join(' · '))||'—'}</span>
+      <span class="dx">${esc([r.diagnosis,r.tindakanOp].filter(Boolean).join(' · '))||'—'}</span>${r.rs?`<span class="small muted">${esc(r.rs)}</span>`:''}
       <span class="icons small">${r.verif?`<span style="color:var(--ok)">${ICON.check}Terverifikasi</span>`:''}${nl?`<span>${ICON.doc}${nl}</span>`:''}${nf?`<span>${ICON.cam}${nf}</span>`:''}<span>${fmtLong(r.tanggal)}</span></span>
     </span>
     <span class="side"><span class="tag">${K.label}</span>${r.level?`<span class="tag lv">L${r.level}</span>`:''}${r.contoh?'<span class="tag ex">CONTOH</span>':''}</span>
@@ -454,7 +454,7 @@ function bindEntries(root){ root.querySelectorAll('.entry').forEach(e=>e.onclick
 function renderList(){
   const q=ui.q.trim().toLowerCase();
   let rows=RECS.filter(r=>ui.filter==='ALL'||r.kat===ui.filter);
-  if(q) rows=rows.filter(r=>[r.nama,r.nrm,r.diagnosis,r.tindakanOp,r.tindakanAn,r.dpjp,r.ket].join(' ').toLowerCase().includes(q));
+  if(q) rows=rows.filter(r=>[r.nama,r.nrm,r.diagnosis,r.tindakanOp,r.tindakanAn,r.dpjp,r.ket,r.rs].join(' ').toLowerCase().includes(q));
   rows.sort(sortRec);
   const groups={}; rows.forEach(r=>{ const m=(r.tanggal||'0000-00').slice(0,7); (groups[m]=groups[m]||[]).push(r); });
   $('#v-list').innerHTML = `
@@ -474,7 +474,8 @@ function renderList(){
 
 /* ===================== Form catat / edit ===================== */
 let draft=null;
-function newDraft(){ return {id:uid(),kat:ui.filter!=='ALL'?ui.filter:'CABG',tanggal:todayISO(),nama:'',nrm:'',jk:'',usia:'',diagnosis:'',tindakanOp:'',tindakanAn:'',dpjp:'',ket:'',level:'',skills:[],refleksi:'',verif:false,files:[],created:Date.now(),_new:[],_removed:[]}; }
+function lastRS(){ const r=[...RECS].filter(x=>x.rs&&!x.contoh).sort((a,b)=>(b.created||0)-(a.created||0))[0]; return r?r.rs:''; }
+function newDraft(){ return {id:uid(),rs:lastRS(),kat:ui.filter!=='ALL'?ui.filter:'CABG',tanggal:todayISO(),nama:'',nrm:'',jk:'',usia:'',diagnosis:'',tindakanOp:'',tindakanAn:'',dpjp:'',ket:'',level:'',skills:[],refleksi:'',verif:false,files:[],created:Date.now(),_new:[],_removed:[]}; }
 function renderForm(){
   if(!draft || draft._for!==ui.editing){
     draft = ui.editing ? {...structuredClone(RECS.find(r=>r.id===ui.editing)),_new:[],_removed:[]} : newDraft();
@@ -494,6 +495,8 @@ function renderForm(){
 
       <div class="fieldset">
         <div class="eyebrow">Identitas pasien (rekam medis)</div>
+        <div class="field"><label for="rs">Rumah sakit <span class="req">*</span></label>
+          <select id="rs" class="${au('rs')}"><option value="">Pilih rumah sakit…</option>${RUMAH_SAKIT.map(n=>`<option ${draft.rs===n?'selected':''}>${esc(n)}</option>`).join('')}${draft.rs&&!RUMAH_SAKIT.includes(draft.rs)?`<option selected>${esc(draft.rs)}</option>`:''}</select></div>
         <div class="grid2">
           <div class="field"><label for="tanggal">Tanggal <span class="req">*</span></label><input id="tanggal" type="date" value="${esc(draft.tanggal)}" class="${au('tanggal')}"></div>
           <div class="field"><label for="nrm">NRM <span class="req">*</span></label><input id="nrm" inputmode="numeric" class="mono ${au('nrm')}" value="${esc(draft.nrm)}" placeholder="679682"></div>
@@ -551,7 +554,7 @@ function renderForm(){
         <button type="submit" class="btn primary">${ui.editing?'Simpan perubahan':'Simpan kasus'}</button>
       </div>
     </form>`;
-  const sync=()=>{ ['tanggal','nrm','nama','usia','diagnosis','tindakanOp','tindakanAn','ket','refleksi'].forEach(id=>draft[id]=$('#'+id).value.trim()); const ds=$('#dpjpSel').value; draft._dpjpLain = ds==='__lain'; draft.dpjp = ds==='__lain' ? $('#dpjpLain').value.trim() : ds; draft.usiaU=$('#usiaU').value; draft.verif=$('#verif').checked; };
+  const sync=()=>{ draft.rs=$('#rs').value; ['tanggal','nrm','nama','usia','diagnosis','tindakanOp','tindakanAn','ket','refleksi'].forEach(id=>draft[id]=$('#'+id).value.trim()); const ds=$('#dpjpSel').value; draft._dpjpLain = ds==='__lain'; draft.dpjp = ds==='__lain' ? $('#dpjpLain').value.trim() : ds; draft.usiaU=$('#usiaU').value; draft.verif=$('#verif').checked; };
   $('#dpjpSel').onchange=()=>{ const lain=$('#dpjpSel').value==='__lain'; const i=$('#dpjpLain'); i.hidden=!lain; if(lain) i.focus(); };
   v.querySelectorAll('.katpick button').forEach(b=>b.onclick=()=>{ sync(); draft.kat=b.dataset.k; draft._katUnknown=false; renderForm(); });
   if(!ui.editing) bindWa(sync);
@@ -590,7 +593,7 @@ async function addFiles(list,kind){
 }
 function cleanupDraft(){ draft=null; }
 async function saveDraft(){
-  const miss=[]; if(draft._katUnknown) miss.push('kategori kompetensi'); if(!draft.tanggal) miss.push('tanggal'); if(!draft.nama) miss.push('nama pasien'); if(!draft.nrm) miss.push('NRM'); if(!draft.diagnosis) miss.push('diagnosis');
+  const miss=[]; if(!draft.rs) miss.push('rumah sakit'); if(draft._katUnknown) miss.push('kategori kompetensi'); if(!draft.tanggal) miss.push('tanggal'); if(!draft.nama) miss.push('nama pasien'); if(!draft.nrm) miss.push('NRM'); if(!draft.diagnosis) miss.push('diagnosis');
   const er=$('#ferr'); if(miss.length){ er.hidden=false; er.textContent='Lengkapi '+miss.join(', ')+' sebelum menyimpan.'; er.scrollIntoView({block:'center'}); return; }
   for(const n of draft._new) await store.putFile(n.id,n.blob);
   for(const id of draft._removed) await store.delFile(id);
@@ -715,6 +718,7 @@ function parseHeaderLine(o,l){
   }
   return rest;
 }
+let topRS='';
 function parseBlock(lines,topDate){
   const o={}; const free=[]; let labeled=0, assess='', anPlan='', mon='', ef='';
   const comorb=[], history=[];
@@ -774,6 +778,7 @@ function parseBlock(lines,topDate){
   const ket=[]; if(comorb.length) ket.push('Riwayat (+): '+comorb.join(', ')); if(history.length) ket.push(...history);
   if(ket.length) o.ket=[o.ket,...ket].filter(Boolean).join('. ');
   if(!o.tanggal) o.tanggal=topDate||'';
+  if(!o.rs) o.rs=topRS||'';
   // DPJP: isi hanya bila cocok dengan staf anestesi KAKV (DPJP bedah/kardiologi diabaikan)
   if(o.dpjpRaw){ const hit=matchStaf(o.dpjpRaw);
     if(hit) o.dpjp=hit; else if(!SURGEON_RX.test(o.dpjpRaw) && /an(estesi)?|icu|konsulen/i.test(o._dpjpLbl||'')) o.dpjp=o.dpjpRaw; }
@@ -791,6 +796,8 @@ function parseWhatsApp(raw){
   let topDate='';
   for(const l of lines.slice(0,first)){ const d=findDate(l); if(d){ topDate=d; break; } }
   if(!topDate) topDate=headDate;
+  topRS=''; for(const l of lines.slice(0,first)){ const r=matchRS(l); if(r){ topRS=r; break; } }
+  if(!topRS){ const r=matchRS(lines.join(' ')); if(r) topRS=r; }
   let blocks=[];
   if(starts.length){ starts.forEach((s,k)=>blocks.push(lines.slice(s,k+1<starts.length?starts[k+1]:lines.length))); }
   else blocks=[lines];
@@ -836,7 +843,7 @@ function runWaParse(sync){
 function fillDraftFromWa(o,idx){
   const keep=draft&&!draft.nama&&!draft.nrm?draft:newDraft();
   const auto=[];
-  for(const f of ['tanggal','nama','nrm','usia','diagnosis','tindakanOp','tindakanAn','ket']) if(o[f]){ keep[f]=o[f]; auto.push(f); }
+  for(const f of ['rs','tanggal','nama','nrm','usia','diagnosis','tindakanOp','tindakanAn','ket']) if(o[f]){ keep[f]=o[f]; auto.push(f); }
   if(o.usiaU) keep.usiaU=o.usiaU; if(o.jk) keep.jk=o.jk; if(o.kat){ keep.kat=o.kat; keep._katUnknown=false; } else keep._katUnknown=true;
   if(o.skills&&o.skills.length){ keep.skills=[...new Set([...(keep.skills||[]),...o.skills])]; auto.push('skills'); }
   if(o.dpjp){ keep.dpjp=o.dpjp; if(!PEMBIMBING.includes(o.dpjp)) keep._dpjpLain=true; }
@@ -877,6 +884,7 @@ async function renderDetail(){
         <div class="mono small muted">NRM ${esc(r.nrm)} · ${r.jk||'—'} · ${esc(usia)} · ${fmtLong(r.tanggal)}</div>
       </div>
       <dl class="dl">
+        <dt>Rumah sakit</dt><dd>${esc(r.rs)||'—'}</dd>
         <dt>Diagnosis</dt><dd>${esc(r.diagnosis)||'—'}</dd>
         <dt>${esc(K.op)}</dt><dd>${esc(r.tindakanOp)||'—'}</dd>
         <dt>${esc(K.an)}</dt><dd>${esc(r.tindakanAn)||'—'}</dd>
@@ -999,19 +1007,19 @@ function exportXlsx(){
   const wsK=XLSX.utils.aoa_to_sheet(ket); wsK['!cols']=[{wch:14},{wch:46},{wch:14},{wch:12}]; XLSX.utils.book_append_sheet(wb,wsK,'KETERANGAN');
   for(const x of KAT){
     const rows=RECS.filter(r=>r.kat===x.k&&!r.contoh).sort((a,b)=>(a.tanggal||'').localeCompare(b.tanggal||''));
-    const aoa=[[x.title],['No','Tanggal',x.head3||'Nama Pasien','NRM','JK','Usia','Diagnosis',x.op,x.an,x.dp,'Keterangan']];
-    rows.forEach((r,i)=>aoa.push([i+1,fmtDMY(r.tanggal),r.nama,/^\d+$/.test(r.nrm)?Number(r.nrm):r.nrm,r.jk,r.usia?(isFinite(r.usia)&&(r.usiaU||'th')==='th'?Number(r.usia):`${r.usia} ${r.usiaU}`):'',r.diagnosis,r.tindakanOp,r.tindakanAn,r.dpjp,r.ket]));
+    const aoa=[[x.title],['No','Tanggal',x.head3||'Nama Pasien','NRM','JK','Usia','Diagnosis',x.op,x.an,x.dp,'Keterangan','Rumah Sakit']];
+    rows.forEach((r,i)=>aoa.push([i+1,fmtDMY(r.tanggal),r.nama,/^\d+$/.test(r.nrm)?Number(r.nrm):r.nrm,r.jk,r.usia?(isFinite(r.usia)&&(r.usiaU||'th')==='th'?Number(r.usia):`${r.usia} ${r.usiaU}`):'',r.diagnosis,r.tindakanOp,r.tindakanAn,r.dpjp,r.ket,r.rs||'']));
     if(!rows.length) aoa.push([1]);
     const ws=XLSX.utils.aoa_to_sheet(aoa); ws['!merges']=[{s:{r:0,c:0},e:{r:0,c:10}}];
-    ws['!cols']=[{wch:5},{wch:12},{wch:24},{wch:11},{wch:4},{wch:6},{wch:34},{wch:24},{wch:28},{wch:30},{wch:40}];
+    ws['!cols']=[{wch:5},{wch:12},{wch:24},{wch:11},{wch:4},{wch:6},{wch:34},{wch:24},{wch:28},{wch:30},{wch:40},{wch:26}];
     XLSX.utils.book_append_sheet(wb,ws,x.sheet);
   }
   const ka=[['KEGIATAN ILMIAH'+(PROFILE.nama?' — '+PROFILE.nama:'')+(PROFILE.npm?' ('+PROFILE.npm+')':'')],['No','Semester','Tanggal','Jam','Judul Kegiatan','Jenis','Peran','Penyelenggara','Pembimbing','Media','Lokasi / Link Zoom','Meeting ID','Catatan','Foto','Sertifikat']];
   ACTS.filter(a=>!a.contoh).sort((a,b)=>(a.tanggal+a.jamMulai).localeCompare(b.tanggal+b.jamMulai)).forEach((a,i)=>ka.push([i+1,Number(a.semester),fmtDMY(a.tanggal),jamStr(a),a.judul,a.jenis,a.peran,a.penyelenggara||'',a.pembimbing,a.media==='zoom'?'Zoom Meeting':'Offline',a.media==='zoom'?(a.zoomLink||''):(a.lokasi||''),a.media==='zoom'?(a.zoomId||''):'',a.catatan||'',(a.files||[]).filter(f=>f.kind==='foto').length,(a.files||[]).filter(f=>f.kind==='sertifikat').length]));
   const wsA=XLSX.utils.aoa_to_sheet(ka); wsA['!merges']=[{s:{r:0,c:0},e:{r:0,c:14}}];
   wsA['!cols']=[{wch:5},{wch:9},{wch:12},{wch:16},{wch:44},{wch:14},{wch:11},{wch:24},{wch:28},{wch:13},{wch:34},{wch:14},{wch:30},{wch:6},{wch:10}];
-  const rk=[['REKAP KOMPETENSI KASUS'+(PROFILE.nama?' — '+PROFILE.nama:'')+(PROFILE.npm?' ('+PROFILE.npm+')':'')],['No','Kategori','Tanggal','NRM','Level','Keterangan Level','Keterampilan','Refleksi','Laporan Anestesi','Foto','Verifikasi DPJP']];
-  RECS.filter(r=>!r.contoh).sort((a,b)=>(a.tanggal||'').localeCompare(b.tanggal||'')).forEach((r,i)=>rk.push([i+1,r.kat,fmtDMY(r.tanggal),r.nrm,r.level?Number(r.level):'',lvLabel(r.level),(r.skills||[]).join(', '),r.refleksi||'',(r.files||[]).filter(f=>f.kind==='laporan').length,(r.files||[]).filter(f=>f.kind==='foto').length,r.verif?'Ya':'Belum']));
+  const rk=[['REKAP KOMPETENSI KASUS'+(PROFILE.nama?' — '+PROFILE.nama:'')+(PROFILE.npm?' ('+PROFILE.npm+')':'')],['No','Kategori','Tanggal','NRM','Level','Keterangan Level','Keterampilan','Refleksi','Laporan Anestesi','Foto','Verifikasi DPJP','Rumah Sakit']];
+  RECS.filter(r=>!r.contoh).sort((a,b)=>(a.tanggal||'').localeCompare(b.tanggal||'')).forEach((r,i)=>rk.push([i+1,r.kat,fmtDMY(r.tanggal),r.nrm,r.level?Number(r.level):'',lvLabel(r.level),(r.skills||[]).join(', '),r.refleksi||'',(r.files||[]).filter(f=>f.kind==='laporan').length,(r.files||[]).filter(f=>f.kind==='foto').length,r.verif?'Ya':'Belum',r.rs||'']));
   const wsR=XLSX.utils.aoa_to_sheet(rk); wsR['!cols']=[{wch:5},{wch:11},{wch:12},{wch:11},{wch:6},{wch:20},{wch:40},{wch:40},{wch:10},{wch:6},{wch:12}];
   XLSX.utils.book_append_sheet(wb,wsR,'REKAP KOMPETENSI');
   XLSX.utils.book_append_sheet(wb,wsA,'KEGIATAN ILMIAH');
@@ -1040,7 +1048,7 @@ async function importXlsx(file){
         const nama=String(row[2]||'').trim(); if(!nama) continue;
         const tgl=parseDate(row[1]); const nrm=String(row[3]||'').trim();
         if(RECS.some(r=>r.kat===K.k&&r.nrm===nrm&&r.tanggal===tgl)){ skipped++; continue; }
-        const rec={id:uid(),kat:K.k,tanggal:tgl,nama,nrm,jk:String(row[4]||'').trim().toUpperCase().slice(0,1),usia:String(row[5]||'').trim(),usiaU:'th',diagnosis:String(row[6]||'').trim(),tindakanOp:String(row[7]||'').trim(),tindakanAn:String(row[8]||'').trim(),dpjp:String(row[9]||'').trim(),ket:String(row[10]||'').trim(),level:'',skills:[],refleksi:'',verif:false,files:[],created:Date.now()+added,contoh:false};
+        const rec={id:uid(),kat:K.k,tanggal:tgl,nama,nrm,jk:String(row[4]||'').trim().toUpperCase().slice(0,1),usia:String(row[5]||'').trim(),usiaU:'th',diagnosis:String(row[6]||'').trim(),tindakanOp:String(row[7]||'').trim(),tindakanAn:String(row[8]||'').trim(),dpjp:String(row[9]||'').trim(),ket:String(row[10]||'').trim(),rs:matchRS(row[11])||String(row[11]||'').trim(),level:'',skills:[],refleksi:'',verif:false,files:[],created:Date.now()+added,contoh:false};
         await store.put(rec); RECS.push(rec); added++;
       }
     }
@@ -1227,6 +1235,8 @@ function renderAvatar(){
 }
 
 /* ===================== Kegiatan ilmiah ===================== */
+const RUMAH_SAKIT = ['RSUP Dr. Hasan Sadikin','RS Santosa Bandung Central'];
+function matchRS(t){ const x=String(t||'').toLowerCase(); if(/hasan\s*sadikin|\brshs\b|rsup\s*hs\b/.test(x)) return RUMAH_SAKIT[0]; if(/santosa/.test(x)) return RUMAH_SAKIT[1]; return ''; }
 const PEMBIMBING = [
   'Dr. Reza W. Sudjud, dr., Sp.An-T.I., Subsp.An.Kv(K), Subsp.An.TI(K)',
   'Muhammad Budi Kurniawan, dr., Sp.An-TI., Subsp.An.KV(K)',
@@ -1445,7 +1455,7 @@ try{ const t=localStorage.getItem('kakv-theme'); if(t) document.documentElement.
 /* ===================== Data contoh (fiktif) ===================== */
 function seed(){
   const d=n=>{const x=new Date();x.setDate(x.getDate()-n);x.setMinutes(x.getMinutes()-x.getTimezoneOffset());return x.toISOString().slice(0,10);};
-  const base={jk:'L',usiaU:'th',files:[],contoh:true,skills:[],refleksi:'',verif:false,ket:''};
+  const base={rs:RUMAH_SAKIT[0],jk:'L',usiaU:'th',files:[],contoh:true,skills:[],refleksi:'',verif:false,ket:''};
   return [
     {...base,id:'ex1',kat:'CABG',tanggal:d(1),nama:'Pasien Contoh Satu',nrm:'100001',usia:'61',diagnosis:'ASA III, CAD 3VD EF 45%, DM tipe 2',tindakanOp:'OPCABG',tindakanAn:'GA + A-line + CVC + TEE',dpjp:'dr. Contoh, Sp.An-KAKV',level:'3',skills:['Arterial line','CVC','TEE','Inotropik / vasopresor'],refleksi:'Hipotensi saat stabilisasi OM, respon dengan norepinefrin dan posisi Trendelenburg.',verif:true,created:3},
     {...base,id:'ex2',kat:'CHD',tanggal:d(3),nama:'An. Contoh Dua',jk:'P',nrm:'100002',usia:'8',usiaU:'bln',diagnosis:'ASA III, VSD perimembran besar, PH sedang',tindakanOp:'Penutupan VSD',tindakanAn:'GA + A-line + CVC',dpjp:'dr. Contoh, Sp.An-KAKV',level:'2',skills:['Arterial line','Manajemen CPB'],ket:'Weaning CPB dengan milrinone',created:2},
